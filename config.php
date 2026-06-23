@@ -90,12 +90,12 @@ include 'includes/header.php';
 ?>
 
 <style>
-.cargo-pill { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:10px;background:#eff6ff;color:var(--accent); }
+.cargo-pill { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,white);color:var(--accent); }
 .cand-card { background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px; }
 .cand-photo { width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid var(--border); }
 .cand-placeholder { width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0; }
 .action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);background:none;cursor:pointer;transition:all .15s; }
-.action-link:hover { border-color:var(--accent);color:var(--accent);background:#eff6ff; }
+.action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
 .action-link.danger:hover { border-color:var(--danger);color:var(--danger);background:#fef2f2; }
 .upload-zone { border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;background:#fafafa;transition:all .2s; }
 .upload-zone:hover { border-color:var(--accent);background:#f0f7ff; }

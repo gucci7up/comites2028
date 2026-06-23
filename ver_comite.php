@@ -36,7 +36,7 @@ include 'includes/header.php';
 .info-value { color:var(--text-primary);font-weight:500; }
 .coord-avatar { width:72px;height:72px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0; }
 .action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;background:none;cursor:pointer;transition:all .15s; }
-.action-link:hover { border-color:var(--accent);color:var(--accent);background:#eff6ff; }
+.action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
 </style>
 
 <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
@@ -73,7 +73,7 @@ include 'includes/header.php';
                 <div class="info-row">
                     <span class="info-label"><i class="fas fa-users me-1"></i> Miembros</span>
                     <span class="info-value">
-                        <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold"><?php echo count($miembros); ?></span>
+                        <span style="background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;"><?php echo count($miembros); ?></span>
                     </span>
                 </div>
                 <?php if ($comite['fecha_modificacion']): ?>

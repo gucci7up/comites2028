@@ -32,9 +32,9 @@ include 'includes/header.php';
 ?>
 
 <style>
-.filter-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px; box-shadow:var(--shadow-sm); }
-.filter-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--text-secondary); margin-bottom:6px; display:block; }
-.comite-badge { width:38px; height:38px; border-radius:10px; background:#eff6ff; color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.filter-card { background:#fff; border:1px solid #eef0f6; border-radius:16px; padding:20px; margin-bottom:20px; }
+.filter-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#9ca3af; margin-bottom:6px; display:block; }
+.comite-badge { width:38px; height:38px; border-radius:10px; background:color-mix(in srgb,var(--accent) 10%,white); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
 </style>
 
 <?php if (isset($_SESSION['mensaje'])): ?>
@@ -130,7 +130,7 @@ include 'includes/header.php';
                 <td style="font-size:13px;">
                     <?php echo $coord ? htmlspecialchars($coord['nombre_completo']) : '<span class="text-muted">—</span>'; ?>
                 </td>
-                <td><span class="badge bg-primary bg-opacity-10 text-primary fw-semibold"><?php echo $cnt; ?></span></td>
+                <td><span style="background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;"><?php echo $cnt; ?></span></td>
                 <td style="font-size:13px;color:var(--text-secondary);"><?php echo htmlspecialchars($c['creador'] ?? '—'); ?></td>
                 <td style="font-size:12px;color:var(--text-secondary);"><?php echo date('d/m/Y', strtotime($c['fecha_creacion'])); ?></td>
                 <td>
@@ -182,7 +182,7 @@ include 'includes/header.php';
 
 <style>
 .action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;background:none;cursor:pointer;transition:all .15s; }
-.action-link:hover { border-color:var(--accent);color:var(--accent);background:#eff6ff; }
+.action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
 .action-link.danger:hover { border-color:var(--danger);color:var(--danger);background:#fef2f2; }
 .empty-state { text-align:center; }
 </style>

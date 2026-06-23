@@ -142,9 +142,9 @@ include 'includes/header.php';
     display: flex; align-items: center; justify-content: center;
     font-size: 20px; flex-shrink: 0;
 }
-.si-purple { background: #f0f0ff; color: #6366f1; }
+.si-purple { background: color-mix(in srgb, var(--accent) 10%, white); color: var(--accent); }
 .si-green  { background: #f0fdf4; color: #16a34a; }
-.si-blue   { background: #eff6ff; color: #2563eb; }
+.si-blue   { background: color-mix(in srgb, var(--accent-light) 12%, white); color: var(--accent-light); }
 .si-amber  { background: #fffbeb; color: #d97706; }
 .stat-mini-val { font-size: 24px; font-weight: 800; color: #111827; line-height: 1; }
 .stat-mini-lbl { font-size: 11px; font-weight: 500; color: #9ca3af; margin-top: 2px; text-transform: uppercase; letter-spacing: .04em; }
@@ -169,7 +169,7 @@ include 'includes/header.php';
 .comite-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
 .comite-item-icon {
     width: 42px; height: 42px; border-radius: 12px;
-    background: #f0f0ff; color: #6366f1;
+    background: color-mix(in srgb, var(--accent) 10%, white); color: var(--accent);
     display: flex; align-items: center; justify-content: center;
     font-size: 17px; flex-shrink: 0;
 }
@@ -177,7 +177,7 @@ include 'includes/header.php';
 .comite-item-meta { font-size: 11px; color: #9ca3af; margin-top: 2px; }
 .comite-item-badge {
     margin-left: auto; flex-shrink: 0;
-    background: #f0f0ff; color: #6366f1;
+    background: color-mix(in srgb, var(--accent) 10%, white); color: var(--accent);
     font-size: 11px; font-weight: 700;
     padding: 4px 10px; border-radius: 20px;
 }
@@ -190,7 +190,7 @@ include 'includes/header.php';
     cursor: pointer; text-decoration: none;
     transition: all .15s;
 }
-.ci-btn:hover { border-color: var(--accent); color: var(--accent); background: #f0f0ff; }
+.ci-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, white); }
 
 /* ── RIGHT PANEL ──────────────────────────────────── */
 .right-panel { display: flex; flex-direction: column; gap: 16px; }
@@ -222,7 +222,7 @@ include 'includes/header.php';
     width: 90px; height: 90px; position: relative; margin: 0 auto 14px;
 }
 .progress-ring-wrap svg { transform: rotate(-90deg); }
-.progress-ring-bg { fill: none; stroke: #f0f0ff; stroke-width: 6; }
+.progress-ring-bg { fill: none; stroke: color-mix(in srgb, var(--accent) 10%, white); stroke-width: 6; }
 .progress-ring-fg { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
 
 /* Chart card */
@@ -237,7 +237,7 @@ include 'includes/header.php';
 .mini-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
 .mini-bar {
     width: 100%; border-radius: 6px 6px 0 0;
-    background: #f0f0ff; transition: height .4s ease;
+    background: color-mix(in srgb, var(--accent) 12%, white); transition: height .4s ease;
     min-height: 4px;
 }
 .mini-bar.active { background: var(--accent); }
@@ -334,16 +334,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         <!-- Candidato activo (digitadores) -->
         <?php if (tieneCandidato()): ?>
-        <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;border:1px solid #ddd6fe;">
+        <div style="background:color-mix(in srgb,var(--accent) 8%,white);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;border:1px solid color-mix(in srgb,var(--accent) 20%,white);">
             <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;">
                 <?php echo strtoupper(substr($_SESSION['candidato_nombre']??'?',0,1)); ?>
             </div>
             <div style="flex:1;">
-                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:2px;">Trabajando para</div>
-                <div style="font-size:14px;font-weight:700;color:#4c1d95;"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
-                <div style="font-size:11px;color:#7c3aed;"><?php echo ucfirst($_SESSION['candidato_cargo']??''); ?><?php if(!empty($_SESSION['candidato_desc'])): ?> · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?><?php endif; ?></div>
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:2px;">Trabajando para</div>
+                <div style="font-size:14px;font-weight:700;color:var(--text-primary);"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
+                <div style="font-size:11px;color:var(--accent);"><?php echo ucfirst($_SESSION['candidato_cargo']??''); ?><?php if(!empty($_SESSION['candidato_desc'])): ?> · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?><?php endif; ?></div>
             </div>
-            <a href="seleccionar_candidato.php" style="font-size:11px;color:#7c3aed;font-weight:600;text-decoration:none;background:#fff;padding:6px 12px;border-radius:20px;border:1px solid #ddd6fe;">
+            <a href="seleccionar_candidato.php" style="font-size:11px;color:var(--accent);font-weight:600;text-decoration:none;background:#fff;padding:6px 12px;border-radius:20px;border:1px solid var(--border);">
                 Cambiar
             </a>
         </div>

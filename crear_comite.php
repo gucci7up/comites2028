@@ -38,6 +38,7 @@ include 'includes/header.php';
 .page-back { display:inline-flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;text-decoration:none;margin-bottom:20px;transition:color .15s; }
 .page-back:hover { color:var(--accent); }
 .step-card { background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center; }
+.step-card { background:#fafafa;border:1px solid #eef0f6;border-radius:14px;padding:20px;text-align:center; }
 .step-icon { width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px; }
 </style>
 
@@ -86,7 +87,7 @@ include 'includes/header.php';
                 <div class="row g-3">
                     <div class="col-md-4">
                         <div class="step-card">
-                            <div class="step-icon" style="background:#eff6ff;color:#2563eb;">
+                            <div class="step-icon" style="background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);">
                                 <i class="fas fa-clipboard-list"></i>
                             </div>
                             <div style="font-size:13px;font-weight:600;margin-bottom:6px;">1. Crear Comité</div>

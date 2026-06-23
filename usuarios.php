@@ -73,9 +73,9 @@ include 'includes/header.php';
 .role-badge { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px; }
 .role-admin      { background:#fef2f2;color:#dc2626; }
 .role-supervisor { background:#fefce8;color:#ca8a04; }
-.role-user       { background:#eff6ff;color:#2563eb; }
+.role-user       { background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent); }
 .action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;background:none;cursor:pointer;transition:all .15s; }
-.action-link:hover { border-color:var(--accent);color:var(--accent);background:#eff6ff; }
+.action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
 .action-link.danger:hover { border-color:var(--danger);color:var(--danger);background:#fef2f2; }
 </style>
 

@@ -89,7 +89,7 @@ include 'includes/header.php';
             <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($usuario['nombre']); ?></h5>
             <div style="font-size:13px;color:var(--text-secondary);">@<?php echo htmlspecialchars($usuario['usuario']); ?></div>
             <div style="margin-top:8px;">
-                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;<?php echo $usuario['rol']==='admin' ? 'background:#fef2f2;color:#dc2626;' : 'background:#eff6ff;color:#2563eb;'; ?>">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;<?php echo $usuario['rol']==='admin' ? 'background:#fef2f2;color:#dc2626;' : 'background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);'; ?>">
                     <i class="fas fa-<?php echo $usuario['rol']==='admin' ? 'shield-alt' : 'user'; ?>"></i>
                     <?php echo $usuario['rol']==='admin' ? 'Administrador' : 'Usuario'; ?>
                 </span>
