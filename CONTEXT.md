@@ -1,45 +1,74 @@
-# Contexto del Proyecto — Sistema de Comités PRM
+# Comités Afectivo 2028 — Contexto del Proyecto
 
 ## ¿Qué es?
-Sistema web de gestión de comités afectivos del Partido Revolucionario Moderno (PRM), República Dominicana.
+Sistema SaaS de gestión de comités afectivos para partidos políticos de República Dominicana.
+Vendible a cualquier partido — cada uno tiene su propio tema, logo, candidatos y usuarios.
 
 ## Repositorio
 https://github.com/gucci7up/comites2028.git
 
+## Dominio activo
+comitesprm.com
+
 ## Stack
 - PHP 8.3 + Apache (Docker)
-- MySQL — base de datos propia del sistema (gestionada por Dokploy)
-- SQL Server externo — padrón electoral y fotos PRM (solo lectura)
+- MySQL — Dokploy managed (datos propios)
+- SQL Server `148.0.129.233:1433` — padrón electoral (solo lectura)
+- Bootstrap 5 + Inter font + Chart.js + ColorThief.js
 
-## Arquitectura de base de datos
+---
 
-### MySQL (tablas propias)
-| Tabla | Uso |
-|---|---|
-| `usuarios` | Usuarios del sistema (admin/usuario) |
-| `comites` | Comités por municipio/circunscripción |
-| `coordinadores` | Coordinadores con cédula, foto, recinto, colegio |
-| `miembros` | Miembros con datos similares |
-| `comite_coordinador` | Relación comité ↔ coordinador |
-| `comite_miembro` | Relación comité ↔ miembro |
-
-### SQL Server externo (solo lectura)
-- Servidor: `148.0.129.233:1433`
-- Bases: `dbPRM` y `dbPadronFeb2024`
-- Uso: consulta de padrón electoral y fotos por cédula
-- Función principal: `buscarPersonaPorCedula()` en `includes/funciones.php`
-- API: `api/consulta.php`
-
-## Variables de entorno requeridas en Dokploy
+## Jerarquía de roles
 
 ```
-# MySQL (Dokploy lo gestiona — usar los datos que da Dokploy al crear la BD)
-MYSQL_HOST=<host interno Dokploy>
+superadmin → partidos.php → crea partidos + owners
+owner      → config.php   → logo, colores, candidatos
+admin/usuario (digitador) → seleccionar_candidato.php → dashboard → comités
+```
+
+---
+
+## Flujo del digitador
+
+1. Login → `seleccionar_candidato.php` (solo digitadores)
+2. Selecciona candidato de su partido (agrupados por cargo con foto y zona)
+3. Dashboard muestra candidato activo en sidebar
+4. Crea comités ligados a ese candidato
+5. Impresión muestra logo del partido + foto del candidato
+
+---
+
+## Tablas MySQL
+
+| Tabla | Descripción |
+|---|---|
+| `partidos` | nombre, siglas, logo BLOB, color_primario, color_sidebar, color_accent |
+| `candidatos` | partido_id, nombre, cargo ENUM, descripcion (zona), foto BLOB |
+| `usuarios` | rol ENUM(superadmin/owner/admin/usuario), partido_id |
+| `comites` | candidato_id, creado_por |
+| `coordinadores` / `miembros` | cedula, foto, recinto, colegio |
+| `comite_coordinador` / `comite_miembro` | relaciones |
+
+---
+
+## Partidos preconfigurados
+
+| Siglas | Color | Sidebar |
+|---|---|---|
+| PRM | #2563eb | #0d1b2a |
+| PLD | #7c3aed | #1e1035 |
+| FDP | #16a34a | #0a1f12 |
+
+---
+
+## Variables de entorno Dokploy
+
+```
+MYSQL_HOST=<host interno>
 MYSQL_USER=<usuario>
 MYSQL_PASS=<contraseña>
-MYSQL_DATABASE=<nombre de la bd>
+MYSQL_DATABASE=<nombre bd>
 
-# SQL Server externo
 DB_HOST=148.0.129.233
 DB_PORT=1433
 DB_DATABASE=dbPRM
@@ -49,30 +78,57 @@ DB_ENCRYPT=false
 DB_TRUST_SERVER_CERTIFICATE=true
 ```
 
-## Despliegue — Dokploy
-- Tipo: Docker Compose
-- Rama: `master`
-- El `docker-compose.yml` solo tiene el servicio `app` (sin MySQL local)
-- MySQL se crea como servicio separado en Dokploy y se conecta vía env vars
-- El schema de la BD se importa manualmente desde `db/comites_prm.sql`
+---
 
-## Archivos clave modificados para producción
-| Archivo | Cambio |
-|---|---|
-| `Dockerfile` | PHP 8.3 + Apache + mysqli + pdo_sqlsrv + ODBC Driver 18 |
-| `docker-compose.yml` | Solo servicio `app`, sin MySQL local |
-| `db/config.php` | Lee env vars: `MYSQL_*` para MySQL, `DB_*` para SQL Server |
-| `api/consulta.php` | Usa `conectarSQLServer()` del config central (sin credenciales hardcodeadas) |
-| `login.php` | Usa `MYSQL_*` env vars |
-| `db/setup.php` | Usa `MYSQL_*` env vars |
-| `db/comites_prm.sql` | Sin `CREATE DATABASE` ni `USE` para importar en Dokploy |
-| `.gitignore` | Excluye `.env` y archivos `.rar` |
+## Páginas del sistema
 
-## Credenciales por defecto del sistema
-- Usuario: `admin`
-- Contraseña: `admin123`
+| Página | Rol | Función |
+|---|---|---|
+| `login.php` | Todos | Logo `logo_sistema.png` en panel oscuro |
+| `seleccionar_candidato.php` | Digitador | Selección de candidato antes del dashboard |
+| `dashboard.php` | Todos | Stats, charts, actividad reciente |
+| `comites.php` | Todos | Listado con filtros |
+| `crear_comite.php` | Todos | Crea comité (guarda candidato_id) |
+| `editar_comite.php` | Todos | Editar + miembros/coordinador por cédula |
+| `ver_comite.php` | Todos | Vista + impresión con logo y foto candidato |
+| `config.php` | Owner | Logo → ColorThief auto-colores, candidatos |
+| `partidos.php` | Superadmin | CRUD partidos + crear owners con partido |
+| `usuarios.php` | Admin/Owner | Gestión usuarios del partido |
+| `perfil.php` | Todos | Perfil + cambio contraseña |
+| `consultar.html` | Todos | Consulta cédula → `api/consulta.php` |
 
-## Notas importantes
-- El build tarda más la primera vez porque instala el Microsoft ODBC Driver 18
-- PHP 8.3 es requerido — las versiones de `sqlsrv`/`pdo_sqlsrv` en PECL ya no soportan 8.2
-- La carpeta `fotos/` está en `.gitignore` (excepto `default.svg`) — las fotos se almacenan como BLOB en la BD
+---
+
+## Tema dinámico
+
+- `header.php` → `cargarTemaPartido()` → CSS vars desde BD por partido
+- Mobile: FAB flotante (estilo WhatsApp) → bottom sheet con swipe-down
+- Desktop: sidebar fijo oscuro con candidato activo + botón cambiar
+
+---
+
+## Migración BD (ejecutar en Dokploy si BD ya existe)
+
+Archivo: `db/migration.sql`
+
+Comandos clave:
+```sql
+ALTER TABLE usuarios ADD COLUMN partido_id INT NULL;
+ALTER TABLE usuarios MODIFY COLUMN rol ENUM('superadmin','owner','admin','usuario') DEFAULT 'usuario';
+CREATE TABLE IF NOT EXISTS partidos (...);
+CREATE TABLE IF NOT EXISTS candidatos (...);  -- incluye campo descripcion
+ALTER TABLE comites ADD COLUMN candidato_id INT NULL;
+UPDATE usuarios SET rol='superadmin' WHERE usuario='admin';
+UPDATE usuarios SET partido_id=1 WHERE usuario='admin';
+```
+
+---
+
+## Credenciales por defecto
+
+- **superadmin** / `Gucci1826`
+
+---
+
+## Estado actual
+Sistema completo en producción. Pendiente: configurar candidatos desde `config.php`.
