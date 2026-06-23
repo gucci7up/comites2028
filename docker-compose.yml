@@ -17,4 +17,15 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_ENCRYPT: ${DB_ENCRYPT:-false}
       DB_TRUST_SERVER_CERTIFICATE: ${DB_TRUST_SERVER_CERTIFICATE:-true}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.comites-app.rule=Host(`comitesprm.com`)"
+      - "traefik.http.routers.comites-app.entrypoints=web"
+      - "traefik.http.services.comites-app.loadbalancer.server.port=80"
+    networks:
+      - dokploy-network
     restart: unless-stopped
+
+networks:
+  dokploy-network:
+    external: true
