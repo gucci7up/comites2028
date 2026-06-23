@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso — PRM Comités</title>
+    <title>Comités Afectivo 2028 — Acceso</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         /* Left panel */
         .login-left {
             flex: 1;
-            background: linear-gradient(150deg, #1e3a8a 0%, #2563eb 70%, #3b82f6 100%);
+            background: linear-gradient(160deg, #0a1628 0%, #0d1b2a 50%, #1a2e42 100%);
             padding: 48px 40px;
             display: flex;
             flex-direction: column;
@@ -234,18 +234,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="login-wrap">
     <!-- Left -->
     <div class="login-left">
-        <div style="position:relative;z-index:1;">
-            <img src="logo1.png" alt="PRM" class="brand-logo">
-            <div class="brand-title">Partido Revolucionario Moderno</div>
-            <div class="brand-sub">Sistema de Gestión de Comités Afectivos</div>
-            <ul class="feature-list">
+        <div style="position:relative;z-index:1;text-align:center;">
+            <img src="logo_sistema.png" alt="Comités Afectivo 2028"
+                 style="max-width:260px;width:100%;object-fit:contain;margin-bottom:32px;filter:drop-shadow(0 4px 24px rgba(0,0,0,0.3));">
+            <ul class="feature-list" style="text-align:left;display:inline-block;">
                 <li><i class="fas fa-layer-group"></i> Gestión de comités por municipio</li>
                 <li><i class="fas fa-users"></i> Control de miembros y coordinadores</li>
                 <li><i class="fas fa-id-card"></i> Consulta por cédula en tiempo real</li>
                 <li><i class="fas fa-chart-pie"></i> Dashboard con estadísticas</li>
             </ul>
         </div>
-        <div class="left-footer" style="z-index:1;">© <?php echo date('Y'); ?> PRM — República Dominicana</div>
+        <div class="left-footer" style="z-index:1;text-align:center;">© <?php echo date('Y'); ?> Comités Afectivo — República Dominicana</div>
     </div>
 
     <!-- Right -->
