@@ -3,8 +3,6 @@ version: '3.8'
 services:
   app:
     build: .
-    ports:
-      - "80:80"
     environment:
       # MySQL — servicio externo creado en Dokploy
       MYSQL_HOST: ${MYSQL_HOST}
