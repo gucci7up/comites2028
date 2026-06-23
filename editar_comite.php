@@ -122,42 +122,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_miembro'])) 
 
 // Título de la página
 $titulo_pagina = 'Editar Comité';
-
-// Incluir el header
 include 'includes/header.php';
 ?>
 
-<!-- Mensajes de alerta -->
+<style>
+.page-back { display:inline-flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;text-decoration:none;margin-bottom:20px;transition:color .15s; }
+.page-back:hover { color:var(--accent); }
+.coord-avatar-lg { width:80px;height:80px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 12px; }
+</style>
+
 <?php if (isset($_SESSION['mensaje'])): ?>
-<div class="alert alert-<?php echo $_SESSION['tipo_mensaje']; ?> alert-dismissible fade show" role="alert">
-    <?php echo $_SESSION['mensaje']; ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="alert alert-<?php echo $_SESSION['tipo_mensaje']; ?> alert-dismissible fade show mb-4" role="alert">
+    <?php echo $_SESSION['mensaje']; unset($_SESSION['mensaje'],$_SESSION['tipo_mensaje']); ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
-<?php 
-    unset($_SESSION['mensaje']);
-    unset($_SESSION['tipo_mensaje']);
-endif; 
-?>
+<?php endif; ?>
 
-<!-- Botones de Acción -->
-<div class="mb-4">
-    <a href="comites.php" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Volver a Comités
-    </a>
-    <a href="ver_comite.php?id=<?php echo $comite_id; ?>" class="btn btn-info">
-        <i class="fas fa-eye"></i> Ver Comité
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <a href="comites.php" class="page-back"><i class="fas fa-arrow-left"></i> Volver a Comités</a>
+    <a href="ver_comite.php?id=<?php echo $comite_id; ?>" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-eye me-1"></i> Ver Comité
     </a>
 </div>
 
-<!-- Formulario de Edición -->
-<div class="row">
-    <!-- Información del Comité -->
+<div class="row g-4">
     <div class="col-lg-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Información del Comité</h6>
-            </div>
-            <div class="card-body">
+        <div class="card mb-4">
+            <div class="card-header"><i class="fas fa-pen me-2 text-primary"></i>Información del Comité</div>
+            <div class="p-4">
                 <form method="POST" action="">
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre del Comité</label>
@@ -169,138 +161,116 @@ endif;
                         <input type="text" class="form-control" id="municipio" name="municipio" value="<?php echo htmlspecialchars($comite['municipio']); ?>" required>
                     </div>
                     
-                    <div class="d-grid">
-                        <button type="submit" name="actualizar_comite" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Guardar Cambios
-                        </button>
-                    </div>
+                    <button type="submit" name="actualizar_comite" class="btn btn-primary w-100 btn-sm">
+                        <i class="fas fa-save me-1"></i> Guardar Cambios
+                    </button>
                 </form>
             </div>
         </div>
     </div>
-    
-    <!-- Coordinador del Comité -->
+
     <div class="col-lg-6">
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">Coordinador del Comité</h6>
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
-                    <i class="fas fa-search"></i> Buscar Coordinador
+        <div class="card mb-4">
+            <div class="card-header">
+                <span><i class="fas fa-user-tie me-2 text-primary"></i>Coordinador</span>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
+                    <i class="fas fa-search me-1"></i> Buscar
                 </button>
             </div>
-            <div class="card-body">
-                <div id="coordinador-info">
-                    <?php if ($coordinador): ?>
-                    <div class="text-center mb-3">
-                        <?php if (!empty($coordinador['foto'])): ?>
-                        <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" alt="Foto" class="img-fluid rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;">
-                        <?php else: ?>
-                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" style="width: 120px; height: 120px; font-size: 48px; margin: 0 auto;">
-                            <?php echo strtoupper(substr($coordinador['nombre'], 0, 1)); ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <h5 class="text-center mb-3"><?php echo htmlspecialchars($coordinador['nombre']); ?></h5>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Cédula:</strong> <?php echo htmlspecialchars($coordinador['cedula']); ?></p>
-                            <p><strong>Teléfono:</strong> <?php echo htmlspecialchars($coordinador['telefono']); ?></p>
-                            <p><strong>Email:</strong> <?php echo htmlspecialchars($coordinador['email']); ?></p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Municipio:</strong> <?php echo htmlspecialchars($coordinador['municipio']); ?></p>
-                            <p><strong>Recinto:</strong> <?php echo htmlspecialchars($coordinador['recinto']); ?></p>
-                            <p><strong>Colegio:</strong> <?php echo htmlspecialchars($coordinador['colegio']); ?></p>
-                        </div>
-                    </div>
-                    
-                    <div class="d-grid mt-3">
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarCoordinadorModal">
-                            <i class="fas fa-user-minus"></i> Quitar Coordinador
-                        </button>
-                    </div>
+            <div class="p-4" id="coordinador-info">
+                <?php if ($coordinador): ?>
+                <div class="text-center mb-3">
+                    <?php if (!empty($coordinador['foto'])): ?>
+                    <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" alt="Foto"
+                         style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:8px;">
                     <?php else: ?>
-                    <div class="text-center py-4">
-                        <i class="fas fa-user-slash fa-3x text-gray-300 mb-3"></i>
-                        <p>No hay coordinador asignado a este comité.</p>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
-                            <i class="fas fa-user-plus"></i> Asignar Coordinador
-                        </button>
-                    </div>
+                    <div class="coord-avatar-lg"><?php echo strtoupper(substr($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '?', 0, 1)); ?></div>
                     <?php endif; ?>
+                    <div style="font-weight:600;font-size:14px;"><?php echo htmlspecialchars($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '—'); ?></div>
                 </div>
+                <div style="font-size:13px;" class="mb-3">
+                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Cédula</span><span><?php echo htmlspecialchars($coordinador['cedula'] ?? '—'); ?></span></div>
+                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Teléfono</span><span><?php echo htmlspecialchars($coordinador['telefono'] ?? '—'); ?></span></div>
+                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Municipio</span><span><?php echo htmlspecialchars($coordinador['municipio'] ?? '—'); ?></span></div>
+                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Recinto</span><span><?php echo htmlspecialchars($coordinador['recinto'] ?? '—'); ?></span></div>
+                    <div class="d-flex justify-content-between py-1"><span class="text-secondary">Colegio</span><span><?php echo htmlspecialchars($coordinador['colegio'] ?? '—'); ?></span></div>
+                </div>
+                <button class="btn btn-outline-danger w-100 btn-sm" data-bs-toggle="modal" data-bs-target="#eliminarCoordinadorModal">
+                    <i class="fas fa-user-minus me-1"></i> Quitar Coordinador
+                </button>
+                <?php else: ?>
+                <div style="text-align:center;padding:30px 0;color:var(--text-secondary);">
+                    <i class="fas fa-user-slash" style="font-size:36px;opacity:.2;display:block;margin-bottom:12px;"></i>
+                    <p style="font-size:13px;margin:0 0 12px;">Sin coordinador asignado.</p>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
+                        <i class="fas fa-user-plus me-1"></i> Asignar Coordinador
+                    </button>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Miembros del Comité -->
-<div class="card shadow mb-4" id="miembros">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Miembros del Comité</h6>
-        <div>
-            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarMiembroModal">
-                <i class="fas fa-search"></i> Buscar por Cédula
+<!-- Members -->
+<div class="card mb-4" id="miembros">
+    <div class="card-header">
+        <span><i class="fas fa-users me-2 text-primary"></i>Miembros del Comité
+            <span style="font-size:12px;color:var(--text-secondary);font-weight:400;"> — <?php echo count($miembros); ?></span>
+        </span>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarMiembroModal">
+                <i class="fas fa-id-card me-1"></i> Por Cédula
             </button>
-            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">
-                <i class="fas fa-user-plus"></i> Agregar Manual
+            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">
+                <i class="fas fa-user-plus me-1"></i> Manual
             </button>
         </div>
     </div>
-    <div class="card-body">
-        <?php if (count($miembros) > 0): ?>
-        <div class="table-responsive">
-            <table class="table table-bordered" id="miembrosTable" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Cédula</th>
-                        <th>Teléfono</th>
-                        <th>Email</th>
-                        <th>Municipio</th>
-                        <th>Recinto</th>
-                        <th>Colegio</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($miembros as $miembro): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($miembro['nombre']); ?></td>
-                        <td><?php echo htmlspecialchars($miembro['cedula']); ?></td>
-                        <td><?php echo htmlspecialchars($miembro['telefono']); ?></td>
-                        <td><?php echo htmlspecialchars($miembro['email']); ?></td>
-                        <td><?php echo htmlspecialchars($miembro['municipio']); ?></td>
-                        <td><?php echo htmlspecialchars($miembro['recinto']); ?></td>
-                        <td><?php echo htmlspecialchars($miembro['colegio']); ?></td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmarEliminarMiembro(<?php echo $miembro['id']; ?>, '<?php echo htmlspecialchars(addslashes($miembro['nombre'])); ?>')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php else: ?>
-        <div class="text-center py-4">
-            <i class="fas fa-users-slash fa-3x text-gray-300 mb-3"></i>
-            <p>No hay miembros registrados en este comité.</p>
-            <div class="mt-3">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#buscarMiembroModal">
-                    <i class="fas fa-search"></i> Buscar por Cédula
-                </button>
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">
-                    <i class="fas fa-user-plus"></i> Agregar Manual
-                </button>
-            </div>
-        </div>
-        <?php endif; ?>
+    <?php if (count($miembros) > 0): ?>
+    <div class="table-responsive">
+        <table class="table mb-0" id="miembrosTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th><th>Cédula</th><th>Teléfono</th>
+                    <th>Municipio</th><th>Recinto</th><th>Colegio</th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($miembros as $miembro): ?>
+                <tr>
+                    <td style="font-weight:500;font-size:13px;"><?php echo htmlspecialchars($miembro['nombre_completo'] ?? $miembro['nombre'] ?? '—'); ?></td>
+                    <td style="font-size:13px;"><?php echo htmlspecialchars($miembro['cedula'] ?? '—'); ?></td>
+                    <td style="font-size:13px;"><?php echo htmlspecialchars($miembro['telefono'] ?? '—'); ?></td>
+                    <td style="font-size:13px;"><?php echo htmlspecialchars($miembro['municipio'] ?? '—'); ?></td>
+                    <td style="font-size:13px;"><?php echo htmlspecialchars($miembro['recinto'] ?? '—'); ?></td>
+                    <td style="font-size:13px;"><?php echo htmlspecialchars($miembro['colegio'] ?? '—'); ?></td>
+                    <td>
+                        <button class="action-link danger" onclick="confirmarEliminarMiembro(<?php echo $miembro['id']; ?>,'<?php echo htmlspecialchars(addslashes($miembro['nombre_completo'] ?? $miembro['nombre'] ?? '')); ?>')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
+    <?php else: ?>
+    <div style="text-align:center;padding:40px 20px;color:var(--text-secondary);">
+        <i class="fas fa-users-slash" style="font-size:36px;opacity:.2;display:block;margin-bottom:12px;"></i>
+        <p style="font-size:13px;margin:0 0 12px;">No hay miembros registrados.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarMiembroModal">Por Cédula</button>
+            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">Manual</button>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
+
+<style>
+.action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);background:none;cursor:pointer;transition:all .15s; }
+.action-link.danger:hover { border-color:var(--danger);color:var(--danger);background:#fef2f2; }
+</style>
 
 <!-- Modal para Buscar Coordinador -->
 <div class="modal fade" id="buscarCoordinadorModal" tabindex="-1" aria-labelledby="buscarCoordinadorModalLabel" aria-hidden="true">
