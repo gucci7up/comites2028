@@ -46,33 +46,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_tema'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_candidato'])) {
     $nombre = trim($_POST['cand_nombre']);
     $cargo  = $_POST['cand_cargo'];
+    $desc   = trim($_POST['cand_desc'] ?? '');
     $cid    = (int)($_POST['cand_id'] ?? 0);
     $cargos_validos = ['presidente','senador','diputado','alcalde','regidor'];
     if (!empty($nombre) && in_array($cargo, $cargos_validos)) {
         if ($cid > 0) {
-            // Editar
             if (!empty($_FILES['cand_foto']['tmp_name'])) {
                 $foto = file_get_contents($_FILES['cand_foto']['tmp_name']);
-                $stmt = $conn->prepare("UPDATE candidatos SET nombre=?,cargo=?,foto=? WHERE id=? AND partido_id=?");
+                $stmt = $conn->prepare("UPDATE candidatos SET nombre=?,cargo=?,descripcion=?,foto=? WHERE id=? AND partido_id=?");
                 $null = null;
-                $stmt->bind_param("ssbii",$nombre,$cargo,$null,$cid,$partido_id);
-                $stmt->send_long_data(2,$foto);
+                $stmt->bind_param("sssbii",$nombre,$cargo,$desc,$null,$cid,$partido_id);
+                $stmt->send_long_data(3,$foto);
             } else {
-                $stmt = $conn->prepare("UPDATE candidatos SET nombre=?,cargo=? WHERE id=? AND partido_id=?");
-                $stmt->bind_param("ssii",$nombre,$cargo,$cid,$partido_id);
+                $stmt = $conn->prepare("UPDATE candidatos SET nombre=?,cargo=?,descripcion=? WHERE id=? AND partido_id=?");
+                $stmt->bind_param("sssii",$nombre,$cargo,$desc,$cid,$partido_id);
             }
             $stmt->execute();
         } else {
-            // Crear
             if (!empty($_FILES['cand_foto']['tmp_name'])) {
                 $foto = file_get_contents($_FILES['cand_foto']['tmp_name']);
-                $stmt = $conn->prepare("INSERT INTO candidatos (partido_id,nombre,cargo,foto) VALUES (?,?,?,?)");
+                $stmt = $conn->prepare("INSERT INTO candidatos (partido_id,nombre,cargo,descripcion,foto) VALUES (?,?,?,?,?)");
                 $null = null;
-                $stmt->bind_param("issb",$partido_id,$nombre,$cargo,$null);
-                $stmt->send_long_data(3,$foto);
+                $stmt->bind_param("isssb",$partido_id,$nombre,$cargo,$desc,$null);
+                $stmt->send_long_data(4,$foto);
             } else {
-                $stmt = $conn->prepare("INSERT INTO candidatos (partido_id,nombre,cargo) VALUES (?,?,?)");
-                $stmt->bind_param("iss",$partido_id,$nombre,$cargo);
+                $stmt = $conn->prepare("INSERT INTO candidatos (partido_id,nombre,cargo,descripcion) VALUES (?,?,?,?)");
+                $stmt->bind_param("isss",$partido_id,$nombre,$cargo,$desc);
             }
             $stmt->execute();
         }
@@ -392,10 +391,15 @@ include 'includes/header.php';
                     <div style="flex:1;min-width:0;">
                         <div style="font-weight:600;font-size:13px;margin-bottom:3px;"><?php echo htmlspecialchars($c['nombre']); ?></div>
                         <span class="cargo-pill"><?php echo ucfirst($c['cargo']); ?></span>
+                        <?php if (!empty($c['descripcion'])): ?>
+                        <div style="font-size:11px;color:var(--text-secondary);margin-top:3px;">
+                            <i class="fas fa-map-pin me-1"></i><?php echo htmlspecialchars($c['descripcion']); ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
                     <div class="d-flex flex-column gap-1">
                         <button class="action-link" title="Editar"
-                            onclick="editarCandidato(<?php echo $c['id']; ?>,'<?php echo htmlspecialchars(addslashes($c['nombre'])); ?>','<?php echo $c['cargo']; ?>')">
+                            onclick="editarCandidato(<?php echo $c['id']; ?>,'<?php echo htmlspecialchars(addslashes($c['nombre'])); ?>','<?php echo $c['cargo']; ?>','<?php echo htmlspecialchars(addslashes($c['descripcion']??'')); ?>')">
                             <i class="fas fa-pen"></i>
                         </button>
                         <button class="action-link danger" title="Eliminar"
@@ -428,7 +432,7 @@ include 'includes/header.php';
                     </div>
                     <div class="mb-3">
                         <label class="form-label" style="font-size:13px;font-weight:500;">Cargo</label>
-                        <select name="cand_cargo" id="candCargo" class="form-select form-select-sm" required>
+                        <select name="cand_cargo" id="candCargo" class="form-select form-select-sm" required onchange="toggleDesc(this.value)">
                             <option value="">Seleccionar cargo...</option>
                             <option value="presidente">Presidente</option>
                             <option value="senador">Senador</option>
@@ -436,6 +440,12 @@ include 'includes/header.php';
                             <option value="alcalde">Alcalde</option>
                             <option value="regidor">Regidor</option>
                         </select>
+                    </div>
+                    <div class="mb-3" id="descGroup">
+                        <label class="form-label" style="font-size:13px;font-weight:500;">Zona / Descripción <span style="color:var(--text-secondary);font-weight:400;">(opcional)</span></label>
+                        <input type="text" name="cand_desc" id="candDesc" class="form-control form-control-sm"
+                               placeholder="Ej: Zona Norte, Circunscripción 1, Municipio Cabral...">
+                        <div class="form-text">Útil para distinguir cuando hay varios del mismo cargo.</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" style="font-size:13px;font-weight:500;">Foto del Candidato</label>
@@ -529,19 +539,37 @@ function onLogoChange(input) {
 }
 
 /* ── CANDIDATE MODAL ─────────────────────────────── */
-function resetCandModal() {
-    document.getElementById('modalCandTitle').textContent = 'Nuevo Candidato';
-    document.getElementById('candId').value = '';
-    document.getElementById('candNombre').value = '';
-    document.getElementById('candCargo').value = '';
-    document.getElementById('candFotoPreview').style.display = 'none';
+function toggleDesc(cargo) {
+    // Para cargos donde puede haber múltiples, el campo descripción es más relevante
+    const multi = ['regidor','diputado','alcalde'];
+    const el = document.getElementById('descGroup');
+    if (multi.includes(cargo)) {
+        el.style.borderLeft = '3px solid var(--accent)';
+        el.style.paddingLeft = '10px';
+    } else {
+        el.style.borderLeft = '';
+        el.style.paddingLeft = '';
+    }
 }
 
-function editarCandidato(id, nombre, cargo) {
+function resetCandModal() {
+    document.getElementById('modalCandTitle').textContent = 'Nuevo Candidato';
+    document.getElementById('candId').value      = '';
+    document.getElementById('candNombre').value  = '';
+    document.getElementById('candCargo').value   = '';
+    document.getElementById('candDesc').value    = '';
+    document.getElementById('candFotoPreview').style.display = 'none';
+    document.getElementById('descGroup').style.borderLeft = '';
+    document.getElementById('descGroup').style.paddingLeft = '';
+}
+
+function editarCandidato(id, nombre, cargo, desc) {
     document.getElementById('modalCandTitle').textContent = 'Editar Candidato';
-    document.getElementById('candId').value    = id;
-    document.getElementById('candNombre').value = nombre;
-    document.getElementById('candCargo').value  = cargo;
+    document.getElementById('candId').value      = id;
+    document.getElementById('candNombre').value  = nombre;
+    document.getElementById('candCargo').value   = cargo;
+    document.getElementById('candDesc').value    = desc || '';
+    toggleDesc(cargo);
     new bootstrap.Modal(document.getElementById('modalCandidato')).show();
 }
 

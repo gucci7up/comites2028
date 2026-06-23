@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS candidatos (
     partido_id INT NOT NULL,
     nombre VARCHAR(150) NOT NULL,
     cargo ENUM('presidente','senador','diputado','alcalde','regidor') NOT NULL,
+    descripcion VARCHAR(150) NULL COMMENT 'Ej: Zona Norte, Circunscripción 1',
     foto LONGBLOB,
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

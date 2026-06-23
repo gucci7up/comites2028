@@ -14,7 +14,7 @@ $partido_id = $_SESSION['partido_id'] ?? 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidato_id'])) {
     $cid = (int)$_POST['candidato_id'];
     // Verificar que el candidato pertenece al partido del usuario
-    $s = $conn->prepare("SELECT id, nombre, cargo FROM candidatos WHERE id=? AND partido_id=? AND activo=1");
+    $s = $conn->prepare("SELECT id, nombre, cargo, descripcion FROM candidatos WHERE id=? AND partido_id=? AND activo=1");
     $s->bind_param("ii", $cid, $partido_id);
     $s->execute();
     $cand = $s->get_result()->fetch_assoc();
@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidato_id'])) {
         $_SESSION['candidato_id']     = $cand['id'];
         $_SESSION['candidato_nombre'] = $cand['nombre'];
         $_SESSION['candidato_cargo']  = $cand['cargo'];
+        $_SESSION['candidato_desc']   = $cand['descripcion'] ?? '';
         header('Location: dashboard.php'); exit;
     }
 }
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidato_id'])) {
 // Cargar candidatos del partido agrupados por cargo
 $candidatos = [];
 if ($partido_id) {
-    $res = $conn->query("SELECT id, nombre, cargo, foto FROM candidatos WHERE partido_id=$partido_id AND activo=1 ORDER BY FIELD(cargo,'presidente','senador','diputado','alcalde','regidor'), nombre");
+    $res = $conn->query("SELECT id, nombre, cargo, descripcion, foto FROM candidatos WHERE partido_id=$partido_id AND activo=1 ORDER BY FIELD(cargo,'presidente','senador','diputado','alcalde','regidor'), nombre");
     while ($row = $res->fetch_assoc()) {
         $candidatos[$row['cargo']][] = $row;
     }
@@ -276,7 +277,13 @@ $cargos_icons = [
                         <div class="candidato-foto-placeholder"><?php echo strtoupper(substr($c['nombre'],0,1)); ?></div>
                         <?php endif; ?>
                         <div class="candidato-nombre"><?php echo htmlspecialchars($c['nombre']); ?></div>
-                        <div class="candidato-cargo-pill"><?php echo $label; ?></div>
+                        <?php if (!empty($c['descripcion'])): ?>
+                        <div style="font-size:11px;color:#64748b;margin-top:4px;">
+                            <i class="fas fa-map-pin" style="font-size:9px;"></i>
+                            <?php echo htmlspecialchars($c['descripcion']); ?>
+                        </div>
+                        <?php endif; ?>
+                        <div class="candidato-cargo-pill" style="margin-top:5px;"><?php echo $label; ?></div>
                     </div>
                     <?php endforeach; ?>
                 </div>

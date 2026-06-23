@@ -25,11 +25,14 @@ CREATE TABLE IF NOT EXISTS candidatos (
     partido_id INT NOT NULL,
     nombre VARCHAR(150) NOT NULL,
     cargo ENUM('presidente','senador','diputado','alcalde','regidor') NOT NULL,
+    descripcion VARCHAR(150) NULL,
     foto LONGBLOB,
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE CASCADE
 );
+-- Si candidatos ya existe, agregar columna descripcion
+ALTER TABLE candidatos ADD COLUMN IF NOT EXISTS descripcion VARCHAR(150) NULL AFTER cargo;
 
 -- 3. Actualizar usuarios (nuevos roles y partido_id)
 ALTER TABLE usuarios

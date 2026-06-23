@@ -507,7 +507,12 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
             </div>
             <div style="min-width:0;">
                 <div style="font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
-                <div style="font-size:10px;color:rgba(255,255,255,.5);"><?php echo ucfirst($_SESSION['candidato_cargo']??''); ?></div>
+                <div style="font-size:10px;color:rgba(255,255,255,.5);">
+                    <?php echo ucfirst($_SESSION['candidato_cargo']??''); ?>
+                    <?php if (!empty($_SESSION['candidato_desc'])): ?>
+                    · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?>
+                    <?php endif; ?>
+                </div>
             </div>
             <a href="seleccionar_candidato.php" style="margin-left:auto;color:rgba(255,255,255,.4);font-size:11px;text-decoration:none;" title="Cambiar candidato">
                 <i class="fas fa-exchange-alt"></i>
