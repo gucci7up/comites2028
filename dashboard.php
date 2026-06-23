@@ -11,7 +11,7 @@ $total_miembros      = obtenerTotalMiembros();
 $total_coordinadores = obtenerTotalCoordinadores();
 $comites_recientes   = obtenerComitesRecientes(5);
 $miembros_recientes  = obtenerMiembrosRecientes(5);
-$est_municipio       = obtenerEstadisticasPorMunicipio(6);
+$est_municipio       = obtenerEstadisticasPorMunicipio(5);
 $est_usuario         = obtenerEstadisticasPorUsuario(5);
 
 $conn = conectarDB();
@@ -20,541 +20,472 @@ $stmt->bind_param("i", $_SESSION['usuario_id']);
 $stmt->execute();
 $mis_comites = $stmt->get_result()->fetch_assoc()['total'];
 
+$cfg = cargarConfiguracion();
+$logo_b64 = !empty($cfg['logo']) ? base64_encode($cfg['logo']) : '';
+
 $titulo_pagina = 'Dashboard';
 include 'includes/header.php';
 ?>
 
 <style>
-/* ── RESPONSIVE DASHBOARD ───────────────────────── */
-@media (max-width: 576px) {
-    .welcome-banner { flex-direction: column; gap: 16px; }
-    .welcome-actions { width: 100%; }
-    .welcome-actions .btn { flex: 1; justify-content: center; font-size: 12px; }
-    .welcome-name { font-size: 18px; }
-    .stat-value { font-size: 24px; }
-    .chart-wrap { height: 180px; }
-}
+/* ── RESET PAGE BG ────────────────────────────────── */
+.page-content { background: #f5f6fa; }
 
-/* ── STAT CARDS ──────────────────────────────────── */
-.stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow 0.2s, transform 0.2s;
-    text-decoration: none;
-    color: inherit;
+/* ── TOPBAR SEARCH ────────────────────────────────── */
+.dash-search {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff; border: 1px solid #e8e8f0;
+    border-radius: 12px; padding: 8px 16px;
+    flex: 1; max-width: 360px;
 }
-.stat-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
-    color: inherit;
+.dash-search input {
+    border: none; outline: none; font-size: 13px;
+    color: #374151; background: transparent; width: 100%;
+    font-family: inherit;
 }
-.stat-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-}
-.stat-icon.blue   { background: #eff6ff; color: #2563eb; }
-.stat-icon.green  { background: #f0fdf4; color: #16a34a; }
-.stat-icon.purple { background: #faf5ff; color: #7c3aed; }
-.stat-icon.amber  { background: #fffbeb; color: #d97706; }
-.stat-body { flex: 1; min-width: 0; }
-.stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1;
-    margin-bottom: 4px;
-}
-.stat-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-.stat-trend {
-    font-size: 11px;
-    font-weight: 600;
-    margin-top: 6px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-.stat-trend.up   { color: #16a34a; }
-.stat-trend.flat { color: var(--text-secondary); }
+.dash-search i { color: #9ca3af; font-size: 14px; }
 
-/* ── SECTION HEADER ──────────────────────────────── */
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
+/* ── LAYOUT ───────────────────────────────────────── */
+.dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    align-items: start;
 }
-.section-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-}
-.section-title span {
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--text-secondary);
-    margin-left: 6px;
-}
+@media (max-width: 1100px) { .dash-grid { grid-template-columns: 1fr; } }
 
-/* ── ACTIVITY FEED ───────────────────────────────── */
-.activity-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid #f1f5f9;
-}
-.activity-item:last-child { border-bottom: none; }
-.activity-dot {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    flex-shrink: 0;
-}
-.activity-dot.create { background: #f0fdf4; color: #16a34a; }
-.activity-dot.edit   { background: #eff6ff; color: #2563eb; }
-.activity-body { flex: 1; min-width: 0; }
-.activity-text { font-size: 13px; color: var(--text-primary); line-height: 1.4; }
-.activity-text a { color: var(--accent); text-decoration: none; font-weight: 500; }
-.activity-text a:hover { text-decoration: underline; }
-.activity-time { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
-
-/* ── MEMBER ROW ──────────────────────────────────── */
-.member-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid #f1f5f9;
-}
-.member-row:last-child { border-bottom: none; }
-.member-avatar-sm {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-.member-info { flex: 1; min-width: 0; }
-.member-name { font-size: 13px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.member-meta { font-size: 11px; color: var(--text-secondary); }
-
-/* ── CHART CONTAINER ─────────────────────────────── */
-.chart-wrap { position: relative; height: 220px; }
-
-/* ── EMPTY STATE ─────────────────────────────────── */
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-secondary);
-}
-.empty-state i { font-size: 36px; margin-bottom: 12px; opacity: 0.3; }
-.empty-state p { font-size: 13px; margin: 0; }
-
-/* ── COMITE TABLE ────────────────────────────────── */
-.comite-name { font-weight: 500; color: var(--text-primary); }
-.comite-location { font-size: 12px; color: var(--text-secondary); }
-.action-link {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: all 0.15s;
-}
-.action-link:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
-.action-link.danger:hover { border-color: var(--danger); color: var(--danger); background: #fef2f2; }
-
-/* ── WELCOME BANNER ──────────────────────────────── */
-.welcome-banner {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
-    border-radius: var(--radius);
-    padding: 24px 28px;
+/* ── HERO BANNER ──────────────────────────────────── */
+.hero-banner {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    border-radius: 20px;
+    padding: 28px 32px;
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     position: relative;
     overflow: hidden;
+    min-height: 140px;
 }
-.welcome-banner::before {
+.hero-banner::before {
     content: '';
-    position: absolute;
-    top: -30px; right: -30px;
-    width: 160px; height: 160px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
+    position: absolute; top: -40px; right: -20px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,.1);
 }
-.welcome-banner::after {
+.hero-banner::after {
     content: '';
-    position: absolute;
-    bottom: -50px; right: 60px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
+    position: absolute; bottom: -60px; right: 80px;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,.07);
 }
-.welcome-greeting {
+.hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,.2);
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    padding: 4px 10px; border-radius: 20px;
+    margin-bottom: 10px;
+}
+.hero-title { font-size: 22px; font-weight: 700; line-height: 1.25; margin-bottom: 16px; }
+.hero-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; color: var(--accent);
+    border: none; border-radius: 30px;
+    padding: 9px 20px; font-size: 13px; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+    transition: transform .15s;
+    position: relative; z-index: 1;
+}
+.hero-btn:hover { transform: scale(1.04); color: var(--accent); }
+.hero-btn .arrow {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
     font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    opacity: 0.8;
-    margin-bottom: 4px;
 }
-.welcome-name { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-.welcome-sub { font-size: 13px; opacity: 0.75; }
-.welcome-actions { display: flex; gap: 10px; flex-shrink: 0; position: relative; z-index: 1; }
-.btn-white {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
-    backdrop-filter: blur(4px);
+.hero-illus {
+    position: relative; z-index: 1; flex-shrink: 0;
+    display: flex; align-items: center;
 }
-.btn-white:hover { background: rgba(255,255,255,0.25); color: #fff; }
-.btn-white-solid { background: #fff; color: var(--accent); border: none; font-weight: 600; }
-.btn-white-solid:hover { background: #f0f4ff; color: #1d4ed8; }
+.hero-illus img {
+    width: 90px; height: 90px; border-radius: 50%;
+    border: 4px solid rgba(255,255,255,.3);
+    object-fit: contain; background: rgba(255,255,255,.15);
+    padding: 8px;
+}
+.hero-illus-placeholder {
+    width: 90px; height: 90px; border-radius: 50%;
+    border: 4px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; color: rgba(255,255,255,.8);
+}
+
+/* ── STAT MINI CARDS ──────────────────────────────── */
+.stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+@media (max-width: 600px) { .stat-row { grid-template-columns: repeat(2,1fr); } }
+
+.stat-mini {
+    background: #fff; border-radius: 16px;
+    padding: 18px 20px;
+    border: 1px solid #eef0f6;
+    display: flex; align-items: center; gap: 14px;
+    transition: box-shadow .2s, transform .2s;
+    text-decoration: none; color: inherit;
+}
+.stat-mini:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); color: inherit; }
+.stat-mini-icon {
+    width: 46px; height: 46px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+}
+.si-purple { background: #f0f0ff; color: #6366f1; }
+.si-green  { background: #f0fdf4; color: #16a34a; }
+.si-blue   { background: #eff6ff; color: #2563eb; }
+.si-amber  { background: #fffbeb; color: #d97706; }
+.stat-mini-val { font-size: 24px; font-weight: 800; color: #111827; line-height: 1; }
+.stat-mini-lbl { font-size: 11px; font-weight: 500; color: #9ca3af; margin-top: 2px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── SECTION TITLE ────────────────────────────────── */
+.section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+}
+.section-head h2 { font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
+.section-head a  { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500; }
+
+/* ── RECENT COMITES ───────────────────────────────── */
+.comite-list { display: flex; flex-direction: column; gap: 10px; }
+.comite-item {
+    background: #fff; border-radius: 14px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+    border: 1px solid #eef0f6;
+    transition: box-shadow .15s;
+}
+.comite-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
+.comite-item-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: #f0f0ff; color: #6366f1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+}
+.comite-item-name { font-size: 13px; font-weight: 600; color: #111827; }
+.comite-item-meta { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+.comite-item-badge {
+    margin-left: auto; flex-shrink: 0;
+    background: #f0f0ff; color: #6366f1;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 20px;
+}
+.comite-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.ci-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid #eef0f6; background: #fff;
+    color: #9ca3af; display: flex; align-items: center;
+    justify-content: center; font-size: 12px;
+    cursor: pointer; text-decoration: none;
+    transition: all .15s;
+}
+.ci-btn:hover { border-color: var(--accent); color: var(--accent); background: #f0f0ff; }
+
+/* ── RIGHT PANEL ──────────────────────────────────── */
+.right-panel { display: flex; flex-direction: column; gap: 16px; }
+
+/* Greeting card */
+.greeting-card {
+    background: #fff; border-radius: 20px; padding: 24px;
+    text-align: center; border: 1px solid #eef0f6;
+}
+.greeting-avatar-wrap { position: relative; display: inline-block; margin-bottom: 14px; }
+.greeting-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 800; margin: 0 auto;
+    border: 4px solid #f5f6fa;
+}
+.greeting-pct {
+    position: absolute; top: -4px; right: -8px;
+    background: var(--accent); color: #fff;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 10px;
+}
+.greeting-name { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.greeting-sub  { font-size: 12px; color: #9ca3af; }
+
+/* Progress ring */
+.progress-ring-wrap {
+    width: 90px; height: 90px; position: relative; margin: 0 auto 14px;
+}
+.progress-ring-wrap svg { transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: #f0f0ff; stroke-width: 6; }
+.progress-ring-fg { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+
+/* Chart card */
+.chart-card {
+    background: #fff; border-radius: 20px; padding: 20px;
+    border: 1px solid #eef0f6;
+}
+.chart-card-title { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px; }
+
+/* Mini bar chart */
+.mini-bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
+.mini-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.mini-bar {
+    width: 100%; border-radius: 6px 6px 0 0;
+    background: #f0f0ff; transition: height .4s ease;
+    min-height: 4px;
+}
+.mini-bar.active { background: var(--accent); }
+.mini-bar-lbl { font-size: 9px; color: #9ca3af; text-align: center; }
+
+/* Recent members card */
+.members-card {
+    background: #fff; border-radius: 20px; padding: 20px;
+    border: 1px solid #eef0f6;
+}
+.member-row-mini {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid #f5f6fa;
+}
+.member-row-mini:last-child { border-bottom: none; }
+.member-av-sm {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.member-nm { font-size: 12px; font-weight: 600; color: #374151; }
+.member-cd { font-size: 10px; color: #9ca3af; }
+
+/* Empty state */
+.empty-dash { text-align: center; padding: 32px 16px; color: #d1d5db; }
+.empty-dash i { font-size: 32px; margin-bottom: 10px; display: block; }
+.empty-dash p { font-size: 12px; margin: 0; }
 </style>
 
-<!-- Welcome Banner -->
-<div class="welcome-banner">
-    <div style="position:relative;z-index:1;">
-        <div class="welcome-greeting">Bienvenido de vuelta</div>
-        <div class="welcome-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Administrador'); ?></div>
-        <div class="welcome-sub">Sistema de Gestión de Comités Afectivos — PRM <?php echo date('Y'); ?></div>
-    </div>
-    <div class="welcome-actions">
-        <a href="crear_comite.php" class="btn btn-white-solid btn-sm">
-            <i class="fas fa-plus me-1"></i> Crear Comité
-        </a>
-        <a href="consultar.html" class="btn btn-white btn-sm">
-            <i class="fas fa-id-card me-1"></i> Consultar Cédula
-        </a>
-    </div>
-</div>
+<?php
+// Inject search bar into topbar via JS after load
+?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const topbarLeft = document.querySelector('.topbar-left');
+    if (topbarLeft) {
+        const search = document.createElement('div');
+        search.className = 'dash-search d-none d-md-flex';
+        search.innerHTML = '<i class="fas fa-search"></i><input type="text" placeholder="Buscar comités, miembros...">';
+        topbarLeft.appendChild(search);
+    }
+});
+</script>
 
-<!-- Stat Cards -->
-<div class="row g-3 mb-4">
-    <div class="col-6 col-xl-3">
-        <a href="comites.php" class="stat-card">
-            <div class="stat-icon blue"><i class="fas fa-layer-group"></i></div>
-            <div class="stat-body">
-                <div class="stat-value"><?php echo number_format($total_comites); ?></div>
-                <div class="stat-label">Total Comités</div>
-                <div class="stat-trend <?php echo $total_comites > 0 ? 'up' : 'flat'; ?>">
-                    <i class="fas fa-circle" style="font-size:6px;"></i>
-                    <?php echo $total_comites > 0 ? 'Activos' : 'Sin registros'; ?>
+<div class="dash-grid">
+    <!-- ── LEFT COLUMN ── -->
+    <div>
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+            <div style="position:relative;z-index:1;">
+                <div class="hero-tag">Comités Afectivos 2028</div>
+                <div class="hero-title">
+                    Bienvenido,<br><?php echo htmlspecialchars(explode(' ', $_SESSION['usuario_nombre'])[0]); ?> 👋
                 </div>
+                <a href="crear_comite.php" class="hero-btn">
+                    Crear Comité
+                    <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+                </a>
             </div>
-        </a>
-    </div>
-    <div class="col-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-users"></i></div>
-            <div class="stat-body">
-                <div class="stat-value"><?php echo number_format($total_miembros); ?></div>
-                <div class="stat-label">Total Miembros</div>
-                <div class="stat-trend flat">
-                    <i class="fas fa-circle" style="font-size:6px;"></i>
-                    Registrados
-                </div>
+            <div class="hero-illus">
+                <?php if ($logo_b64): ?>
+                <img src="data:image/png;base64,<?php echo $logo_b64; ?>" alt="Logo">
+                <?php else: ?>
+                <div class="hero-illus-placeholder"><i class="fas fa-star"></i></div>
+                <?php endif; ?>
             </div>
         </div>
-    </div>
-    <div class="col-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon purple"><i class="fas fa-user-tie"></i></div>
-            <div class="stat-body">
-                <div class="stat-value"><?php echo number_format($total_coordinadores); ?></div>
-                <div class="stat-label">Coordinadores</div>
-                <div class="stat-trend flat">
-                    <i class="fas fa-circle" style="font-size:6px;"></i>
-                    Asignados
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-xl-3">
-        <div class="stat-card">
-            <div class="stat-icon amber"><i class="fas fa-star"></i></div>
-            <div class="stat-body">
-                <div class="stat-value"><?php echo number_format($mis_comites); ?></div>
-                <div class="stat-label">Mis Comités</div>
-                <div class="stat-trend <?php echo $mis_comites > 0 ? 'up' : 'flat'; ?>">
-                    <i class="fas fa-circle" style="font-size:6px;"></i>
-                    Creados por mí
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Charts Row -->
-<?php if (count($est_municipio) > 0 || count($est_usuario) > 0): ?>
-<div class="row g-3 mb-4">
-    <div class="col-lg-7">
-        <div class="card">
-            <div class="card-header">
-                <span><i class="fas fa-map-marker-alt me-2 text-primary"></i>Comités por Municipio</span>
+        <!-- Stat Mini Cards -->
+        <div class="stat-row">
+            <a href="comites.php" class="stat-mini">
+                <div class="stat-mini-icon si-purple"><i class="fas fa-layer-group"></i></div>
+                <div>
+                    <div class="stat-mini-val"><?php echo number_format($total_comites); ?></div>
+                    <div class="stat-mini-lbl">Comités</div>
+                </div>
+            </a>
+            <div class="stat-mini">
+                <div class="stat-mini-icon si-green"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="stat-mini-val"><?php echo number_format($total_miembros); ?></div>
+                    <div class="stat-mini-lbl">Miembros</div>
+                </div>
             </div>
-            <div class="p-3">
-                <div class="chart-wrap">
-                    <canvas id="chartMunicipios"></canvas>
+            <div class="stat-mini">
+                <div class="stat-mini-icon si-blue"><i class="fas fa-user-tie"></i></div>
+                <div>
+                    <div class="stat-mini-val"><?php echo number_format($total_coordinadores); ?></div>
+                    <div class="stat-mini-lbl">Coordinadores</div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="col-lg-5">
-        <div class="card">
-            <div class="card-header">
-                <span><i class="fas fa-user-circle me-2 text-primary"></i>Distribución por Usuario</span>
+
+        <!-- Candidato activo (digitadores) -->
+        <?php if (tieneCandidato()): ?>
+        <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;border:1px solid #ddd6fe;">
+            <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;">
+                <?php echo strtoupper(substr($_SESSION['candidato_nombre']??'?',0,1)); ?>
             </div>
-            <div class="p-3">
-                <div class="chart-wrap">
-                    <canvas id="chartUsuarios"></canvas>
+            <div style="flex:1;">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7c3aed;margin-bottom:2px;">Trabajando para</div>
+                <div style="font-size:14px;font-weight:700;color:#4c1d95;"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
+                <div style="font-size:11px;color:#7c3aed;"><?php echo ucfirst($_SESSION['candidato_cargo']??''); ?><?php if(!empty($_SESSION['candidato_desc'])): ?> · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?><?php endif; ?></div>
+            </div>
+            <a href="seleccionar_candidato.php" style="font-size:11px;color:#7c3aed;font-weight:600;text-decoration:none;background:#fff;padding:6px 12px;border-radius:20px;border:1px solid #ddd6fe;">
+                Cambiar
+            </a>
+        </div>
+        <?php endif; ?>
+
+        <!-- Recent Comités -->
+        <div class="section-head">
+            <h2>Comités Recientes</h2>
+            <a href="comites.php">Ver todos →</a>
+        </div>
+
+        <?php if (count($comites_recientes) > 0): ?>
+        <div class="comite-list">
+            <?php foreach ($comites_recientes as $c):
+                $s2 = $conn->prepare("SELECT c.nombre_completo FROM coordinadores c JOIN comite_coordinador cc ON c.id=cc.coordinador_id WHERE cc.comite_id=? LIMIT 1");
+                $s2->bind_param("i",$c['id']); $s2->execute();
+                $coord = $s2->get_result()->fetch_assoc();
+                $s3 = $conn->prepare("SELECT COUNT(*) as t FROM comite_miembro WHERE comite_id=?");
+                $s3->bind_param("i",$c['id']); $s3->execute();
+                $cnt = $s3->get_result()->fetch_assoc()['t'];
+            ?>
+            <div class="comite-item">
+                <div class="comite-item-icon"><i class="fas fa-layer-group"></i></div>
+                <div style="flex:1;min-width:0;">
+                    <div class="comite-item-name"><?php echo htmlspecialchars($c['nombre']); ?></div>
+                    <div class="comite-item-meta">
+                        <i class="fas fa-map-pin me-1"></i><?php echo htmlspecialchars($c['municipio']); ?>
+                        <?php if ($coord): ?> · <?php echo htmlspecialchars($coord['nombre_completo']); ?><?php endif; ?>
+                    </div>
+                </div>
+                <span class="comite-item-badge"><?php echo $cnt; ?> miembros</span>
+                <div class="comite-item-actions">
+                    <a href="ver_comite.php?id=<?php echo $c['id']; ?>" class="ci-btn"><i class="fas fa-eye"></i></a>
+                    <a href="editar_comite.php?id=<?php echo $c['id']; ?>" class="ci-btn"><i class="fas fa-pen"></i></a>
                 </div>
             </div>
+            <?php endforeach; ?>
         </div>
-    </div>
-</div>
-<?php endif; ?>
-
-<!-- Tables Row -->
-<div class="row g-3">
-    <!-- Recent Comites -->
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <span><i class="fas fa-clock me-2 text-primary"></i>Comités Recientes</span>
-                <a href="comites.php" class="btn btn-sm btn-outline-primary" style="font-size:12px;">Ver todos</a>
-            </div>
-            <?php if (count($comites_recientes) > 0): ?>
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th>Comité</th>
-                            <th>Coordinador</th>
-                            <th>Miembros</th>
-                            <th>Creado</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($comites_recientes as $c):
-                        $stmt2 = $conn->prepare("SELECT c.nombre_completo FROM coordinadores c JOIN comite_coordinador cc ON c.id = cc.coordinador_id WHERE cc.comite_id = ? LIMIT 1");
-                        $stmt2->bind_param("i", $c['id']);
-                        $stmt2->execute();
-                        $coord = $stmt2->get_result()->fetch_assoc();
-
-                        $stmt3 = $conn->prepare("SELECT COUNT(*) as t FROM comite_miembro WHERE comite_id = ?");
-                        $stmt3->bind_param("i", $c['id']);
-                        $stmt3->execute();
-                        $cnt = $stmt3->get_result()->fetch_assoc()['t'];
-                    ?>
-                    <tr>
-                        <td>
-                            <div class="comite-name"><?php echo htmlspecialchars($c['nombre']); ?></div>
-                            <div class="comite-location"><i class="fas fa-map-pin me-1"></i><?php echo htmlspecialchars($c['municipio']); ?></div>
-                        </td>
-                        <td style="font-size:13px;">
-                            <?php echo $coord ? htmlspecialchars($coord['nombre_completo']) : '<span class="text-muted">—</span>'; ?>
-                        </td>
-                        <td>
-                            <span class="badge bg-primary bg-opacity-10 text-primary"><?php echo $cnt; ?></span>
-                        </td>
-                        <td style="font-size:12px;color:var(--text-secondary);">
-                            <?php echo date('d/m/Y', strtotime($c['fecha_creacion'])); ?>
-                        </td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <a href="ver_comite.php?id=<?php echo $c['id']; ?>" class="action-link" title="Ver"><i class="fas fa-eye"></i></a>
-                                <a href="editar_comite.php?id=<?php echo $c['id']; ?>" class="action-link" title="Editar"><i class="fas fa-pen"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-            <?php else: ?>
-            <div class="empty-state">
-                <i class="fas fa-folder-open d-block"></i>
+        <?php else: ?>
+        <div style="background:#fff;border-radius:16px;border:1px solid #eef0f6;">
+            <div class="empty-dash">
+                <i class="fas fa-folder-open"></i>
                 <p>No hay comités creados aún</p>
-                <a href="crear_comite.php" class="btn btn-primary btn-sm mt-2">
+                <a href="crear_comite.php" class="btn btn-primary btn-sm mt-2" style="font-size:12px;">
                     <i class="fas fa-plus me-1"></i> Crear primer comité
                 </a>
             </div>
-            <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 
-    <!-- Right Column -->
-    <div class="col-lg-4">
-        <!-- Recent Members -->
-        <div class="card mb-3">
-            <div class="card-header">
-                <span><i class="fas fa-user-plus me-2 text-primary"></i>Miembros Recientes</span>
-            </div>
-            <div class="p-3">
-                <?php if (count($miembros_recientes) > 0): ?>
-                    <?php foreach ($miembros_recientes as $m): ?>
-                    <div class="member-row">
-                        <div class="member-avatar-sm">
-                            <?php echo strtoupper(substr($m['nombre_completo'], 0, 1)); ?>
-                        </div>
-                        <div class="member-info">
-                            <div class="member-name"><?php echo htmlspecialchars($m['nombre_completo']); ?></div>
-                            <div class="member-meta">
-                                <i class="fas fa-id-card me-1"></i><?php echo htmlspecialchars($m['cedula']); ?>
-                            </div>
-                        </div>
-                        <div style="font-size:11px;color:var(--text-secondary);">
-                            <?php echo date('d/m', strtotime($m['fecha_registro'])); ?>
+    <!-- ── RIGHT PANEL ── -->
+    <div class="right-panel">
+
+        <!-- Greeting Card with progress -->
+        <div class="greeting-card">
+            <?php
+            $pct = $total_comites > 0 ? min(100, round(($mis_comites / max($total_comites,1)) * 100)) : 0;
+            $r = 40; $circ = 2 * M_PI * $r;
+            $offset = $circ - ($pct / 100) * $circ;
+            ?>
+            <div class="greeting-avatar-wrap">
+                <div style="position:relative;width:90px;height:90px;margin:0 auto;">
+                    <svg width="90" height="90" style="transform:rotate(-90deg);">
+                        <circle class="progress-ring-bg" cx="45" cy="45" r="<?php echo $r; ?>"/>
+                        <circle class="progress-ring-fg" cx="45" cy="45" r="<?php echo $r; ?>"
+                            stroke-dasharray="<?php echo $circ; ?>"
+                            stroke-dashoffset="<?php echo $offset; ?>"/>
+                    </svg>
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                        <div class="greeting-avatar" style="width:62px;height:62px;font-size:22px;border:3px solid #f5f6fa;">
+                            <?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?>
                         </div>
                     </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                <div class="empty-state" style="padding:24px 16px;">
-                    <i class="fas fa-users d-block"></i>
-                    <p>Sin miembros registrados</p>
                 </div>
-                <?php endif; ?>
+                <span class="greeting-pct"><?php echo $pct; ?>%</span>
             </div>
+            <div class="greeting-name">Buenos días, <?php echo htmlspecialchars(explode(' ',$_SESSION['usuario_nombre'])[0]); ?> 🔥</div>
+            <div class="greeting-sub">Mis comités: <?php echo $mis_comites; ?> de <?php echo $total_comites; ?> totales</div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="card">
-            <div class="card-header">
-                <span><i class="fas fa-bolt me-2 text-primary"></i>Acciones Rápidas</span>
+        <!-- Chart municipios -->
+        <?php if (count($est_municipio) > 0): ?>
+        <div class="chart-card">
+            <div class="section-head" style="margin-bottom:12px;">
+                <div class="chart-card-title">Por Municipio</div>
             </div>
-            <div class="p-3 d-grid gap-2">
-                <a href="crear_comite.php" class="btn btn-primary btn-sm text-start">
-                    <i class="fas fa-layer-group me-2"></i> Crear Comité
+            <?php
+            $max_val = max(array_column($est_municipio,'total')) ?: 1;
+            ?>
+            <div class="mini-bar-chart">
+                <?php foreach ($est_municipio as $i => $e):
+                    $h = round(($e['total'] / $max_val) * 70);
+                    $active = $i === count($est_municipio)-1 ? 'active' : '';
+                ?>
+                <div class="mini-bar-wrap">
+                    <div class="mini-bar <?php echo $active; ?>" style="height:<?php echo $h; ?>px;"></div>
+                    <div class="mini-bar-lbl"><?php echo mb_substr($e['municipio'],0,5); ?></div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Recent Members -->
+        <?php if (count($miembros_recientes) > 0): ?>
+        <div class="members-card">
+            <div class="section-head" style="margin-bottom:12px;">
+                <div class="chart-card-title">Miembros Recientes</div>
+                <a href="#" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:500;">Ver todos</a>
+            </div>
+            <?php foreach ($miembros_recientes as $m): ?>
+            <div class="member-row-mini">
+                <div class="member-av-sm"><?php echo strtoupper(substr($m['nombre_completo'],0,1)); ?></div>
+                <div style="flex:1;min-width:0;">
+                    <div class="member-nm"><?php echo htmlspecialchars(mb_substr($m['nombre_completo'],0,22)); ?></div>
+                    <div class="member-cd"><?php echo htmlspecialchars($m['cedula']); ?></div>
+                </div>
+                <div style="font-size:10px;color:#d1d5db;"><?php echo date('d/m',strtotime($m['fecha_registro'])); ?></div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Quick actions -->
+        <div class="members-card">
+            <div class="chart-card-title" style="margin-bottom:12px;">Acciones Rápidas</div>
+            <div class="d-grid gap-2">
+                <a href="crear_comite.php" class="btn btn-primary btn-sm" style="border-radius:10px;font-size:13px;">
+                    <i class="fas fa-plus me-2"></i>Crear Comité
                 </a>
-                <a href="consultar.html" class="btn btn-outline-secondary btn-sm text-start">
-                    <i class="fas fa-id-card me-2"></i> Consultar Cédula
+                <a href="consultar.html" class="btn btn-sm" style="border-radius:10px;font-size:13px;background:#f5f6fa;color:#374151;border:1px solid #eef0f6;">
+                    <i class="fas fa-id-card me-2"></i>Consultar Cédula
                 </a>
-                <a href="comites.php" class="btn btn-outline-secondary btn-sm text-start">
-                    <i class="fas fa-list me-2"></i> Ver todos los Comités
-                </a>
-                <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 'admin'): ?>
-                <a href="usuarios.php" class="btn btn-outline-secondary btn-sm text-start">
-                    <i class="fas fa-users-cog me-2"></i> Gestión de Usuarios
+                <?php if (esAdmin()): ?>
+                <a href="config.php" class="btn btn-sm" style="border-radius:10px;font-size:13px;background:#f5f6fa;color:#374151;border:1px solid #eef0f6;">
+                    <i class="fas fa-cog me-2"></i>Configuración
                 </a>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const CHART_COLORS = ['#2563eb','#10b981','#f59e0b','#7c3aed','#ef4444','#06b6d4'];
-
-Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
-Chart.defaults.font.size   = 12;
-Chart.defaults.color       = '#64748b';
-
-<?php if (count($est_municipio) > 0): ?>
-new Chart(document.getElementById('chartMunicipios'), {
-    type: 'bar',
-    data: {
-        labels: <?php echo json_encode(array_column($est_municipio, 'municipio')); ?>,
-        datasets: [{
-            label: 'Comités',
-            data: <?php echo json_encode(array_column($est_municipio, 'total')); ?>,
-            backgroundColor: CHART_COLORS.map(c => c + '22'),
-            borderColor: CHART_COLORS,
-            borderWidth: 2,
-            borderRadius: 6,
-            borderSkipped: false,
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: ctx => ` ${ctx.parsed.y} comité${ctx.parsed.y !== 1 ? 's' : ''}`
-                }
-            }
-        },
-        scales: {
-            x: { grid: { display: false }, border: { display: false } },
-            y: {
-                beginAtZero: true,
-                ticks: { precision: 0, stepSize: 1 },
-                grid: { color: '#f1f5f9' },
-                border: { display: false }
-            }
-        }
-    }
-});
-<?php endif; ?>
-
-<?php if (count($est_usuario) > 0): ?>
-new Chart(document.getElementById('chartUsuarios'), {
-    type: 'doughnut',
-    data: {
-        labels: <?php echo json_encode(array_column($est_usuario, 'nombre')); ?>,
-        datasets: [{
-            data: <?php echo json_encode(array_column($est_usuario, 'total')); ?>,
-            backgroundColor: CHART_COLORS,
-            borderWidth: 0,
-            hoverOffset: 6,
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '65%',
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: { padding: 16, boxWidth: 10, boxHeight: 10, borderRadius: 3 }
-            },
-            tooltip: {
-                callbacks: {
-                    label: ctx => ` ${ctx.label}: ${ctx.parsed} comités`
-                }
-            }
-        }
-    }
-});
-<?php endif; ?>
-</script>
 
 <?php include 'includes/footer.php'; ?>
