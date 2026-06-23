@@ -6,40 +6,17 @@ services:
     ports:
       - "80:80"
     environment:
-      # MySQL — base de datos propia del sistema
-      MYSQL_HOST: db
-      MYSQL_USER: ${MYSQL_USER:-comites_user}
-      MYSQL_PASS: ${MYSQL_PASS:-comites_pass}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-comites_prm}
+      # MySQL — servicio externo creado en Dokploy
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASS: ${MYSQL_PASS}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
       # SQL Server — padrón electoral PRM
-      DB_HOST: ${DB_HOST:-148.0.129.233}
-      DB_PORT: ${DB_PORT:-1433}
-      DB_DATABASE: ${DB_DATABASE:-dbPRM}
-      DB_USERNAME: ${DB_USERNAME:-kmota}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_ENCRYPT: ${DB_ENCRYPT:-false}
       DB_TRUST_SERVER_CERTIFICATE: ${DB_TRUST_SERVER_CERTIFICATE:-true}
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
-
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-comites_prm}
-      MYSQL_USER: ${MYSQL_USER:-comites_user}
-      MYSQL_PASSWORD: ${MYSQL_PASS:-comites_pass}
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./db/comites_prm.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-
-volumes:
-  db_data:
