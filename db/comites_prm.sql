@@ -79,5 +79,5 @@ CREATE TABLE IF NOT EXISTS comite_miembro (
 
 -- Insertar usuario administrador por defecto
 INSERT INTO usuarios (nombre, usuario, password, email, rol) VALUES
-('Administrador', 'admin', '$2y$10$8tGmGEOg9q.RM3O9OHmSQOxUEKME0KPp3g9ZbiA9QOEQanXxGk0Uy', 'admin@example.com', 'admin');
--- Nota: La contraseña es 'admin123' hasheada con bcrypt
+('Administrador', 'admin', '$2y$10$Eaeut9oONLbcrveqy0/0T.siqryvF5b0CMSgp6b6fJ2E10pmSga7y', 'admin@example.com', 'admin');
+-- Nota: La contraseña es 'Gucci1826' hasheada con bcrypt
