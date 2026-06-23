@@ -10,7 +10,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) { header('Location: comites
 $comite_id = (int)$_GET['id'];
 $conn = conectarDB();
 
-$stmt = $conn->prepare("SELECT c.*, u.nombre as creador FROM comites c LEFT JOIN usuarios u ON c.creado_por = u.id WHERE c.id = ?");
+$stmt = $conn->prepare("SELECT c.*, u.nombre as creador, cand.nombre as candidato_nombre, cand.cargo as candidato_cargo, cand.foto as candidato_foto FROM comites c LEFT JOIN usuarios u ON c.creado_por = u.id LEFT JOIN candidatos cand ON c.candidato_id = cand.id WHERE c.id = ?");
 $stmt->bind_param("i", $comite_id); $stmt->execute();
 $comite = $stmt->get_result()->fetch_assoc();
 if (!$comite) { header('Location: comites.php'); exit; }
@@ -187,9 +187,24 @@ include 'includes/header.php';
 <!-- Print section -->
 <div class="d-none" id="seccion-imprimir">
     <div style="text-align:center;margin-bottom:24px;">
-        <img src="logo1.png" alt="PRM" style="max-width:100px;">
-        <h2 style="margin-top:12px;">PARTIDO REVOLUCIONARIO MODERNO</h2>
-        <h3>Comité Afectivo</h3>
+        <?php
+        $tema = cargarTemaPartido();
+        $logo_print = !empty($tema['logo']) ? 'data:image/png;base64,'.base64_encode($tema['logo']) : 'logo1.png';
+        ?>
+        <img src="<?php echo $logo_print; ?>" alt="Logo" style="max-width:100px;max-height:80px;object-fit:contain;">
+        <h2 style="margin-top:8px;font-size:16px;"><?php echo htmlspecialchars($tema['nombre']); ?></h2>
+        <h3 style="font-size:13px;">Comité Afectivo</h3>
+        <?php if (!empty($comite['candidato_nombre'])): ?>
+        <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:16px;border:1px solid #ccc;border-radius:8px;padding:12px;display:inline-flex;">
+            <?php if (!empty($comite['candidato_foto'])): ?>
+            <img src="data:image/jpeg;base64,<?php echo base64_encode($comite['candidato_foto']); ?>" style="width:60px;height:60px;border-radius:50%;object-fit:cover;">
+            <?php endif; ?>
+            <div style="text-align:left;">
+                <div style="font-weight:700;font-size:14px;"><?php echo htmlspecialchars($comite['candidato_nombre']); ?></div>
+                <div style="font-size:12px;color:#666;"><?php echo ucfirst($comite['candidato_cargo'] ?? ''); ?></div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
     <p><strong>Nombre:</strong> <?php echo htmlspecialchars($comite['nombre']); ?></p>
     <p><strong>Municipio:</strong> <?php echo htmlspecialchars($comite['municipio']); ?></p>

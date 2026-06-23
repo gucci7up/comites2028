@@ -15,8 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errores)) {
         try {
             $conn = conectarDB();
-            $stmt = $conn->prepare("INSERT INTO comites (nombre, municipio, creado_por, fecha_creacion) VALUES (?, ?, ?, NOW())");
-            $stmt->bind_param("ssi", $nombre, $municipio, $usuario_id);
+            $candidato_id = $_SESSION['candidato_id'] ?? null;
+            $stmt = $conn->prepare("INSERT INTO comites (nombre, municipio, creado_por, candidato_id, fecha_creacion) VALUES (?, ?, ?, ?, NOW())");
+            $stmt->bind_param("ssii", $nombre, $municipio, $usuario_id, $candidato_id);
             $stmt->execute();
             $comite_id = $conn->insert_id;
             $_SESSION['mensaje'] = "Comité creado correctamente. Ahora puede agregar un coordinador y miembros.";

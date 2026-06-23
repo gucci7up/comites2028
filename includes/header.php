@@ -1,26 +1,46 @@
 <?php
 if (session_status() == PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/auth.php';
 $pagina_actual = basename($_SERVER['PHP_SELF']);
+
+// Cargar tema del partido activo
+$_tema = cargarTemaPartido();
+$_color_primary = $_tema['color_primario'] ?? '#2563eb';
+$_color_sidebar = $_tema['color_sidebar']  ?? '#0d1b2a';
+$_color_accent  = $_tema['color_accent']   ?? '#3b82f6';
+$_partido_nombre = $_tema['nombre'] ?? 'Sistema';
+$_partido_siglas = $_tema['siglas'] ?? '';
+$_logo_b64 = !empty($_tema['logo']) ? base64_encode($_tema['logo']) : '';
+
+// Hover sidebar = lighten sidebar
+function _lightenHex($hex, $factor = 1.5) {
+    $hex = ltrim($hex,'#');
+    $r = min(255, (int)(hexdec(substr($hex,0,2)) * $factor));
+    $g = min(255, (int)(hexdec(substr($hex,2,2)) * $factor));
+    $b = min(255, (int)(hexdec(substr($hex,4,2)) * $factor));
+    return sprintf('#%02x%02x%02x',$r,$g,$b);
+}
+$_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina).' — PRM Comités' : 'PRM Comités Afectivos'; ?></title>
+    <title><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina).' — '.$_partido_siglas : $_partido_nombre; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sidebar-bg:     #0d1b2a;
-            --sidebar-hover:  #1a2e42;
-            --sidebar-active: #1d4ed8;
+            --sidebar-bg:     <?php echo $_color_sidebar; ?>;
+            --sidebar-hover:  <?php echo $_color_sidebar_hover; ?>;
+            --sidebar-active: <?php echo $_color_primary; ?>;
             --sidebar-border: rgba(255,255,255,0.06);
             --sidebar-text:   rgba(255,255,255,0.65);
             --sidebar-width:  260px;
-            --accent:         #2563eb;
-            --accent-light:   #3b82f6;
+            --accent:         <?php echo $_color_primary; ?>;
+            --accent-light:   <?php echo $_color_accent; ?>;
             --success:        #10b981;
             --warning:        #f59e0b;
             --danger:         #ef4444;
@@ -419,9 +439,13 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 <!-- ── DESKTOP SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <img src="logo1.png" alt="PRM">
+        <?php if ($_logo_b64): ?>
+        <img src="data:image/png;base64,<?php echo $_logo_b64; ?>" alt="Logo">
+        <?php else: ?>
+        <img src="logo1.png" alt="Logo">
+        <?php endif; ?>
         <div>
-            <div class="sidebar-brand-name">Partido Revolucionario<br>Moderno</div>
+            <div class="sidebar-brand-name"><?php echo htmlspecialchars($_partido_nombre); ?></div>
             <div class="sidebar-brand-sub">Comités Afectivos</div>
         </div>
     </div>
@@ -449,7 +473,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
                 <span class="nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
             </a>
         </div>
-        <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol']=='admin'): ?>
+        <?php if (esAdmin()): ?>
         <div class="nav-section-label">Administración</div>
         <div class="nav-item">
             <a href="usuarios.php" class="nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
@@ -457,7 +481,40 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             </a>
         </div>
         <?php endif; ?>
+        <?php if (esOwner()): ?>
+        <div class="nav-item">
+            <a href="config.php" class="nav-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
+                <span class="nav-icon"><i class="fas fa-cog"></i></span>Configuración
+            </a>
+        </div>
+        <?php endif; ?>
+        <?php if (esSuperAdmin()): ?>
+        <div class="nav-item">
+            <a href="partidos.php" class="nav-link <?php echo $pagina_actual=='partidos.php'?'active':''; ?>">
+                <span class="nav-icon"><i class="fas fa-flag"></i></span>Partidos
+            </a>
+        </div>
+        <?php endif; ?>
     </nav>
+
+    <?php if (tieneCandidato()): ?>
+    <!-- Candidato activo -->
+    <div style="padding:10px 12px;border-top:1px solid var(--sidebar-border);border-bottom:1px solid var(--sidebar-border);">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.3);margin-bottom:6px;">Trabajando para</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--sidebar-active);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">
+                <?php echo strtoupper(substr($_SESSION['candidato_nombre']??'?',0,1)); ?>
+            </div>
+            <div style="min-width:0;">
+                <div style="font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
+                <div style="font-size:10px;color:rgba(255,255,255,.5);"><?php echo ucfirst($_SESSION['candidato_cargo']??''); ?></div>
+            </div>
+            <a href="seleccionar_candidato.php" style="margin-left:auto;color:rgba(255,255,255,.4);font-size:11px;text-decoration:none;" title="Cambiar candidato">
+                <i class="fas fa-exchange-alt"></i>
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <div class="sidebar-footer">
         <div class="sidebar-user">
@@ -532,10 +589,27 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
                 <span class="fab-nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
             </a>
 
-            <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol']=='admin'): ?>
+            <?php if (esAdmin()): ?>
             <div class="fab-nav-section">Administración</div>
             <a href="usuarios.php" class="fab-nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
                 <span class="fab-nav-icon"><i class="fas fa-users-cog"></i></span>Usuarios
+            </a>
+            <?php endif; ?>
+            <?php if (esOwner()): ?>
+            <a href="config.php" class="fab-nav-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-cog"></i></span>Configuración
+            </a>
+            <?php endif; ?>
+            <?php if (esSuperAdmin()): ?>
+            <a href="partidos.php" class="fab-nav-link <?php echo $pagina_actual=='partidos.php'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-flag"></i></span>Partidos
+            </a>
+            <?php endif; ?>
+            <?php if (tieneCandidato()): ?>
+            <div class="fab-nav-section">Candidato Activo</div>
+            <a href="seleccionar_candidato.php" class="fab-nav-link">
+                <span class="fab-nav-icon"><i class="fas fa-exchange-alt"></i></span>
+                Cambiar: <?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?>
             </a>
             <?php endif; ?>
 

@@ -1,33 +1,63 @@
--- Base de datos para el sistema de comités afectivos
+-- Sistema de Comités Afectivos — PRM
+-- Esquema completo v2
 
--- Tabla de usuarios
+-- ── PARTIDOS ──────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS partidos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    siglas VARCHAR(20),
+    logo LONGBLOB,
+    color_primario VARCHAR(7) DEFAULT '#2563eb',
+    color_sidebar  VARCHAR(7) DEFAULT '#0d1b2a',
+    color_accent   VARCHAR(7) DEFAULT '#3b82f6',
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ── CANDIDATOS ────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS candidatos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    partido_id INT NOT NULL,
+    nombre VARCHAR(150) NOT NULL,
+    cargo ENUM('presidente','senador','diputado','alcalde','regidor') NOT NULL,
+    foto LONGBLOB,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE CASCADE
+);
+
+-- ── USUARIOS ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     usuario VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100),
-    rol ENUM('admin', 'usuario') DEFAULT 'usuario',
+    rol ENUM('superadmin','owner','admin','usuario') DEFAULT 'usuario',
+    partido_id INT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultimo_acceso DATETIME,
-    activo BOOLEAN DEFAULT TRUE
+    activo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE SET NULL
 );
 
--- Tabla de comités
+-- ── COMITÉS ───────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS comites (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     provincia VARCHAR(100),
     municipio VARCHAR(100) NOT NULL,
     circunscripcion VARCHAR(100),
+    candidato_id INT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     creado_por INT,
-    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
+    estado ENUM('activo','inactivo') DEFAULT 'activo',
+    FOREIGN KEY (candidato_id) REFERENCES candidatos(id) ON DELETE SET NULL,
     FOREIGN KEY (creado_por) REFERENCES usuarios(id)
 );
 
--- Tabla de coordinadores
+-- ── COORDINADORES ─────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS coordinadores (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cedula VARCHAR(20) NOT NULL UNIQUE,
@@ -41,7 +71,7 @@ CREATE TABLE IF NOT EXISTS coordinadores (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de miembros
+-- ── MIEMBROS ──────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS miembros (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cedula VARCHAR(20) NOT NULL,
@@ -55,7 +85,7 @@ CREATE TABLE IF NOT EXISTS miembros (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de relación entre comités y coordinadores
+-- ── RELACIONES ────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS comite_coordinador (
     id INT AUTO_INCREMENT PRIMARY KEY,
     comite_id INT NOT NULL,
@@ -66,7 +96,6 @@ CREATE TABLE IF NOT EXISTS comite_coordinador (
     UNIQUE KEY (comite_id, coordinador_id)
 );
 
--- Tabla de relación entre comités y miembros
 CREATE TABLE IF NOT EXISTS comite_miembro (
     id INT AUTO_INCREMENT PRIMARY KEY,
     comite_id INT NOT NULL,
@@ -77,7 +106,13 @@ CREATE TABLE IF NOT EXISTS comite_miembro (
     UNIQUE KEY (comite_id, miembro_id)
 );
 
--- Insertar usuario administrador por defecto
+-- ── PARTIDOS PREDEFINIDOS ─────────────────────────────────────────
+INSERT INTO partidos (nombre, siglas, color_primario, color_sidebar, color_accent) VALUES
+('Partido Revolucionario Moderno', 'PRM', '#2563eb', '#0d1b2a', '#3b82f6'),
+('Partido de la Liberación Dominicana', 'PLD', '#7c3aed', '#1e1035', '#8b5cf6'),
+('Fuerza del Pueblo', 'FDP', '#16a34a', '#0a1f12', '#22c55e');
+
+-- ── SUPER ADMIN ───────────────────────────────────────────────────
 INSERT INTO usuarios (nombre, usuario, password, email, rol) VALUES
-('Administrador', 'admin', '$2y$10$Eaeut9oONLbcrveqy0/0T.siqryvF5b0CMSgp6b6fJ2E10pmSga7y', 'admin@example.com', 'admin');
--- Nota: La contraseña es 'Gucci1826' hasheada con bcrypt
+('Super Administrador', 'superadmin', '$2y$10$Eaeut9oONLbcrveqy0/0T.siqryvF5b0CMSgp6b6fJ2E10pmSga7y', 'admin@sistema.com', 'superadmin');
+-- Contraseña: Gucci1826
