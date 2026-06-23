@@ -234,7 +234,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Left -->
     <div class="login-left">
         <div style="position:relative;z-index:1;text-align:center;">
-            <img src="logo_sistema.png" alt="Comités Afectivo 2028"
+            <img src="logo1.png" alt="Logo"
                  style="max-width:260px;width:100%;object-fit:contain;margin-bottom:32px;filter:drop-shadow(0 4px 24px rgba(0,0,0,0.3));">
             <ul class="feature-list" style="text-align:left;display:inline-block;">
                 <li><i class="fas fa-layer-group"></i> Gestión de comités por municipio</li>
