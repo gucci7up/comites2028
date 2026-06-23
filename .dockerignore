@@ -1,0 +1,6 @@
+.env
+*.rar
+*.pdf
+.git
+.gitignore
+README.md

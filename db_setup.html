@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Base de Datos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .step {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid #4e73df;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            color: #4e73df;
+            margin-bottom: 30px;
+        }
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Configuración de Base de Datos</h1>
+        
+        <div class="alert alert-warning">
+            <strong>Error detectado:</strong> La base de datos <code>comites_prm</code> no existe.
+        </div>
+        
+        <p>Para resolver este problema, siga estos pasos:</p>
+        
+        <div class="step">
+            <h4>Opción 1: Usar el script de configuración automática</h4>
+            <p>Hemos preparado un script que creará automáticamente la base de datos y todas las tablas necesarias.</p>
+            <a href="db/setup.php" class="btn btn-primary">Ejecutar configuración automática</a>
+        </div>
+        
+        <div class="step">
+            <h4>Opción 2: Configuración manual</h4>
+            <ol>
+                <li>Abra phpMyAdmin (generalmente en <a href="http://localhost/phpmyadmin" target="_blank">http://localhost/phpmyadmin</a>)</li>
+                <li>Cree una nueva base de datos llamada <code>comites_prm</code></li>
+                <li>Seleccione la base de datos recién creada</li>
+                <li>Vaya a la pestaña "Importar"</li>
+                <li>Seleccione el archivo <code>db/comites_prm.sql</code> de este proyecto</li>
+                <li>Haga clic en "Continuar" para importar la estructura de la base de datos</li>
+            </ol>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <p>Una vez completada la configuración, podrá acceder al sistema:</p>
+            <a href="login.php" class="btn btn-success">Ir al Login</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARTIDO REVOLUCIONARIO MODERNO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 50px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        //.logo-container {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+        }
+        
+        .logo-img {
+            height: 80px;
+            width: auto;
+            max-width: 300px;
+            object-fit: contain;
+        }
+        
+        .ficha-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 1200px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ficha-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 20px;
+            position: relative;
+        }
+        
+        .ficha-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        
+        .info-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .ficha-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .ficha-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .ficha-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: middle;
+            position: relative;
+        }
+        
+        .ficha-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        .member-photo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .search-section {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .search-results {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .result-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .result-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 2px solid var(--secondary-color);
+        }
+        
+        .btn-select {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-select:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-add {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-add:hover {
+            background-color: #219653;
+        }
+        
+        .btn-print {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 50px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            width: 220px;
+        }
+        
+        .btn-print:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(44, 62, 80, 0.4);
+        }
+        
+        .btn-print i {
+            margin-right: 10px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 14px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+        
+        .comite-form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        .section-title {
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .coordinator-card {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coordinator-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--warning-color);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .coordinator-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--warning-color);
+            margin-right: 15px;
+        }
+        
+        .coordinator-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .coordinator-details {
+            flex-grow: 1;
+        }
+        
+        .search-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .search-header i {
+            margin-right: 10px;
+            font-size: 1.5em;
+            color: var(--secondary-color);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(67, 97, 238, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn-edit {
+            background: transparent;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 14px;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit:hover {
+            opacity: 1;
+            color: var(--primary-color);
+        }
+        
+        .print-only {
+            display: none;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .ficha-container {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            .btn-print {
+                display: none;
+            }
+            
+            .footer {
+                display: none;
+            }
+            
+            .search-section {
+                display: none;
+            }
+            
+            .comite-form {
+                display: none;
+            }
+            
+            .loading-overlay {
+                display: none;
+            }
+            
+            .btn-edit {
+                display: none;
+            }
+            
+            .print-only {
+                display: block !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .logo-img {
+                height: 60px;
+                max-width: 250px;
+            }
+            
+            .ficha-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center">
+        <div class="container">
+            <div class="logo-container mb-3">
+  <img 
+    src="logo1.png" 
+    alt="Logo PRM" 
+    class="img-fluid" 
+    style="max-height: 160px;"
+  >
+</div>
+            <h1 class="display-5 fw-bold">PARTIDO REVOLUCIONARIO MODERNO</h1>
+            <p class="lead">Gestión y generación de fichas de afiliación</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="ficha-container" id="ficha">
+            <div class="ficha-header">
+                <div class="ficha-title">COMITÉ DE BASE AFECTIVO</div>
+            </div>
+            
+            <!-- Sección de búsqueda de coordinador -->
+            <div class="search-section no-print">
+                <div class="search-header">
+                    <i class="fas fa-user-tie"></i>
+                    <h4 class="m-0">Buscar Coordinador</h4>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="coordinatorSearch" placeholder="Ingrese cédula del coordinador">
+                    <button class="btn btn-warning" type="button" id="searchCoordinatorBtn">
+                        <i class="fas fa-search me-2"></i> Buscar
+                    </button>
+                </div>
+                
+                <div class="search-results" id="coordinatorResults">
+                    <div class="no-results">Ingrese cédula para buscar coordinador</div>
+                </div>
+            </div>
+            
+            <!-- Tarjeta de coordinador actual -->
+            <div class="coordinator-card" id="coordinatorCard">
+                <div class="coordinator-badge">COORDINADOR</div>
+                <div class="coordinator-info">
+                    <img src="fotos/default.svg" class="coordinator-photo" id="coordinatorPhoto">
+                    <div class="coordinator-details">
+                        <h5 class="mb-1" id="coordinatorName">[Nombre del Coordinador]</h5>
+                        <p class="mb-1"><strong>Cédula:</strong> <span id="coordinatorCedula">[Cédula]</span></p>
+                        <p class="mb-1"><strong>Teléfono:</strong> <span id="coordinatorPhone">[Teléfono]</span></p>
+                        <p class="mb-1"><strong>Municipio:</strong> <span id="coordinatorMunicipio">[Municipio]</span></p>
+                        <p class="mb-1"><strong>Recinto:</strong> <span id="coordinatorRecinto">[Recinto]</span></p>
+                        <p class="mb-0"><strong>Colegio:</strong> <span id="coordinatorColegio">[Colegio]</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección de Datos del Comité (solo municipio) -->
+            <div class="comite-form no-print">
+                <h4 class="section-title"><i class="fas fa-map-marked-alt"></i> Datos del Comité</h4>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="municipio">Municipio:</label>
+                            <input type="text" class="form-control" id="municipio" readonly value="Seleccione un coordinador">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección de búsqueda de miembros -->
+            <div class="search-section no-print">
+                <div class="search-header">
+                    <i class="fas fa-users"></i>
+                    <h4 class="m-0">Búsqueda de Miembros</h4>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="cedulaSearch" placeholder="Ingrese cédula del miembro">
+                            <button class="btn btn-primary" type="button" id="searchMemberBtn">
+                                <i class="fas fa-search me-2"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-success w-100" id="addManualBtn">
+                            <i class="fas fa-user-plus me-2"></i> Agregar Manual
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="search-results" id="memberResults">
+                    <div class="no-results">Ingrese cédula para buscar miembros</div>
+                </div>
+            </div>
+            
+            <!-- Datos del comité simplificados -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <div class="row mb-2">
+                            <div class="col-4 info-label">PROVINCIA:</div>
+                            <div class="col-8" id="provincia">Santo Domingo</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 info-label">MUNICIPIO:</div>
+                            <div class="col-8" id="municipioValue">Distrito Nacional</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <div class="row mb-2">
+                            <div class="col-4 info-label">TOTAL MIEMBROS:</div>
+                            <div class="col-8" id="totalMembers">0</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 info-label">FECHA CREACIÓN:</div>
+                            <div class="col-8" id="currentDate"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 info-label">RESPONSABLE:</div>
+                            <div class="col-8">Administrador del Sistema</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 info-label">ESTADO:</div>
+                            <div class="col-8"><span class="badge bg-success">Activo</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de miembros -->
+            <h5 class="text-center mb-3"><i class="fas fa-list-ul me-2"></i>INTEGRANTES DEL COMITÉ</h5>
+            
+            <div class="table-container">
+                <table class="ficha-table">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>No.</th>
+                            <th>Nombre Completo</th>
+                            <th>Cédula</th>
+                            <th>Teléfono</th>
+                            <th>Municipio</th>
+                            <th>Recinto</th>
+                            <th>Colegio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="membersTable">
+                        <!-- Los miembros se agregarán dinámicamente aquí -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Sección de firma solo para impresión -->
+            <div class="row mt-4 print-only">
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <span class="info-label">NO DE FICHAS DE AFILIACIÓN ANEXAS:</span>
+                        <span id="totalAffiliationPrint">0</span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="signature-area">
+                        <div class="mb-1" style="border-bottom: 1px solid #000; width: 250px; display: inline-block;"></div>
+                        <div class="info-label">FIRMA DEL RESPONSABLE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center no-print">
+            <button class="btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i> Imprimir Ficha
+            </button>
+        </div>
+    </div>
+    
+    <div class="footer no-print">
+        <div class="container">
+            Sistema de Gestión de Comités Afectivos &copy; 2025 - Todos los derechos reservados
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="text-center">
+            <div class="spinner"></div>
+            <div class="loading-text">Consultando base de datos...</div>
+            <p class="mt-2 text-muted">Conectando a la base de datos</p>
+        </div>
+    </div>
+    
+    <!-- Modal para agregar miembro manualmente -->
+    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Agregar Miembro Manualmente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="memberForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="memberName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cédula</label>
+                            <input type="text" class="form-control" id="memberCedula" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="memberPhone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="memberEmail">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Municipio</label>
+                                <input type="text" class="form-control" id="memberMunicipio">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Recinto</label>
+                                <input type="text" class="form-control" id="memberRecinto">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Colegio</label>
+                            <input type="text" class="form-control" id="memberColegio">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveMemberBtn">Guardar Miembro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para editar miembro -->
+    <div class="modal fade" id="editMemberModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title">Editar Miembro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editMemberForm">
+                        <input type="hidden" id="editMemberId">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" id="editMemberName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cédula</label>
+                            <input type="text" class="form-control" id="editMemberCedula" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" id="editMemberPhone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="editMemberEmail">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Municipio</label>
+                                <input type="text" class="form-control" id="editMemberMunicipio">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Recinto</label>
+                                <input type="text" class="form-control" id="editMemberRecinto">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Colegio</label>
+                            <input type="text" class="form-control" id="editMemberColegio">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="updateMemberBtn">Actualizar Miembro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Elementos DOM
+        const searchCoordinatorInput = document.getElementById('coordinatorSearch');
+        const searchCoordinatorBtn = document.getElementById('searchCoordinatorBtn');
+        const coordinatorResults = document.getElementById('coordinatorResults');
+        
+        const searchMemberInput = document.getElementById('cedulaSearch');
+        const searchMemberBtn = document.getElementById('searchMemberBtn');
+        const memberResults = document.getElementById('memberResults');
+        
+        const membersTable = document.getElementById('membersTable');
+        const totalMembersSpan = document.getElementById('totalMembers');
+        const totalAffiliationPrint = document.getElementById('totalAffiliationPrint');
+        const provinciaEl = document.getElementById('provincia');
+        const municipioEl = document.getElementById('municipioValue');
+        const distritoEl = document.getElementById('distrito');
+        const recintoEl = document.getElementById('recintoValue');
+        const colegioEl = document.getElementById('colegioValue');
+        
+        const coordinatorName = document.getElementById('coordinatorName');
+        const coordinatorCedula = document.getElementById('coordinatorCedula');
+        const coordinatorPhone = document.getElementById('coordinatorPhone');
+        const coordinatorMunicipio = document.getElementById('coordinatorMunicipio');
+        const coordinatorRecinto = document.getElementById('coordinatorRecinto');
+        const coordinatorColegio = document.getElementById('coordinatorColegio');
+        const coordinatorPhoto = document.getElementById('coordinatorPhoto');
+        
+        const currentDateEl = document.getElementById('currentDate');
+        const municipioInput = document.getElementById('municipio');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        // Miembros agregados al comité
+        let addedMembers = [];
+        let coordinator = null;
+        
+        // Configurar fecha actual
+        const today = new Date();
+        currentDateEl.textContent = `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
+        
+        // Función para mostrar/ocultar loading
+        function toggleLoading(show) {
+            if (show) {
+                loadingOverlay.classList.add('active');
+            } else {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+        
+        // Función para actualizar datos del comité
+        function updateComiteData() {
+            municipioEl.textContent = municipioInput.value;
+        }
+        
+        // Función para buscar coordinador
+        async function searchCoordinator() {
+            const cedula = searchCoordinatorInput.value.trim();
+            
+            if (!cedula) {
+                coordinatorResults.innerHTML = '<div class="no-results">Ingrese una cédula para buscar</div>';
+                coordinatorResults.style.display = 'block';
+                return;
+            }
+            
+            toggleLoading(true);
+            
+            try {
+                const response = await fetch(`api/consulta.php?cedula=${encodeURIComponent(cedula)}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    coordinatorResults.innerHTML = `<div class="no-results">${data.message}</div>`;
+                    coordinatorResults.style.display = 'block';
+                } else {
+                    const person = data.data;
+                    
+                    // Mostrar resultado
+                    coordinatorResults.innerHTML = `
+                        <div class="result-item" onclick="setCoordinator('${person.Cedula}')">
+                            <img src="${person.Imagen ? 'data:image/jpeg;base64,' + person.Imagen : 'fotos/default.svg'}" 
+                                 class="result-photo">
+                            <div class="result-info">
+                                <div><strong>${person.nombres} ${person.apellido1} ${person.apellido2}</strong></div>
+                                <div>Cédula: ${person.Cedula} | Municipio: ${person.Municipio}</div>
+                                <div class="small text-muted mt-1">
+                                    Recinto: ${person.Recinto} | Colegio: ${person.CodigoColegio}
+                                </div>
+                            </div>
+                            <button class="btn-select">
+                                <i class="fas fa-check me-1"></i> Seleccionar
+                            </button>
+                        </div>
+                    `;
+                    coordinatorResults.style.display = 'block';
+                }
+            } catch (error) {
+                coordinatorResults.innerHTML = '<div class="no-results">Error en la conexión</div>';
+                coordinatorResults.style.display = 'block';
+                console.error('Error:', error);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+        
+        // Función para establecer coordinador
+        async function setCoordinator(cedula) {
+            toggleLoading(true);
+            
+            try {
+                const response = await fetch(`api/consulta.php?cedula=${encodeURIComponent(cedula)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const person = data.data;
+                    
+                    // Actualizar datos del coordinador
+                    coordinator = {
+                        id: Date.now(),
+                        name: `${person.nombres} ${person.apellido1} ${person.apellido2}`,
+                        cedula: person.Cedula,
+                        phone: person.Telefono || 'N/A',
+                        municipio: person.Municipio,
+                        recinto: person.Recinto,
+                        colegio: person.CodigoColegio,
+                        photo: person.Imagen ? 'data:image/jpeg;base64,' + person.Imagen : 'fotos/default.svg'
+                    };
+                    
+                    // Actualizar tarjeta de coordinador con todos los datos
+                    coordinatorName.textContent = coordinator.name;
+                    coordinatorCedula.textContent = coordinator.cedula;
+                    coordinatorPhone.textContent = coordinator.phone;
+                    coordinatorMunicipio.textContent = coordinator.municipio;
+                    coordinatorRecinto.textContent = coordinator.recinto;
+                    coordinatorColegio.textContent = coordinator.colegio;
+                    coordinatorPhoto.src = coordinator.photo;
+                    
+                    // Actualizar solo el municipio en Datos del Comité
+                    municipioInput.value = coordinator.municipio;
+                    updateComiteData();
+                    
+                    // Limpiar búsqueda
+                    searchCoordinatorInput.value = '';
+                    coordinatorResults.style.display = 'none';
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al obtener datos del coordinador');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+        
+        // Función para buscar miembros
+        async function searchMembers() {
+            const cedula = searchMemberInput.value.trim();
+            
+            if (!cedula) {
+                memberResults.innerHTML = '<div class="no-results">Ingrese una cédula para buscar</div>';
+                memberResults.style.display = 'block';
+                return;
+            }
+            
+            toggleLoading(true);
+            
+            try {
+                const response = await fetch(`api/consulta.php?cedula=${encodeURIComponent(cedula)}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    memberResults.innerHTML = `<div class="no-results">${data.message}</div>`;
+                    memberResults.style.display = 'block';
+                } else {
+                    const person = data.data;
+                    
+                    // Verificar si ya es el coordinador
+                    const isCoordinator = coordinator && coordinator.cedula === person.Cedula;
+                    
+                    // Verificar si ya está agregado
+                    const isAdded = addedMembers.some(m => m.cedula === person.Cedula);
+                    
+                    // Mostrar resultado
+                    memberResults.innerHTML = `
+                        <div class="result-item">
+                            <img src="${person.Imagen ? 'data:image/jpeg;base64,' + person.Imagen : 'fotos/default.svg'}" 
+                                 class="result-photo">
+                            <div class="result-info">
+                                <div><strong>${person.nombres} ${person.apellido1} ${person.apellido2}</strong></div>
+                                <div>Cédula: ${person.Cedula} | Municipio: ${person.Municipio}</div>
+                                <div class="small text-muted mt-1">
+                                    Recinto: ${person.Recinto} | Colegio: ${person.CodigoColegio}
+                                </div>
+                            </div>
+                            <button class="btn-add" 
+                                onclick="addMember('${person.Cedula}')" 
+                                ${isAdded || isCoordinator ? 'disabled' : ''}>
+                                <i class="fas fa-plus me-1"></i> ${isAdded ? 'Agregado' : (isCoordinator ? 'Es coordinador' : 'Agregar')}
+                            </button>
+                        </div>
+                    `;
+                    memberResults.style.display = 'block';
+                }
+            } catch (error) {
+                memberResults.innerHTML = '<div class="no-results">Error en la conexión</div>';
+                memberResults.style.display = 'block';
+                console.error('Error:', error);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+        
+        // Función para agregar un miembro al comité
+        async function addMember(cedula) {
+            toggleLoading(true);
+            
+            try {
+                const response = await fetch(`api/consulta.php?cedula=${encodeURIComponent(cedula)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const person = data.data;
+                    
+                    const newMember = {
+                        id: Date.now(),
+                        name: `${person.nombres} ${person.apellido1} ${person.apellido2}`,
+                        cedula: person.Cedula,
+                        phone: person.Telefono || 'N/A',
+                        municipio: person.Municipio,
+                        recinto: person.Recinto,
+                        colegio: person.CodigoColegio,
+                        photo: person.Imagen ? 'data:image/jpeg;base64,' + person.Imagen : 'fotos/default.svg'
+                    };
+                    
+                    addedMembers.push(newMember);
+                    updateMembersTable();
+                    updateTotalMembers();
+                    
+                    // Limpiar búsqueda
+                    searchMemberInput.value = '';
+                    memberResults.style.display = 'none';
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al obtener datos del miembro');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+        
+        // Función para agregar miembro manualmente
+        function addMemberManually() {
+            const name = document.getElementById('memberName').value;
+            const cedula = document.getElementById('memberCedula').value;
+            const phone = document.getElementById('memberPhone').value;
+            const email = document.getElementById('memberEmail').value;
+            const municipio = document.getElementById('memberMunicipio').value;
+            const recinto = document.getElementById('memberRecinto').value;
+            const colegio = document.getElementById('memberColegio').value;
+            
+            const newMember = {
+                id: Date.now(), // ID único
+                name,
+                cedula,
+                phone,
+                email,
+                municipio: municipio || municipioInput.value,
+                recinto: recinto || recintoInput.value,
+                colegio: colegio || colegioInput.value,
+                photo: 'fotos/default.svg'
+            };
+            
+            addedMembers.push(newMember);
+            updateMembersTable();
+            updateTotalMembers();
+            
+            // Cerrar modal y limpiar formulario
+            bootstrap.Modal.getInstance(document.getElementById('addMemberModal')).hide();
+            document.getElementById('memberForm').reset();
+        }
+        
+        // Función para abrir modal de edición
+        function openEditModal(memberId) {
+            const member = addedMembers.find(m => m.id === memberId);
+            if (!member) return;
+            
+            document.getElementById('editMemberId').value = member.id;
+            document.getElementById('editMemberName').value = member.name;
+            document.getElementById('editMemberCedula').value = member.cedula;
+            document.getElementById('editMemberPhone').value = member.phone || '';
+            document.getElementById('editMemberEmail').value = member.email || '';
+            document.getElementById('editMemberMunicipio').value = member.municipio || '';
+            document.getElementById('editMemberRecinto').value = member.recinto || '';
+            document.getElementById('editMemberColegio').value = member.colegio || '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('editMemberModal'));
+            modal.show();
+        }
+        
+        // Función para actualizar miembro
+        function updateMember() {
+            const memberId = parseInt(document.getElementById('editMemberId').value);
+            const name = document.getElementById('editMemberName').value;
+            const cedula = document.getElementById('editMemberCedula').value;
+            const phone = document.getElementById('editMemberPhone').value;
+            const email = document.getElementById('editMemberEmail').value;
+            const municipio = document.getElementById('editMemberMunicipio').value;
+            const recinto = document.getElementById('editMemberRecinto').value;
+            const colegio = document.getElementById('editMemberColegio').value;
+            
+            const memberIndex = addedMembers.findIndex(m => m.id === memberId);
+            if (memberIndex === -1) return;
+            
+            addedMembers[memberIndex] = {
+                ...addedMembers[memberIndex],
+                name,
+                cedula,
+                phone,
+                email,
+                municipio,
+                recinto,
+                colegio
+            };
+            
+            updateMembersTable();
+            bootstrap.Modal.getInstance(document.getElementById('editMemberModal')).hide();
+        }
+        
+        // Función para actualizar la tabla de miembros
+        function updateMembersTable() {
+            let tableHTML = '';
+            
+            // Filtrar coordinador de la lista de miembros
+            const filteredMembers = addedMembers.filter(member => 
+                !coordinator || member.cedula !== coordinator.cedula
+            );
+            
+            filteredMembers.forEach((member, index) => {
+                tableHTML += `
+                    <tr>
+                        <td style="position: relative;">
+                            <img src="${member.photo}" class="member-photo">
+                            <button class="btn-edit" onclick="openEditModal(${member.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                        <td>${index + 1}</td>
+                        <td>${member.name}</td>
+                        <td>${member.cedula}</td>
+                        <td>${member.phone || 'N/A'}</td>
+                        <td>${member.municipio}</td>
+                        <td>${member.recinto}</td>
+                        <td>${member.colegio}</td>
+                    </tr>
+                `;
+            });
+            
+            membersTable.innerHTML = tableHTML;
+            totalMembersSpan.textContent = addedMembers.length;
+            totalAffiliationPrint.textContent = addedMembers.length;
+        }
+        
+        // Función para actualizar el contador de miembros
+        function updateTotalMembers() {
+            totalMembersSpan.textContent = addedMembers.length;
+            totalAffiliationPrint.textContent = addedMembers.length;
+        }
+        
+        // Event listeners
+        searchCoordinatorBtn.addEventListener('click', searchCoordinator);
+        searchCoordinatorInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchCoordinator();
+            }
+        });
+        
+        searchMemberBtn.addEventListener('click', searchMembers);
+        searchMemberInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                searchMembers();
+            }
+        });
+        
+        municipioInput.addEventListener('input', updateComiteData);
+        
+        addManualBtn.addEventListener('click', () => {
+            const modal = new bootstrap.Modal(document.getElementById('addMemberModal'));
+            modal.show();
+        });
+        
+        document.getElementById('saveMemberBtn').addEventListener('click', addMemberManually);
+        document.getElementById('updateMemberBtn').addEventListener('click', updateMember);
+        
+        // Inicializar con datos de ejemplo
+        updateComiteData();
+    </script>
+</body>
+</html>
