@@ -71,8 +71,9 @@ include 'includes/header.php';
 
 <style>
 .role-badge { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px; }
-.role-admin { background:#fef2f2;color:#dc2626; }
-.role-user  { background:#eff6ff;color:#2563eb; }
+.role-admin      { background:#fef2f2;color:#dc2626; }
+.role-supervisor { background:#fefce8;color:#ca8a04; }
+.role-user       { background:#eff6ff;color:#2563eb; }
 .action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;background:none;cursor:pointer;transition:all .15s; }
 .action-link:hover { border-color:var(--accent);color:var(--accent);background:#eff6ff; }
 .action-link.danger:hover { border-color:var(--danger);color:var(--danger);background:#fef2f2; }
@@ -125,9 +126,14 @@ include 'includes/header.php';
                 </td>
                 <td style="font-size:13px;"><?php echo htmlspecialchars($u['email']); ?></td>
                 <td>
-                    <span class="role-badge <?php echo $u['rol']==='admin' ? 'role-admin' : 'role-user'; ?>">
-                        <i class="fas fa-<?php echo $u['rol']==='admin' ? 'shield-alt' : 'user'; ?>"></i>
-                        <?php echo $u['rol']==='admin' ? 'Administrador' : 'Usuario'; ?>
+                    <?php
+                        $rc = ['admin'=>'role-admin','supervisor'=>'role-supervisor','digitador'=>'role-user'];
+                        $ri = ['admin'=>'shield-alt','supervisor'=>'user-check','digitador'=>'keyboard'];
+                        $rl = ['admin'=>'Administrador','supervisor'=>'Supervisor','digitador'=>'Digitador'];
+                    ?>
+                    <span class="role-badge <?php echo $rc[$u['rol']]??'role-user'; ?>">
+                        <i class="fas fa-<?php echo $ri[$u['rol']]??'user'; ?>"></i>
+                        <?php echo $rl[$u['rol']]??ucfirst($u['rol']); ?>
                     </span>
                 </td>
                 <td style="font-size:12px;color:var(--text-secondary);"><?php echo date('d/m/Y', strtotime($u['fecha_registro'])); ?></td>
@@ -183,7 +189,8 @@ include 'includes/header.php';
                     <div class="mb-4">
                         <label class="form-label" style="font-size:13px;font-weight:500;">Rol</label>
                         <select class="form-select form-select-sm" id="rol" name="rol" required>
-                            <option value="usuario">Usuario</option>
+                            <option value="digitador">Digitador</option>
+                            <option value="supervisor">Supervisor</option>
                             <option value="admin">Administrador</option>
                         </select>
                     </div>

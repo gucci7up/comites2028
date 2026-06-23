@@ -2,9 +2,9 @@
 if (session_status() == PHP_SESSION_NONE) session_start();
 
 function estaAutenticado()  { return isset($_SESSION['usuario_id']); }
-function esOwner()          { return isset($_SESSION['usuario_rol']) && in_array($_SESSION['usuario_rol'], ['owner','superadmin']); }
-function esAdmin()          { return isset($_SESSION['usuario_rol']) && in_array($_SESSION['usuario_rol'], ['admin','owner','superadmin']); }
-function esSuperAdmin()     { return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] === 'superadmin'; }
+function esAdmin()          { return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] === 'admin'; }
+function esSupervisor()     { return isset($_SESSION['usuario_rol']) && in_array($_SESSION['usuario_rol'], ['admin','supervisor']); }
+function esDigitador()      { return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] === 'digitador'; }
 function tieneCandidato()   { return isset($_SESSION['candidato_id']) && $_SESSION['candidato_id'] > 0; }
 
 function requiereAutenticacion() {
@@ -16,23 +16,15 @@ function requiereAdmin() {
     if (!esAdmin()) { header("Location: dashboard.php?error=permisos"); exit; }
 }
 
-function requiereOwner() {
+function requiereSupervisor() {
     requiereAutenticacion();
-    if (!esOwner()) { header("Location: dashboard.php?error=permisos"); exit; }
-}
-
-function requiereSuperAdmin() {
-    requiereAutenticacion();
-    if (!esSuperAdmin()) { header("Location: dashboard.php?error=permisos"); exit; }
+    if (!esSupervisor()) { header("Location: dashboard.php?error=permisos"); exit; }
 }
 
 function requiereCandidato() {
     requiereAutenticacion();
-    // Owners y superadmins no necesitan candidato seleccionado
-    if (esOwner()) return;
-    if (!tieneCandidato()) {
-        header("Location: seleccionar_candidato.php"); exit;
-    }
+    if (esAdmin() || esSupervisor()) return;
+    if (!tieneCandidato()) { header("Location: seleccionar_candidato.php"); exit; }
 }
 
 function cerrarSesion() {
@@ -44,18 +36,21 @@ function cerrarSesion() {
     session_destroy();
 }
 
-/* Carga el tema del partido del usuario actual */
-function cargarTemaPartido() {
-    if (!isset($_SESSION['partido_id'])) {
-        return ['color_primario'=>'#2563eb','color_sidebar'=>'#0d1b2a','color_accent'=>'#3b82f6','nombre'=>'Sistema','siglas'=>''];
-    }
+function cargarConfiguracion() {
+    static $config = null;
+    if ($config !== null) return $config;
     require_once __DIR__ . '/../db/config.php';
     $conn = conectarDB();
-    $stmt = $conn->prepare("SELECT nombre, siglas, color_primario, color_sidebar, color_accent, logo FROM partidos WHERE id=?");
-    $stmt->bind_param("i", $_SESSION['partido_id']);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
+    $res = $conn->query("SELECT * FROM configuracion LIMIT 1");
+    $config = $res ? $res->fetch_assoc() : [];
     $conn->close();
-    return $row ?: ['color_primario'=>'#2563eb','color_sidebar'=>'#0d1b2a','color_accent'=>'#3b82f6','nombre'=>'Sistema','siglas'=>''];
+    return $config ?: [
+        'nombre_partido' => 'Sistema',
+        'siglas'         => '',
+        'color_primario' => '#2563eb',
+        'color_sidebar'  => '#0d1b2a',
+        'color_accent'   => '#3b82f6',
+        'logo'           => null,
+    ];
 }
 ?>

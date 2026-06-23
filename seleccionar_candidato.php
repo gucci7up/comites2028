@@ -8,14 +8,11 @@ requiereAutenticacion();
 if (tieneCandidato()) { header('Location: dashboard.php'); exit; }
 
 $conn = conectarDB();
-$partido_id = $_SESSION['partido_id'] ?? 0;
-
 // Guardar candidato seleccionado
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidato_id'])) {
     $cid = (int)$_POST['candidato_id'];
-    // Verificar que el candidato pertenece al partido del usuario
-    $s = $conn->prepare("SELECT id, nombre, cargo, descripcion FROM candidatos WHERE id=? AND partido_id=? AND activo=1");
-    $s->bind_param("ii", $cid, $partido_id);
+    $s = $conn->prepare("SELECT id, nombre, cargo, descripcion FROM candidatos WHERE id=? AND activo=1");
+    $s->bind_param("i", $cid);
     $s->execute();
     $cand = $s->get_result()->fetch_assoc();
     if ($cand) {
@@ -27,19 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['candidato_id'])) {
     }
 }
 
-// Cargar candidatos del partido agrupados por cargo
+// Cargar candidatos agrupados por cargo
 $candidatos = [];
-if ($partido_id) {
-    $res = $conn->query("SELECT id, nombre, cargo, descripcion, foto FROM candidatos WHERE partido_id=$partido_id AND activo=1 ORDER BY FIELD(cargo,'presidente','senador','diputado','alcalde','regidor'), nombre");
-    while ($row = $res->fetch_assoc()) {
-        $candidatos[$row['cargo']][] = $row;
-    }
+$res = $conn->query("SELECT id, nombre, cargo, descripcion, foto FROM candidatos WHERE activo=1 ORDER BY FIELD(cargo,'presidente','senador','diputado','alcalde','regidor'), nombre");
+while ($row = $res->fetch_assoc()) {
+    $candidatos[$row['cargo']][] = $row;
 }
 
-// Cargar tema del partido
-$tema = cargarTemaPartido();
-$logo_b64 = '';
-if (!empty($tema['logo'])) $logo_b64 = base64_encode($tema['logo']);
+// Cargar configuración
+$cfg = cargarConfiguracion();
+$logo_b64 = !empty($cfg['logo']) ? base64_encode($cfg['logo']) : '';
 
 $cargos_labels = [
     'presidente' => 'Presidente',
@@ -67,9 +61,9 @@ $cargos_icons = [
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: <?php echo htmlspecialchars($tema['color_primario']); ?>;
-            --sidebar: <?php echo htmlspecialchars($tema['color_sidebar']); ?>;
-            --accent:  <?php echo htmlspecialchars($tema['color_accent']); ?>;
+            --primary: <?php echo htmlspecialchars($cfg['color_primario']); ?>;
+            --sidebar: <?php echo htmlspecialchars($cfg['color_sidebar']); ?>;
+            --accent:  <?php echo htmlspecialchars($cfg['color_accent']); ?>;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -233,7 +227,7 @@ $cargos_icons = [
     </div>
     <?php endif; ?>
     <div>
-        <div class="sel-topbar-title"><?php echo htmlspecialchars($tema['nombre']); ?></div>
+        <div class="sel-topbar-title"><?php echo htmlspecialchars($cfg['nombre_partido']); ?></div>
         <div class="sel-topbar-sub">Sistema de Comités Afectivos</div>
     </div>
     <div class="sel-topbar-user">

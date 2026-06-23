@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $conexion = conectarDB();
         $usu = sanitizar($conexion, $usu);
-        $sql = "SELECT id, nombre, usuario, password, rol, partido_id FROM usuarios WHERE usuario = '$usu' AND activo = 1";
+        $sql = "SELECT id, nombre, usuario, password, rol FROM usuarios WHERE usuario = '$usu' AND activo = 1";
         $res = $conexion->query($sql);
         if ($res->num_rows == 1) {
             $fila = $res->fetch_assoc();
@@ -42,10 +42,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['usuario_id']     = $fila['id'];
                 $_SESSION['usuario_nombre'] = $fila['nombre'];
                 $_SESSION['usuario_rol']    = $fila['rol'];
-                $_SESSION['partido_id']     = $fila['partido_id'];
                 $conexion->query("UPDATE usuarios SET ultimo_acceso=NOW() WHERE id={$fila['id']}");
                 // Digitadores deben seleccionar candidato
-                $redir = (in_array($fila['rol'], ['superadmin','owner'])) ? 'dashboard.php' : 'seleccionar_candidato.php';
+                $redir = $fila['rol'] === 'digitador' ? 'seleccionar_candidato.php' : 'dashboard.php';
                 header("Location: $redir"); exit;
             } else { $error = "Contraseña incorrecta."; }
         } else { $error = "Usuario no encontrado o inactivo."; }

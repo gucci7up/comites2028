@@ -1,30 +1,27 @@
--- Sistema de Comités Afectivos — PRM
--- Esquema completo v2
+-- Comités Afectivo 2028 — Esquema v3
+-- Un servidor por partido político
 
--- ── PARTIDOS ──────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS partidos (
+-- ── CONFIGURACIÓN DEL SISTEMA (fila única) ───────────────────────
+CREATE TABLE IF NOT EXISTS configuracion (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    siglas VARCHAR(20),
+    nombre_partido VARCHAR(100) DEFAULT 'Mi Partido',
+    siglas VARCHAR(20) DEFAULT 'MP',
     logo LONGBLOB,
     color_primario VARCHAR(7) DEFAULT '#2563eb',
     color_sidebar  VARCHAR(7) DEFAULT '#0d1b2a',
-    color_accent   VARCHAR(7) DEFAULT '#3b82f6',
-    activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    color_accent   VARCHAR(7) DEFAULT '#3b82f6'
 );
+INSERT INTO configuracion (nombre_partido, siglas) VALUES ('Mi Partido', 'MP');
 
 -- ── CANDIDATOS ────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS candidatos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    partido_id INT NOT NULL,
     nombre VARCHAR(150) NOT NULL,
     cargo ENUM('presidente','senador','diputado','alcalde','regidor') NOT NULL,
-    descripcion VARCHAR(150) NULL COMMENT 'Ej: Zona Norte, Circunscripción 1',
+    descripcion VARCHAR(150) NULL,
     foto LONGBLOB,
     activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE CASCADE
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ── USUARIOS ──────────────────────────────────────────────────────
@@ -34,12 +31,10 @@ CREATE TABLE IF NOT EXISTS usuarios (
     usuario VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100),
-    rol ENUM('superadmin','owner','admin','usuario') DEFAULT 'usuario',
-    partido_id INT NULL,
+    rol ENUM('admin','supervisor','digitador') DEFAULT 'digitador',
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultimo_acceso DATETIME,
-    activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (partido_id) REFERENCES partidos(id) ON DELETE SET NULL
+    activo BOOLEAN DEFAULT TRUE
 );
 
 -- ── COMITÉS ───────────────────────────────────────────────────────
@@ -107,13 +102,7 @@ CREATE TABLE IF NOT EXISTS comite_miembro (
     UNIQUE KEY (comite_id, miembro_id)
 );
 
--- ── PARTIDOS PREDEFINIDOS ─────────────────────────────────────────
-INSERT INTO partidos (nombre, siglas, color_primario, color_sidebar, color_accent) VALUES
-('Partido Revolucionario Moderno', 'PRM', '#2563eb', '#0d1b2a', '#3b82f6'),
-('Partido de la Liberación Dominicana', 'PLD', '#7c3aed', '#1e1035', '#8b5cf6'),
-('Fuerza del Pueblo', 'FDP', '#16a34a', '#0a1f12', '#22c55e');
-
--- ── SUPER ADMIN ───────────────────────────────────────────────────
+-- ── ADMIN POR DEFECTO ─────────────────────────────────────────────
 INSERT INTO usuarios (nombre, usuario, password, email, rol) VALUES
-('Super Administrador', 'superadmin', '$2y$10$Eaeut9oONLbcrveqy0/0T.siqryvF5b0CMSgp6b6fJ2E10pmSga7y', 'admin@sistema.com', 'superadmin');
+('Administrador', 'admin', '$2y$10$Eaeut9oONLbcrveqy0/0T.siqryvF5b0CMSgp6b6fJ2E10pmSga7y', 'admin@sistema.com', 'admin');
 -- Contraseña: Gucci1826

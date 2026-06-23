@@ -3,16 +3,15 @@ if (session_status() == PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/auth.php';
 $pagina_actual = basename($_SERVER['PHP_SELF']);
 
-// Cargar tema del partido activo
-$_tema = cargarTemaPartido();
-$_color_primary = $_tema['color_primario'] ?? '#2563eb';
-$_color_sidebar = $_tema['color_sidebar']  ?? '#0d1b2a';
-$_color_accent  = $_tema['color_accent']   ?? '#3b82f6';
-$_partido_nombre = $_tema['nombre'] ?? 'Sistema';
-$_partido_siglas = $_tema['siglas'] ?? '';
-$_logo_b64 = !empty($_tema['logo']) ? base64_encode($_tema['logo']) : '';
+// Cargar configuración del sistema
+$_cfg = cargarConfiguracion();
+$_color_primary = $_cfg['color_primario'] ?? '#2563eb';
+$_color_sidebar = $_cfg['color_sidebar']  ?? '#0d1b2a';
+$_color_accent  = $_cfg['color_accent']   ?? '#3b82f6';
+$_sistema_nombre = $_cfg['nombre_partido'] ?? 'Sistema';
+$_sistema_siglas = $_cfg['siglas'] ?? '';
+$_logo_b64 = !empty($_cfg['logo']) ? base64_encode($_cfg['logo']) : '';
 
-// Hover sidebar = lighten sidebar
 function _lightenHex($hex, $factor = 1.5) {
     $hex = ltrim($hex,'#');
     $r = min(255, (int)(hexdec(substr($hex,0,2)) * $factor));
@@ -27,7 +26,7 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina).' — '.$_partido_siglas : $_partido_nombre; ?></title>
+    <title><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina).' — '.$_sistema_siglas : $_sistema_nombre; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -442,10 +441,10 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
         <?php if ($_logo_b64): ?>
         <img src="data:image/png;base64,<?php echo $_logo_b64; ?>" alt="Logo">
         <?php else: ?>
-        <img src="logo1.png" alt="Logo">
+        <img src="logo_sistema.png" alt="Logo">
         <?php endif; ?>
         <div>
-            <div class="sidebar-brand-name"><?php echo htmlspecialchars($_partido_nombre); ?></div>
+            <div class="sidebar-brand-name"><?php echo htmlspecialchars($_sistema_nombre); ?></div>
             <div class="sidebar-brand-sub">Comités Afectivos</div>
         </div>
     </div>
@@ -473,7 +472,7 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
                 <span class="nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
             </a>
         </div>
-        <?php if (esAdmin()): ?>
+        <?php if (esSupervisor()): ?>
         <div class="nav-section-label">Administración</div>
         <div class="nav-item">
             <a href="usuarios.php" class="nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
@@ -481,17 +480,10 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
             </a>
         </div>
         <?php endif; ?>
-        <?php if (esOwner()): ?>
+        <?php if (esAdmin()): ?>
         <div class="nav-item">
             <a href="config.php" class="nav-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
                 <span class="nav-icon"><i class="fas fa-cog"></i></span>Configuración
-            </a>
-        </div>
-        <?php endif; ?>
-        <?php if (esSuperAdmin()): ?>
-        <div class="nav-item">
-            <a href="partidos.php" class="nav-link <?php echo $pagina_actual=='partidos.php'?'active':''; ?>">
-                <span class="nav-icon"><i class="fas fa-flag"></i></span>Partidos
             </a>
         </div>
         <?php endif; ?>
@@ -594,20 +586,15 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
                 <span class="fab-nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
             </a>
 
-            <?php if (esAdmin()): ?>
+            <?php if (esSupervisor()): ?>
             <div class="fab-nav-section">Administración</div>
             <a href="usuarios.php" class="fab-nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
                 <span class="fab-nav-icon"><i class="fas fa-users-cog"></i></span>Usuarios
             </a>
             <?php endif; ?>
-            <?php if (esOwner()): ?>
+            <?php if (esAdmin()): ?>
             <a href="config.php" class="fab-nav-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
                 <span class="fab-nav-icon"><i class="fas fa-cog"></i></span>Configuración
-            </a>
-            <?php endif; ?>
-            <?php if (esSuperAdmin()): ?>
-            <a href="partidos.php" class="fab-nav-link <?php echo $pagina_actual=='partidos.php'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-flag"></i></span>Partidos
             </a>
             <?php endif; ?>
             <?php if (tieneCandidato()): ?>
