@@ -281,149 +281,165 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
         .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
 
         /* ════════════════════════════════════════════════════
-           MOBILE FAB MENU  (WhatsApp style)
+           MOBILE PILL NAV BAR
            ════════════════════════════════════════════════════ */
-        .fab-menu { display: none; }
+        .mob-nav { display: none; }
 
-        /* Bottom sheet backdrop */
-        .fab-backdrop {
+        .mob-pill {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1047;
+            background: #1c1c1e;
+            border-radius: 40px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            white-space: nowrap;
+        }
+
+        .mob-pill-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            color: rgba(255,255,255,0.55);
+            text-decoration: none;
+            font-size: 19px;
+            transition: all .18s cubic-bezier(.4,0,.2,1);
+            flex-shrink: 0;
+        }
+        .mob-pill-item:hover { color: rgba(255,255,255,.85); }
+        .mob-pill-item.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 50%, transparent);
+        }
+        .mob-pill-item .mob-dot {
+            position: absolute;
+            top: 7px; right: 7px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #ef4444;
+            border: 1.5px solid #1c1c1e;
+        }
+        .mob-pill-divider {
+            width: 1px; height: 24px;
+            background: rgba(255,255,255,0.1);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        /* More sheet */
+        .mob-backdrop {
             display: none;
             position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0,0,0,0.5);
             z-index: 1048;
-            backdrop-filter: blur(2px);
-            -webkit-backdrop-filter: blur(2px);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
         }
-        .fab-backdrop.show { display: block; }
+        .mob-backdrop.show { display: block; }
 
-        /* Bottom sheet panel */
-        .fab-sheet {
+        .mob-sheet {
             position: fixed;
             bottom: 0; left: 0; right: 0;
-            background: var(--sidebar-bg);
+            background: #1c1c1e;
             border-radius: 20px 20px 0 0;
             z-index: 1049;
-            padding: 0 0 env(safe-area-inset-bottom, 16px);
+            padding-bottom: env(safe-area-inset-bottom, 16px);
             transform: translateY(100%);
-            transition: transform .3s cubic-bezier(.4,0,.2,1);
-            box-shadow: 0 -8px 32px rgba(0,0,0,0.35);
-            max-height: 85vh;
-            overflow-y: auto;
+            transition: transform .28s cubic-bezier(.4,0,.2,1);
+            box-shadow: 0 -4px 24px rgba(0,0,0,.4);
         }
-        .fab-sheet.show { transform: translateY(0); }
+        .mob-sheet.show { transform: translateY(0); }
 
-        .fab-sheet-handle {
+        .mob-sheet-handle {
             width: 36px; height: 4px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,.2);
             border-radius: 2px;
             margin: 12px auto 0;
         }
-
-        .fab-sheet-header {
+        .mob-sheet-user {
             display: flex; align-items: center; gap: 12px;
-            padding: 16px 20px 12px;
-            border-bottom: 1px solid var(--sidebar-border);
+            padding: 16px 20px 14px;
+            border-bottom: 1px solid rgba(255,255,255,.07);
         }
-        .fab-sheet-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
+        .mob-sheet-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
             background: var(--accent); color: #fff;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 14px; flex-shrink: 0;
+            font-weight: 700; font-size: 15px; flex-shrink: 0;
         }
-        .fab-sheet-user-name { font-size: 14px; font-weight: 600; color: #fff; }
-        .fab-sheet-user-role { font-size: 11px; color: var(--sidebar-text); }
+        .mob-sheet-name { font-size: 14px; font-weight: 600; color: #fff; }
+        .mob-sheet-role { font-size: 11px; color: rgba(255,255,255,.4); }
 
-        .fab-nav { padding: 10px 12px; }
-        .fab-nav-section {
-            font-size: 10px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: .08em;
-            color: rgba(255,255,255,0.28);
-            padding: 10px 8px 4px;
-        }
-        .fab-nav-link {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 12px;
-            border-radius: 10px;
-            color: var(--sidebar-text);
+        .mob-sheet-links { padding: 10px 12px; }
+        .mob-sheet-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 13px 12px;
+            border-radius: 12px;
+            color: rgba(255,255,255,.7);
             text-decoration: none;
             font-size: 14px; font-weight: 500;
             transition: all .15s;
             margin-bottom: 2px;
         }
-        .fab-nav-link:hover,
-        .fab-nav-link.active { background: var(--sidebar-hover); color: #fff; }
-        .fab-nav-link.active { background: var(--sidebar-active); }
-        .fab-nav-icon {
-            width: 36px; height: 36px; border-radius: 9px;
+        .mob-sheet-link:hover { background: rgba(255,255,255,.07); color: #fff; }
+        .mob-sheet-link.active { background: var(--accent); color: #fff; }
+        .mob-sheet-link-icon {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: rgba(255,255,255,.07);
             display: flex; align-items: center; justify-content: center;
             font-size: 15px; flex-shrink: 0;
-            background: rgba(255,255,255,0.07);
         }
-        .fab-nav-link.active .fab-nav-icon { background: rgba(255,255,255,0.18); }
-
-        .fab-sheet-footer {
-            padding: 12px 20px 16px;
-            border-top: 1px solid var(--sidebar-border);
-            margin-top: 4px;
+        .mob-sheet-link.active .mob-sheet-link-icon { background: rgba(255,255,255,.18); }
+        .mob-sheet-footer {
+            padding: 10px 12px 16px;
+            border-top: 1px solid rgba(255,255,255,.07);
         }
-        .fab-logout-btn {
-            display: flex; align-items: center; gap: 10px;
-            width: 100%; padding: 12px 14px;
-            border-radius: 10px; border: 1px solid rgba(239,68,68,.3);
-            background: rgba(239,68,68,.08);
-            color: #f87171; font-size: 14px; font-weight: 500;
-            text-decoration: none; transition: all .15s;
+        .mob-logout {
+            display: flex; align-items: center; gap: 14px;
+            padding: 13px 12px; border-radius: 12px;
+            color: #f87171; text-decoration: none;
+            font-size: 14px; font-weight: 500;
+            transition: all .15s;
         }
-        .fab-logout-btn:hover { background: rgba(239,68,68,.16); color: #ef4444; }
-
-        /* FAB button */
-        .fab-btn {
-            position: fixed;
-            bottom: 24px; right: 20px;
-            width: var(--fab-size); height: var(--fab-size);
-            border-radius: 50%;
-            background: var(--accent);
-            color: #fff;
-            border: none; cursor: pointer;
+        .mob-logout:hover { background: rgba(239,68,68,.1); color: #ef4444; }
+        .mob-logout-icon {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: rgba(239,68,68,.12);
             display: flex; align-items: center; justify-content: center;
-            font-size: 20px;
-            z-index: 1047;
-            box-shadow: 0 4px 20px rgba(37,99,235,.5);
-            transition: transform .2s, box-shadow .2s, background .15s;
+            font-size: 15px; flex-shrink: 0; color: #f87171;
         }
-        .fab-btn:hover { transform: scale(1.07); box-shadow: 0 6px 24px rgba(37,99,235,.6); }
-        .fab-btn.open  { background: #1d4ed8; transform: rotate(45deg); }
-        .fab-btn.open:hover { transform: rotate(45deg) scale(1.07); }
 
         /* ── RESPONSIVE ──────────────────────────────────── */
         @media (max-width: 767px) {
-            /* Hide desktop sidebar */
-            .sidebar       { display: none !important; }
-            .main-wrapper  { margin-left: 0 !important; }
-
-            /* Show FAB */
-            .fab-menu  { display: block; }
-
-            /* Topbar adjustments */
+            .sidebar      { display: none !important; }
+            .main-wrapper { margin-left: 0 !important; }
+            .mob-nav      { display: block; }
             .topbar { padding: 0 14px; }
-            .page-title { max-width: calc(100vw - 180px); font-size: 15px; }
+            .page-title { max-width: calc(100vw - 140px); font-size: 15px; }
             .topbar-user-name { display: none; }
             .topbar-right .btn { display: none; }
-
-            /* Page content bottom padding so FAB doesn't cover content */
-            .page-content { padding: 14px 14px 90px; }
-
-            /* Tables: horizontal scroll */
-            .table-responsive { border-radius: 0 0 var(--radius) var(--radius); }
-
-            /* Cards */
+            .page-content { padding: 14px 14px 100px; }
             .card { border-radius: var(--radius); }
         }
 
         @media (min-width: 768px) {
-            .fab-menu     { display: none !important; }
-            .fab-backdrop { display: none !important; }
-            .fab-sheet    { display: none !important; }
+            .mob-nav      { display: none !important; }
+            .mob-backdrop { display: none !important; }
+            .mob-sheet    { display: none !important; }
+            .mob-pill     { display: none !important; }
         }
 
         /* Tablet adjustments */
@@ -550,75 +566,68 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
     <main class="page-content">
 
 <!-- ══════════════════════════════════════════════════════
-     MOBILE FAB MENU
+     MOBILE PILL NAV BAR
      ══════════════════════════════════════════════════════ -->
-<div class="fab-menu">
+<div class="mob-nav">
+    <!-- Pill bar -->
+    <nav class="mob-pill">
+        <a href="dashboard.php" class="mob-pill-item <?php echo $pagina_actual=='dashboard.php'?'active':''; ?>" title="Dashboard">
+            <i class="fas fa-house"></i>
+        </a>
+        <a href="comites.php" class="mob-pill-item <?php echo $pagina_actual=='comites.php'?'active':''; ?>" title="Comités">
+            <i class="fas fa-layer-group"></i>
+        </a>
+        <a href="crear_comite.php" class="mob-pill-item <?php echo $pagina_actual=='crear_comite.php'?'active':''; ?>" title="Crear Comité">
+            <i class="fas fa-plus"></i>
+        </a>
+        <a href="consultar.html" class="mob-pill-item <?php echo $pagina_actual=='consultar.html'?'active':''; ?>" title="Consultar Cédula">
+            <i class="fas fa-magnifying-glass"></i>
+        </a>
+        <div class="mob-pill-divider"></div>
+        <button class="mob-pill-item" id="mobMoreBtn" title="Más" style="background:none;border:none;cursor:pointer;">
+            <i class="fas fa-circle-user"></i>
+        </button>
+    </nav>
+
     <!-- Backdrop -->
-    <div class="fab-backdrop" id="fabBackdrop"></div>
+    <div class="mob-backdrop" id="mobBackdrop"></div>
 
-    <!-- Bottom sheet -->
-    <div class="fab-sheet" id="fabSheet">
-        <div class="fab-sheet-handle"></div>
-
-        <div class="fab-sheet-header">
-            <div class="fab-sheet-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
+    <!-- More sheet -->
+    <div class="mob-sheet" id="mobSheet">
+        <div class="mob-sheet-handle"></div>
+        <div class="mob-sheet-user">
+            <div class="mob-sheet-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
             <div>
-                <div class="fab-sheet-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??'Usuario'); ?></div>
-                <div class="fab-sheet-user-role"><?php echo ucfirst($_SESSION['usuario_rol']??'usuario'); ?></div>
+                <div class="mob-sheet-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??'Usuario'); ?></div>
+                <div class="mob-sheet-role"><?php echo ucfirst($_SESSION['usuario_rol']??''); ?></div>
             </div>
         </div>
-
-        <div class="fab-nav">
-            <div class="fab-nav-section">Principal</div>
-
-            <a href="dashboard.php" class="fab-nav-link <?php echo $pagina_actual=='dashboard.php'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-chart-pie"></i></span>Dashboard
+        <div class="mob-sheet-links">
+            <a href="perfil.php" class="mob-sheet-link <?php echo $pagina_actual=='perfil.php'?'active':''; ?>">
+                <span class="mob-sheet-link-icon"><i class="fas fa-user"></i></span>Mi Perfil
             </a>
-            <a href="comites.php" class="fab-nav-link <?php echo $pagina_actual=='comites.php'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-layer-group"></i></span>Comités
+            <?php if (tieneCandidato()): ?>
+            <a href="seleccionar_candidato.php" class="mob-sheet-link">
+                <span class="mob-sheet-link-icon"><i class="fas fa-exchange-alt"></i></span>
+                Cambiar candidato
             </a>
-            <a href="crear_comite.php" class="fab-nav-link <?php echo $pagina_actual=='crear_comite.php'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-plus"></i></span>Crear Comité
-            </a>
-
-            <div class="fab-nav-section">Herramientas</div>
-            <a href="consultar.html" class="fab-nav-link <?php echo $pagina_actual=='consultar.html'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
-            </a>
-
+            <?php endif; ?>
             <?php if (esSupervisor()): ?>
-            <div class="fab-nav-section">Administración</div>
-            <a href="usuarios.php" class="fab-nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-users-cog"></i></span>Usuarios
+            <a href="usuarios.php" class="mob-sheet-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
+                <span class="mob-sheet-link-icon"><i class="fas fa-users-cog"></i></span>Usuarios
             </a>
             <?php endif; ?>
             <?php if (esAdmin()): ?>
-            <a href="config.php" class="fab-nav-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-cog"></i></span>Configuración
+            <a href="config.php" class="mob-sheet-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
+                <span class="mob-sheet-link-icon"><i class="fas fa-cog"></i></span>Configuración
             </a>
             <?php endif; ?>
-            <?php if (tieneCandidato()): ?>
-            <div class="fab-nav-section">Candidato Activo</div>
-            <a href="seleccionar_candidato.php" class="fab-nav-link">
-                <span class="fab-nav-icon"><i class="fas fa-exchange-alt"></i></span>
-                Cambiar: <?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?>
-            </a>
-            <?php endif; ?>
-
-            <a href="perfil.php" class="fab-nav-link <?php echo $pagina_actual=='perfil.php'?'active':''; ?>">
-                <span class="fab-nav-icon"><i class="fas fa-user-circle"></i></span>Mi Perfil
-            </a>
         </div>
-
-        <div class="fab-sheet-footer">
-            <a href="logout.php" class="fab-logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        <div class="mob-sheet-footer">
+            <a href="logout.php" class="mob-logout">
+                <span class="mob-logout-icon"><i class="fas fa-sign-out-alt"></i></span>
+                Cerrar Sesión
             </a>
         </div>
     </div>
-
-    <!-- FAB Button -->
-    <button class="fab-btn" id="fabBtn" aria-label="Menú">
-        <i class="fas fa-bars" id="fabIcon"></i>
-    </button>
 </div>
