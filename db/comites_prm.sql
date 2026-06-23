@@ -1,8 +1,5 @@
 -- Base de datos para el sistema de comités afectivos
 
-CREATE DATABASE IF NOT EXISTS comites_prm;
-USE comites_prm;
-
 -- Tabla de usuarios
 CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
