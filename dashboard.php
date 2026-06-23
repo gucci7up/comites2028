@@ -9,10 +9,9 @@ requiereAutenticacion();
 $total_comites       = obtenerTotalComites();
 $total_miembros      = obtenerTotalMiembros();
 $total_coordinadores = obtenerTotalCoordinadores();
-$comites_recientes   = obtenerComitesRecientes(5);
-$miembros_recientes  = obtenerMiembrosRecientes(5);
+$comites_recientes   = obtenerComitesRecientes(6);
+$miembros_recientes  = obtenerMiembrosRecientes(4);
 $est_municipio       = obtenerEstadisticasPorMunicipio(5);
-$est_usuario         = obtenerEstadisticasPorUsuario(5);
 
 $conn = conectarDB();
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM comites WHERE creado_por = ?");
@@ -20,472 +19,593 @@ $stmt->bind_param("i", $_SESSION['usuario_id']);
 $stmt->execute();
 $mis_comites = $stmt->get_result()->fetch_assoc()['total'];
 
-$cfg = cargarConfiguracion();
+$cfg     = cargarConfiguracion();
 $logo_b64 = !empty($cfg['logo']) ? base64_encode($cfg['logo']) : '';
+$first_name = explode(' ', trim($_SESSION['usuario_nombre'] ?? 'Usuario'))[0];
 
 $titulo_pagina = 'Dashboard';
 include 'includes/header.php';
 ?>
-
 <style>
-/* ── RESET PAGE BG ────────────────────────────────── */
-.page-content { background: #f5f6fa; }
-
-/* ── TOPBAR SEARCH ────────────────────────────────── */
-.dash-search {
-    display: flex; align-items: center; gap: 10px;
-    background: #fff; border: 1px solid #e8e8f0;
-    border-radius: 12px; padding: 8px 16px;
-    flex: 1; max-width: 360px;
-}
-.dash-search input {
-    border: none; outline: none; font-size: 13px;
-    color: #374151; background: transparent; width: 100%;
-    font-family: inherit;
-}
-.dash-search i { color: #9ca3af; font-size: 14px; }
-
-/* ── LAYOUT ───────────────────────────────────────── */
-.dash-grid {
+/* ─── PAGE LAYOUT ─────────────────────────────────── */
+.dash-layout {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 20px;
+    grid-template-columns: 1fr 296px;
+    gap: 24px;
     align-items: start;
 }
-@media (max-width: 1100px) { .dash-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) { .dash-layout { grid-template-columns: 1fr; } }
+@media (max-width: 767px)  { .dash-layout { gap: 16px; } }
 
-/* ── HERO BANNER ──────────────────────────────────── */
-.hero-banner {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-    border-radius: 20px;
-    padding: 28px 32px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-    min-height: 140px;
+/* ─── TOPBAR SEARCH ───────────────────────────────── */
+.topbar-search {
+    flex: 1; max-width: 380px;
+    display: flex; align-items: center; gap: 10px;
+    background: #f5f6fa; border: 1px solid #eef0f6;
+    border-radius: 12px; padding: 9px 16px;
 }
-.hero-banner::before {
-    content: '';
-    position: absolute; top: -40px; right: -20px;
-    width: 200px; height: 200px; border-radius: 50%;
-    background: rgba(255,255,255,.1);
+.topbar-search input {
+    border: none; outline: none; background: transparent;
+    font-size: 13px; color: #374151; width: 100%; font-family: inherit;
 }
-.hero-banner::after {
-    content: '';
-    position: absolute; bottom: -60px; right: 80px;
-    width: 160px; height: 160px; border-radius: 50%;
-    background: rgba(255,255,255,.07);
+.topbar-search i { color: #9ca3af; font-size: 14px; flex-shrink: 0; }
+
+/* ─── HERO BANNER ─────────────────────────────────── */
+.hero {
+    background: linear-gradient(125deg, var(--accent) 0%, var(--accent-light) 100%);
+    border-radius: 20px; padding: 28px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; margin-bottom: 24px; overflow: hidden; position: relative;
+}
+.hero::before {
+    content: ''; position: absolute;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(255,255,255,.08);
+    top: -60px; right: 60px; pointer-events: none;
+}
+.hero::after {
+    content: ''; position: absolute;
+    width: 140px; height: 140px; border-radius: 50%;
+    background: rgba(255,255,255,.05);
+    bottom: -40px; right: 20px; pointer-events: none;
 }
 .hero-tag {
-    display: inline-block;
-    background: rgba(255,255,255,.2);
-    font-size: 10px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .08em;
-    padding: 4px 10px; border-radius: 20px;
-    margin-bottom: 10px;
+    display: inline-block; margin-bottom: 10px;
+    background: rgba(255,255,255,.22); color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
 }
-.hero-title { font-size: 22px; font-weight: 700; line-height: 1.25; margin-bottom: 16px; }
-.hero-btn {
-    display: inline-flex; align-items: center; gap: 8px;
+.hero-title {
+    font-size: 24px; font-weight: 800; color: #fff;
+    line-height: 1.2; margin-bottom: 18px;
+}
+.hero-cta {
+    display: inline-flex; align-items: center; gap: 10px;
     background: #fff; color: var(--accent);
-    border: none; border-radius: 30px;
-    padding: 9px 20px; font-size: 13px; font-weight: 700;
-    cursor: pointer; text-decoration: none;
-    transition: transform .15s;
+    font-size: 13px; font-weight: 700;
+    padding: 10px 20px; border-radius: 30px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
     position: relative; z-index: 1;
 }
-.hero-btn:hover { transform: scale(1.04); color: var(--accent); }
-.hero-btn .arrow {
-    width: 26px; height: 26px; border-radius: 50%;
+.hero-cta:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,.15); color: var(--accent); }
+.hero-cta-arrow {
+    width: 28px; height: 28px; border-radius: 50%;
     background: var(--accent); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
+    display: flex; align-items: center; justify-content: center; font-size: 11px;
 }
 .hero-illus {
-    position: relative; z-index: 1; flex-shrink: 0;
-    display: flex; align-items: center;
-}
-.hero-illus img {
-    width: 90px; height: 90px; border-radius: 50%;
-    border: 4px solid rgba(255,255,255,.3);
-    object-fit: contain; background: rgba(255,255,255,.15);
-    padding: 8px;
-}
-.hero-illus-placeholder {
-    width: 90px; height: 90px; border-radius: 50%;
-    border: 4px solid rgba(255,255,255,.3);
+    flex-shrink: 0; position: relative; z-index: 1;
+    width: 100px; height: 100px; border-radius: 50%;
     background: rgba(255,255,255,.15);
+    border: 4px solid rgba(255,255,255,.25);
     display: flex; align-items: center; justify-content: center;
-    font-size: 36px; color: rgba(255,255,255,.8);
+    overflow: hidden;
 }
+.hero-illus img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+.hero-illus-icon { font-size: 40px; color: rgba(255,255,255,.8); }
 
-/* ── STAT MINI CARDS ──────────────────────────────── */
-.stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
-@media (max-width: 600px) { .stat-row { grid-template-columns: repeat(2,1fr); } }
+/* ─── PROGRESS CARDS (Coursue style) ─────────────── */
+.progress-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+@media (max-width: 600px) { .progress-cards { grid-template-columns: repeat(2,1fr); } }
 
-.stat-mini {
-    background: #fff; border-radius: 16px;
-    padding: 18px 20px;
-    border: 1px solid #eef0f6;
-    display: flex; align-items: center; gap: 14px;
+.prog-card {
+    background: #fff; border: 1px solid #eef0f6; border-radius: 16px;
+    padding: 18px 20px; display: flex; align-items: center;
+    gap: 14px; cursor: pointer; text-decoration: none; color: inherit;
     transition: box-shadow .2s, transform .2s;
-    text-decoration: none; color: inherit;
 }
-.stat-mini:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); color: inherit; }
-.stat-mini-icon {
-    width: 46px; height: 46px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; flex-shrink: 0;
+.prog-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.07); transform: translateY(-2px); color: inherit; }
+.prog-icon {
+    width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    background: color-mix(in srgb, var(--accent) 10%, white);
+    color: var(--accent);
 }
-.si-purple { background: color-mix(in srgb, var(--accent) 10%, white); color: var(--accent); }
-.si-green  { background: #f0fdf4; color: #16a34a; }
-.si-blue   { background: color-mix(in srgb, var(--accent-light) 12%, white); color: var(--accent-light); }
-.si-amber  { background: #fffbeb; color: #d97706; }
-.stat-mini-val { font-size: 24px; font-weight: 800; color: #111827; line-height: 1; }
-.stat-mini-lbl { font-size: 11px; font-weight: 500; color: #9ca3af; margin-top: 2px; text-transform: uppercase; letter-spacing: .04em; }
+.prog-sub  { font-size: 11px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+.prog-val  { font-size: 26px; font-weight: 800; color: #111827; line-height: 1; }
+.prog-label { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+.prog-bar  { height: 4px; background: #f1f3f6; border-radius: 2px; margin-top: 10px; }
+.prog-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width .6s ease; }
 
-/* ── SECTION TITLE ────────────────────────────────── */
-.section-head {
+/* ─── SECTION HEADER ──────────────────────────────── */
+.section-hd {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
-.section-head h2 { font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
-.section-head a  { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 500; }
-
-/* ── RECENT COMITES ───────────────────────────────── */
-.comite-list { display: flex; flex-direction: column; gap: 10px; }
-.comite-item {
-    background: #fff; border-radius: 14px;
-    padding: 14px 18px;
-    display: flex; align-items: center; gap: 14px;
-    border: 1px solid #eef0f6;
-    transition: box-shadow .15s;
-}
-.comite-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
-.comite-item-icon {
-    width: 42px; height: 42px; border-radius: 12px;
-    background: color-mix(in srgb, var(--accent) 10%, white); color: var(--accent);
+.section-hd h2 { font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
+.section-hd-actions { display: flex; align-items: center; gap: 8px; }
+.see-all { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 600; }
+.nav-arrows { display: flex; gap: 6px; }
+.nav-arrow {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid #eef0f6; background: #fff; color: #374151;
     display: flex; align-items: center; justify-content: center;
-    font-size: 17px; flex-shrink: 0;
+    font-size: 12px; cursor: pointer; transition: all .15s;
 }
-.comite-item-name { font-size: 13px; font-weight: 600; color: #111827; }
-.comite-item-meta { font-size: 11px; color: #9ca3af; margin-top: 2px; }
-.comite-item-badge {
-    margin-left: auto; flex-shrink: 0;
-    background: color-mix(in srgb, var(--accent) 10%, white); color: var(--accent);
-    font-size: 11px; font-weight: 700;
-    padding: 4px 10px; border-radius: 20px;
+.nav-arrow:hover { border-color: var(--accent); color: var(--accent); }
+.nav-arrow.filled { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ─── COMITÉ CARDS (Continue Watching style) ─────── */
+.comite-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+@media (max-width: 900px) { .comite-cards { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 500px) { .comite-cards { grid-template-columns: 1fr; } }
+
+.comite-card {
+    background: #fff; border: 1px solid #eef0f6; border-radius: 16px;
+    overflow: hidden; transition: box-shadow .2s, transform .2s;
 }
-.comite-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.ci-btn {
-    width: 30px; height: 30px; border-radius: 8px;
-    border: 1px solid #eef0f6; background: #fff;
-    color: #9ca3af; display: flex; align-items: center;
-    justify-content: center; font-size: 12px;
-    cursor: pointer; text-decoration: none;
+.comite-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
+.comite-card-thumb {
+    height: 110px; background: linear-gradient(135deg, color-mix(in srgb,var(--accent) 15%,white), color-mix(in srgb,var(--accent) 5%,white));
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+}
+.comite-card-cat {
+    position: absolute; top: 10px; left: 10px;
+    background: color-mix(in srgb,var(--accent) 15%,white);
+    color: var(--accent); font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em;
+    padding: 3px 8px; border-radius: 6px;
+}
+.comite-card-thumb-icon { font-size: 32px; color: var(--accent); opacity: .35; }
+.comite-card-body { padding: 14px 16px; }
+.comite-card-name { font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 6px; line-height: 1.3; }
+.comite-card-meta { font-size: 11px; color: #9ca3af; display: flex; align-items: center; gap: 8px; }
+.comite-card-footer {
+    padding: 10px 16px;
+    border-top: 1px solid #f5f6fa;
+    display: flex; align-items: center; justify-content: space-between;
+}
+.comite-card-count { font-size: 11px; color: #9ca3af; }
+.comite-card-actions { display: flex; gap: 6px; }
+.card-btn {
+    width: 28px; height: 28px; border-radius: 8px;
+    border: 1px solid #eef0f6; background: #fff; color: #9ca3af;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; text-decoration: none; cursor: pointer;
     transition: all .15s;
 }
-.ci-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, white); }
+.card-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb,var(--accent) 8%,white); }
 
-/* ── RIGHT PANEL ──────────────────────────────────── */
-.right-panel { display: flex; flex-direction: column; gap: 16px; }
-
-/* Greeting card */
-.greeting-card {
-    background: #fff; border-radius: 20px; padding: 24px;
-    text-align: center; border: 1px solid #eef0f6;
+/* ─── YOUR LESSON TABLE ───────────────────────────── */
+.lesson-table { width: 100%; border-collapse: collapse; }
+.lesson-table thead th {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: #9ca3af;
+    padding: 10px 16px; background: #fafafa;
+    border-bottom: 1px solid #eef0f6; text-align: left;
 }
-.greeting-avatar-wrap { position: relative; display: inline-block; margin-bottom: 14px; }
-.greeting-avatar {
-    width: 72px; height: 72px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
-    color: #fff; display: flex; align-items: center; justify-content: center;
-    font-size: 28px; font-weight: 800; margin: 0 auto;
-    border: 4px solid #f5f6fa;
+.lesson-table td {
+    padding: 12px 16px; border-bottom: 1px solid #f5f6fa;
+    font-size: 13px; color: #374151; vertical-align: middle;
 }
-.greeting-pct {
-    position: absolute; top: -4px; right: -8px;
-    background: var(--accent); color: #fff;
-    font-size: 10px; font-weight: 700;
-    padding: 2px 6px; border-radius: 10px;
-}
-.greeting-name { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 4px; }
-.greeting-sub  { font-size: 12px; color: #9ca3af; }
-
-/* Progress ring */
-.progress-ring-wrap {
-    width: 90px; height: 90px; position: relative; margin: 0 auto 14px;
-}
-.progress-ring-wrap svg { transform: rotate(-90deg); }
-.progress-ring-bg { fill: none; stroke: color-mix(in srgb, var(--accent) 10%, white); stroke-width: 6; }
-.progress-ring-fg { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
-
-/* Chart card */
-.chart-card {
-    background: #fff; border-radius: 20px; padding: 20px;
-    border: 1px solid #eef0f6;
-}
-.chart-card-title { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 16px; }
-
-/* Mini bar chart */
-.mini-bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 80px; }
-.mini-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
-.mini-bar {
-    width: 100%; border-radius: 6px 6px 0 0;
-    background: color-mix(in srgb, var(--accent) 12%, white); transition: height .4s ease;
-    min-height: 4px;
-}
-.mini-bar.active { background: var(--accent); }
-.mini-bar-lbl { font-size: 9px; color: #9ca3af; text-align: center; }
-
-/* Recent members card */
-.members-card {
-    background: #fff; border-radius: 20px; padding: 20px;
-    border: 1px solid #eef0f6;
-}
-.member-row-mini {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 0; border-bottom: 1px solid #f5f6fa;
-}
-.member-row-mini:last-child { border-bottom: none; }
-.member-av-sm {
+.lesson-table tbody tr:last-child td { border-bottom: none; }
+.lesson-table tbody tr:hover td { background: #fafafa; }
+.lesson-av {
     width: 34px; height: 34px; border-radius: 50%;
     background: linear-gradient(135deg, var(--accent), var(--accent-light));
     color: #fff; display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700; flex-shrink: 0;
 }
-.member-nm { font-size: 12px; font-weight: 600; color: #374151; }
-.member-cd { font-size: 10px; color: #9ca3af; }
+.lesson-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: color-mix(in srgb,var(--accent) 10%,white); color: var(--accent);
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+}
+.lesson-action {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid #eef0f6; background: #fff; color: var(--accent);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; cursor: pointer; transition: all .15s;
+}
+.lesson-action:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-/* Empty state */
-.empty-dash { text-align: center; padding: 32px 16px; color: #d1d5db; }
-.empty-dash i { font-size: 32px; margin-bottom: 10px; display: block; }
-.empty-dash p { font-size: 12px; margin: 0; }
+/* ─── RIGHT PANEL ─────────────────────────────────── */
+.right-col { display: flex; flex-direction: column; gap: 16px; }
+
+/* Statistic card */
+.stat-card-r {
+    background: #fff; border: 1px solid #eef0f6; border-radius: 20px; padding: 22px;
+}
+.stat-card-r-hd {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+}
+.stat-card-r-title { font-size: 14px; font-weight: 700; color: #111827; }
+.stat-card-r-dots { color: #9ca3af; cursor: pointer; font-size: 18px; }
+
+/* Ring */
+.ring-wrap {
+    position: relative; width: 100px; height: 100px; margin: 0 auto 14px;
+}
+.ring-wrap svg { display: block; }
+.ring-bg  { fill: none; stroke: #f1f3f6; stroke-width: 7; }
+.ring-fg  { fill: none; stroke: var(--accent); stroke-width: 7; stroke-linecap: round;
+            transition: stroke-dashoffset .7s cubic-bezier(.4,0,.2,1); }
+.ring-inner {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+}
+.ring-av {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800;
+    border: 3px solid #fff;
+}
+.ring-pct {
+    position: absolute; top: 2px; right: 2px;
+    background: var(--accent); color: #fff;
+    font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 8px;
+}
+.greeting-name { font-size: 15px; font-weight: 700; color: #111827; text-align: center; margin-bottom: 3px; }
+.greeting-sub  { font-size: 12px; color: #9ca3af; text-align: center; }
+
+/* Mini bar chart */
+.mini-chart { margin-top: 16px; }
+.mini-chart-label { font-size: 11px; font-weight: 600; color: #374151; margin-bottom: 10px; }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 72px; }
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+.bar-body {
+    width: 100%; border-radius: 6px 6px 0 0;
+    background: color-mix(in srgb,var(--accent) 15%,white);
+    min-height: 4px; transition: height .5s ease;
+}
+.bar-body.hi { background: var(--accent); }
+.bar-lbl { font-size: 9px; color: #9ca3af; text-align: center; white-space: nowrap; overflow: hidden; }
+
+/* Mentor / members list */
+.mentor-card {
+    background: #fff; border: 1px solid #eef0f6; border-radius: 20px; padding: 22px;
+}
+.mentor-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid #f5f6fa;
+}
+.mentor-item:last-child { border-bottom: none; }
+.mentor-av {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; position: relative;
+}
+.mentor-online {
+    position: absolute; bottom: 1px; right: 1px;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #10b981; border: 2px solid #fff;
+}
+.mentor-name  { font-size: 13px; font-weight: 600; color: #111827; }
+.mentor-role  { font-size: 11px; color: #9ca3af; }
+.follow-btn {
+    margin-left: auto; flex-shrink: 0;
+    background: color-mix(in srgb,var(--accent) 10%,white);
+    color: var(--accent); font-size: 11px; font-weight: 700;
+    padding: 5px 12px; border-radius: 20px;
+    border: none; cursor: pointer; text-decoration: none;
+    transition: all .15s; display: flex; align-items: center; gap: 4px;
+}
+.follow-btn:hover { background: var(--accent); color: #fff; }
+
+/* Candidate context strip */
+.cand-strip {
+    background: color-mix(in srgb,var(--accent) 8%,white);
+    border: 1px solid color-mix(in srgb,var(--accent) 20%,white);
+    border-radius: 14px; padding: 14px 18px; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+}
+.cand-strip-av {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800;
+}
+.cand-strip-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+.cand-strip-name { font-size: 14px; font-weight: 700; color: #111827; margin-top: 1px; }
+.cand-strip-cargo { font-size: 11px; color: var(--accent); }
+
+/* Empty */
+.dash-empty { text-align: center; padding: 32px 16px; }
+.dash-empty i { font-size: 36px; color: #e5e7eb; margin-bottom: 10px; display: block; }
+.dash-empty p { font-size: 13px; color: #9ca3af; margin: 0; }
 </style>
 
-<?php
-// Inject search bar into topbar via JS after load
-?>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const topbarLeft = document.querySelector('.topbar-left');
-    if (topbarLeft) {
-        const search = document.createElement('div');
-        search.className = 'dash-search d-none d-md-flex';
-        search.innerHTML = '<i class="fas fa-search"></i><input type="text" placeholder="Buscar comités, miembros...">';
-        topbarLeft.appendChild(search);
-    }
-});
-</script>
+<div class="dash-layout">
 
-<div class="dash-grid">
-    <!-- ── LEFT COLUMN ── -->
-    <div>
-        <!-- Hero Banner -->
-        <div class="hero-banner">
-            <div style="position:relative;z-index:1;">
-                <div class="hero-tag">Comités Afectivos 2028</div>
-                <div class="hero-title">
-                    Bienvenido,<br><?php echo htmlspecialchars(explode(' ', $_SESSION['usuario_nombre'])[0]); ?> 👋
-                </div>
-                <a href="crear_comite.php" class="hero-btn">
-                    Crear Comité
-                    <span class="arrow"><i class="fas fa-arrow-right"></i></span>
-                </a>
-            </div>
-            <div class="hero-illus">
-                <?php if ($logo_b64): ?>
-                <img src="data:image/png;base64,<?php echo $logo_b64; ?>" alt="Logo">
-                <?php else: ?>
-                <div class="hero-illus-placeholder"><i class="fas fa-star"></i></div>
-                <?php endif; ?>
-            </div>
-        </div>
+  <!-- ═══════════════ LEFT / CENTER ═══════════════ -->
+  <div>
 
-        <!-- Stat Mini Cards -->
-        <div class="stat-row">
-            <a href="comites.php" class="stat-mini">
-                <div class="stat-mini-icon si-purple"><i class="fas fa-layer-group"></i></div>
-                <div>
-                    <div class="stat-mini-val"><?php echo number_format($total_comites); ?></div>
-                    <div class="stat-mini-lbl">Comités</div>
-                </div>
-            </a>
-            <div class="stat-mini">
-                <div class="stat-mini-icon si-green"><i class="fas fa-users"></i></div>
-                <div>
-                    <div class="stat-mini-val"><?php echo number_format($total_miembros); ?></div>
-                    <div class="stat-mini-lbl">Miembros</div>
-                </div>
-            </div>
-            <div class="stat-mini">
-                <div class="stat-mini-icon si-blue"><i class="fas fa-user-tie"></i></div>
-                <div>
-                    <div class="stat-mini-val"><?php echo number_format($total_coordinadores); ?></div>
-                    <div class="stat-mini-lbl">Coordinadores</div>
-                </div>
-            </div>
+    <!-- Candidate strip (digitadores) -->
+    <?php if (tieneCandidato()): ?>
+    <div class="cand-strip">
+      <div class="cand-strip-av"><?php echo strtoupper(substr($_SESSION['candidato_nombre']??'?',0,1)); ?></div>
+      <div style="flex:1;min-width:0;">
+        <div class="cand-strip-lbl">Trabajando para</div>
+        <div class="cand-strip-name"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
+        <div class="cand-strip-cargo">
+          <?php echo ucfirst($_SESSION['candidato_cargo']??''); ?>
+          <?php if(!empty($_SESSION['candidato_desc'])): ?> · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?><?php endif; ?>
         </div>
+      </div>
+      <a href="seleccionar_candidato.php" class="follow-btn"><i class="fas fa-exchange-alt"></i> Cambiar</a>
+    </div>
+    <?php endif; ?>
 
-        <!-- Candidato activo (digitadores) -->
-        <?php if (tieneCandidato()): ?>
-        <div style="background:color-mix(in srgb,var(--accent) 8%,white);border-radius:16px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;border:1px solid color-mix(in srgb,var(--accent) 20%,white);">
-            <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;">
-                <?php echo strtoupper(substr($_SESSION['candidato_nombre']??'?',0,1)); ?>
-            </div>
-            <div style="flex:1;">
-                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:2px;">Trabajando para</div>
-                <div style="font-size:14px;font-weight:700;color:var(--text-primary);"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
-                <div style="font-size:11px;color:var(--accent);"><?php echo ucfirst($_SESSION['candidato_cargo']??''); ?><?php if(!empty($_SESSION['candidato_desc'])): ?> · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?><?php endif; ?></div>
-            </div>
-            <a href="seleccionar_candidato.php" style="font-size:11px;color:var(--accent);font-weight:600;text-decoration:none;background:#fff;padding:6px 12px;border-radius:20px;border:1px solid var(--border);">
-                Cambiar
-            </a>
-        </div>
-        <?php endif; ?>
-
-        <!-- Recent Comités -->
-        <div class="section-head">
-            <h2>Comités Recientes</h2>
-            <a href="comites.php">Ver todos →</a>
-        </div>
-
-        <?php if (count($comites_recientes) > 0): ?>
-        <div class="comite-list">
-            <?php foreach ($comites_recientes as $c):
-                $s2 = $conn->prepare("SELECT c.nombre_completo FROM coordinadores c JOIN comite_coordinador cc ON c.id=cc.coordinador_id WHERE cc.comite_id=? LIMIT 1");
-                $s2->bind_param("i",$c['id']); $s2->execute();
-                $coord = $s2->get_result()->fetch_assoc();
-                $s3 = $conn->prepare("SELECT COUNT(*) as t FROM comite_miembro WHERE comite_id=?");
-                $s3->bind_param("i",$c['id']); $s3->execute();
-                $cnt = $s3->get_result()->fetch_assoc()['t'];
-            ?>
-            <div class="comite-item">
-                <div class="comite-item-icon"><i class="fas fa-layer-group"></i></div>
-                <div style="flex:1;min-width:0;">
-                    <div class="comite-item-name"><?php echo htmlspecialchars($c['nombre']); ?></div>
-                    <div class="comite-item-meta">
-                        <i class="fas fa-map-pin me-1"></i><?php echo htmlspecialchars($c['municipio']); ?>
-                        <?php if ($coord): ?> · <?php echo htmlspecialchars($coord['nombre_completo']); ?><?php endif; ?>
-                    </div>
-                </div>
-                <span class="comite-item-badge"><?php echo $cnt; ?> miembros</span>
-                <div class="comite-item-actions">
-                    <a href="ver_comite.php?id=<?php echo $c['id']; ?>" class="ci-btn"><i class="fas fa-eye"></i></a>
-                    <a href="editar_comite.php?id=<?php echo $c['id']; ?>" class="ci-btn"><i class="fas fa-pen"></i></a>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
+    <!-- Hero -->
+    <div class="hero">
+      <div style="position:relative;z-index:1;">
+        <div class="hero-tag">Comités Afectivos 2028</div>
+        <div class="hero-title">Bienvenido de vuelta,<br><?php echo htmlspecialchars($first_name); ?> 👋</div>
+        <a href="crear_comite.php" class="hero-cta">
+          Crear Comité
+          <span class="hero-cta-arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+      </div>
+      <div class="hero-illus">
+        <?php if ($logo_b64): ?>
+        <img src="data:image/png;base64,<?php echo $logo_b64; ?>" alt="Logo">
         <?php else: ?>
-        <div style="background:#fff;border-radius:16px;border:1px solid #eef0f6;">
-            <div class="empty-dash">
-                <i class="fas fa-folder-open"></i>
-                <p>No hay comités creados aún</p>
-                <a href="crear_comite.php" class="btn btn-primary btn-sm mt-2" style="font-size:12px;">
-                    <i class="fas fa-plus me-1"></i> Crear primer comité
-                </a>
-            </div>
-        </div>
+        <div class="hero-illus-icon"><i class="fas fa-star"></i></div>
         <?php endif; ?>
+      </div>
     </div>
 
-    <!-- ── RIGHT PANEL ── -->
-    <div class="right-panel">
-
-        <!-- Greeting Card with progress -->
-        <div class="greeting-card">
-            <?php
-            $pct = $total_comites > 0 ? min(100, round(($mis_comites / max($total_comites,1)) * 100)) : 0;
-            $r = 40; $circ = 2 * M_PI * $r;
-            $offset = $circ - ($pct / 100) * $circ;
-            ?>
-            <div class="greeting-avatar-wrap">
-                <div style="position:relative;width:90px;height:90px;margin:0 auto;">
-                    <svg width="90" height="90" style="transform:rotate(-90deg);">
-                        <circle class="progress-ring-bg" cx="45" cy="45" r="<?php echo $r; ?>"/>
-                        <circle class="progress-ring-fg" cx="45" cy="45" r="<?php echo $r; ?>"
-                            stroke-dasharray="<?php echo $circ; ?>"
-                            stroke-dashoffset="<?php echo $offset; ?>"/>
-                    </svg>
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-                        <div class="greeting-avatar" style="width:62px;height:62px;font-size:22px;border:3px solid #f5f6fa;">
-                            <?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?>
-                        </div>
-                    </div>
-                </div>
-                <span class="greeting-pct"><?php echo $pct; ?>%</span>
-            </div>
-            <div class="greeting-name">Buenos días, <?php echo htmlspecialchars(explode(' ',$_SESSION['usuario_nombre'])[0]); ?> 🔥</div>
-            <div class="greeting-sub">Mis comités: <?php echo $mis_comites; ?> de <?php echo $total_comites; ?> totales</div>
+    <!-- Progress cards -->
+    <div class="progress-cards">
+      <?php
+      $cards = [
+        ['icon'=>'fa-layer-group', 'sub'=>'Total', 'val'=>$total_comites, 'label'=>'Comités registrados', 'max'=>max($total_comites,1), 'link'=>'comites.php'],
+        ['icon'=>'fa-users',       'sub'=>'Total', 'val'=>$total_miembros, 'label'=>'Miembros registrados', 'max'=>max($total_miembros,1), 'link'=>'#'],
+        ['icon'=>'fa-user-tie',    'sub'=>'Total', 'val'=>$total_coordinadores, 'label'=>'Coordinadores', 'max'=>max($total_coordinadores,1), 'link'=>'#'],
+      ];
+      foreach ($cards as $card):
+        $pct = $card['val'] > 0 ? min(100, round(($card['val']/$card['max'])*100)) : 0;
+      ?>
+      <a href="<?php echo $card['link']; ?>" class="prog-card" style="text-decoration:none;">
+        <div style="flex:1;min-width:0;">
+          <div class="prog-sub"><?php echo $card['sub']; ?></div>
+          <div class="prog-val"><?php echo number_format($card['val']); ?></div>
+          <div class="prog-label"><?php echo $card['label']; ?></div>
+          <div class="prog-bar"><div class="prog-bar-fill" style="width:<?php echo $pct; ?>%"></div></div>
         </div>
-
-        <!-- Chart municipios -->
-        <?php if (count($est_municipio) > 0): ?>
-        <div class="chart-card">
-            <div class="section-head" style="margin-bottom:12px;">
-                <div class="chart-card-title">Por Municipio</div>
-            </div>
-            <?php
-            $max_val = max(array_column($est_municipio,'total')) ?: 1;
-            ?>
-            <div class="mini-bar-chart">
-                <?php foreach ($est_municipio as $i => $e):
-                    $h = round(($e['total'] / $max_val) * 70);
-                    $active = $i === count($est_municipio)-1 ? 'active' : '';
-                ?>
-                <div class="mini-bar-wrap">
-                    <div class="mini-bar <?php echo $active; ?>" style="height:<?php echo $h; ?>px;"></div>
-                    <div class="mini-bar-lbl"><?php echo mb_substr($e['municipio'],0,5); ?></div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Recent Members -->
-        <?php if (count($miembros_recientes) > 0): ?>
-        <div class="members-card">
-            <div class="section-head" style="margin-bottom:12px;">
-                <div class="chart-card-title">Miembros Recientes</div>
-                <a href="#" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:500;">Ver todos</a>
-            </div>
-            <?php foreach ($miembros_recientes as $m): ?>
-            <div class="member-row-mini">
-                <div class="member-av-sm"><?php echo strtoupper(substr($m['nombre_completo'],0,1)); ?></div>
-                <div style="flex:1;min-width:0;">
-                    <div class="member-nm"><?php echo htmlspecialchars(mb_substr($m['nombre_completo'],0,22)); ?></div>
-                    <div class="member-cd"><?php echo htmlspecialchars($m['cedula']); ?></div>
-                </div>
-                <div style="font-size:10px;color:#d1d5db;"><?php echo date('d/m',strtotime($m['fecha_registro'])); ?></div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-
-        <!-- Quick actions -->
-        <div class="members-card">
-            <div class="chart-card-title" style="margin-bottom:12px;">Acciones Rápidas</div>
-            <div class="d-grid gap-2">
-                <a href="crear_comite.php" class="btn btn-primary btn-sm" style="border-radius:10px;font-size:13px;">
-                    <i class="fas fa-plus me-2"></i>Crear Comité
-                </a>
-                <a href="consultar.html" class="btn btn-sm" style="border-radius:10px;font-size:13px;background:#f5f6fa;color:#374151;border:1px solid #eef0f6;">
-                    <i class="fas fa-id-card me-2"></i>Consultar Cédula
-                </a>
-                <?php if (esAdmin()): ?>
-                <a href="config.php" class="btn btn-sm" style="border-radius:10px;font-size:13px;background:#f5f6fa;color:#374151;border:1px solid #eef0f6;">
-                    <i class="fas fa-cog me-2"></i>Configuración
-                </a>
-                <?php endif; ?>
-            </div>
-        </div>
+        <div class="prog-icon"><i class="fas <?php echo $card['icon']; ?>"></i></div>
+      </a>
+      <?php endforeach; ?>
     </div>
+
+    <!-- Recent comités cards -->
+    <div class="section-hd">
+      <h2>Comités Recientes</h2>
+      <div class="section-hd-actions">
+        <a href="comites.php" class="see-all">Ver todos</a>
+        <div class="nav-arrows">
+          <button class="nav-arrow"><i class="fas fa-chevron-left"></i></button>
+          <button class="nav-arrow filled"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <?php if (count($comites_recientes) > 0): ?>
+    <div class="comite-cards">
+      <?php foreach (array_slice($comites_recientes,0,6) as $c):
+        $s2 = $conn->prepare("SELECT c.nombre_completo FROM coordinadores c JOIN comite_coordinador cc ON c.id=cc.coordinador_id WHERE cc.comite_id=? LIMIT 1");
+        $s2->bind_param("i",$c['id']); $s2->execute();
+        $coord = $s2->get_result()->fetch_assoc();
+        $s3 = $conn->prepare("SELECT COUNT(*) as t FROM comite_miembro WHERE comite_id=?");
+        $s3->bind_param("i",$c['id']); $s3->execute();
+        $cnt = $s3->get_result()->fetch_assoc()['t'];
+      ?>
+      <div class="comite-card">
+        <div class="comite-card-thumb">
+          <span class="comite-card-cat"><?php echo htmlspecialchars($c['municipio']); ?></span>
+          <i class="fas fa-layer-group comite-card-thumb-icon"></i>
+        </div>
+        <div class="comite-card-body">
+          <div class="comite-card-name"><?php echo htmlspecialchars($c['nombre']); ?></div>
+          <div class="comite-card-meta">
+            <span><i class="fas fa-user-tie me-1"></i><?php echo $coord ? htmlspecialchars(explode(' ',$coord['nombre_completo'])[0]) : 'Sin coordinador'; ?></span>
+            <span>·</span>
+            <span><?php echo date('d/m/Y',strtotime($c['fecha_creacion'])); ?></span>
+          </div>
+        </div>
+        <div class="comite-card-footer">
+          <span class="comite-card-count"><i class="fas fa-users me-1"></i><?php echo $cnt; ?> miembros</span>
+          <div class="comite-card-actions">
+            <a href="ver_comite.php?id=<?php echo $c['id']; ?>" class="card-btn"><i class="fas fa-eye"></i></a>
+            <a href="editar_comite.php?id=<?php echo $c['id']; ?>" class="card-btn"><i class="fas fa-pen"></i></a>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <div class="dash-empty" style="background:#fff;border:1px solid #eef0f6;border-radius:16px;margin-bottom:24px;">
+      <i class="fas fa-folder-open"></i>
+      <p>No hay comités aún</p>
+      <a href="crear_comite.php" class="hero-cta d-inline-flex mt-3" style="font-size:12px;">
+        <i class="fas fa-plus me-2"></i>Crear primero
+        <span class="hero-cta-arrow"><i class="fas fa-arrow-right"></i></span>
+      </a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Your Lesson → Mis Comités table -->
+    <div class="section-hd">
+      <h2>Mis Comités</h2>
+      <a href="comites.php" class="see-all">Ver todos</a>
+    </div>
+    <div class="card" style="overflow:hidden;">
+      <?php
+      $stmt2 = $conn->prepare("SELECT c.*, cand.nombre as cand_nombre, cand.cargo as cand_cargo
+                               FROM comites c LEFT JOIN candidatos cand ON c.candidato_id=cand.id
+                               WHERE c.creado_por=? ORDER BY c.fecha_creacion DESC LIMIT 5");
+      $stmt2->bind_param("i",$_SESSION['usuario_id']); $stmt2->execute();
+      $mis = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
+      ?>
+      <?php if (count($mis)>0): ?>
+      <table class="lesson-table">
+        <thead>
+          <tr>
+            <th>Comité</th>
+            <th>Cargo</th>
+            <th>Municipio</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($mis as $m): ?>
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="lesson-av"><?php echo strtoupper(substr($m['nombre'],0,1)); ?></div>
+              <div>
+                <div style="font-weight:600;font-size:13px;"><?php echo htmlspecialchars($m['nombre']); ?></div>
+                <div style="font-size:11px;color:#9ca3af;"><?php echo date('d/m/Y',strtotime($m['fecha_creacion'])); ?></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <?php if (!empty($m['cand_cargo'])): ?>
+            <span class="lesson-tag">
+              <i class="fas fa-user-tie" style="font-size:9px;"></i>
+              <?php echo ucfirst($m['cand_cargo']); ?>
+            </span>
+            <?php else: ?>
+            <span style="color:#d1d5db;font-size:12px;">—</span>
+            <?php endif; ?>
+          </td>
+          <td style="font-size:12px;color:#6b7280;"><?php echo htmlspecialchars($m['municipio']); ?></td>
+          <td>
+            <a href="ver_comite.php?id=<?php echo $m['id']; ?>" class="lesson-action">
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+      <?php else: ?>
+      <div class="dash-empty"><i class="fas fa-inbox"></i><p>Aún no has creado comités.</p></div>
+      <?php endif; ?>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════ RIGHT PANEL ═══════════════ -->
+  <div class="right-col">
+
+    <!-- Statistic card -->
+    <div class="stat-card-r">
+      <div class="stat-card-r-hd">
+        <div class="stat-card-r-title">Estadística</div>
+        <div class="stat-card-r-dots">⋯</div>
+      </div>
+
+      <!-- Ring -->
+      <?php
+      $pct_r = $total_comites > 0 ? min(100, round(($mis_comites/max($total_comites,1))*100)) : 0;
+      $r=44; $c=2*M_PI*$r; $off=$c-(($pct_r/100)*$c);
+      ?>
+      <div class="ring-wrap">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle class="ring-bg" cx="50" cy="50" r="<?php echo $r; ?>" transform="rotate(-90 50 50)"/>
+          <circle class="ring-fg" cx="50" cy="50" r="<?php echo $r; ?>"
+            stroke-dasharray="<?php echo round($c,2); ?>"
+            stroke-dashoffset="<?php echo round($off,2); ?>"
+            transform="rotate(-90 50 50)"/>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-av"><?php echo strtoupper(substr($first_name,0,1)); ?></div>
+        </div>
+        <span class="ring-pct"><?php echo $pct_r; ?>%</span>
+      </div>
+
+      <div class="greeting-name">Buenos días, <?php echo htmlspecialchars($first_name); ?> 🔥</div>
+      <div class="greeting-sub">Mis comités: <?php echo $mis_comites; ?> de <?php echo $total_comites; ?> totales</div>
+
+      <!-- Mini bar chart -->
+      <?php if (count($est_municipio)>0): ?>
+      <div class="mini-chart">
+        <div class="mini-chart-label">Por municipio</div>
+        <?php $max_b = max(array_column($est_municipio,'total')?:[$total_comites?:1]); ?>
+        <div class="bars">
+          <?php foreach ($est_municipio as $i=>$e):
+            $h = max(4, round(($e['total']/$max_b)*60));
+            $hi = ($i===count($est_municipio)-1) ? 'hi' : '';
+          ?>
+          <div class="bar-col">
+            <div class="bar-body <?php echo $hi; ?>" style="height:<?php echo $h; ?>px;"></div>
+            <div class="bar-lbl"><?php echo mb_substr($e['municipio'],0,6); ?></div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <?php endif; ?>
+    </div>
+
+    <!-- Recent members (Your Mentor style) -->
+    <?php if (count($miembros_recientes)>0): ?>
+    <div class="mentor-card">
+      <div class="stat-card-r-hd">
+        <div class="stat-card-r-title">Miembros Recientes</div>
+        <a href="#" style="width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;text-decoration:none;">+</a>
+      </div>
+      <?php foreach ($miembros_recientes as $m): ?>
+      <div class="mentor-item">
+        <div class="mentor-av">
+          <?php echo strtoupper(substr($m['nombre_completo'],0,1)); ?>
+          <span class="mentor-online"></span>
+        </div>
+        <div style="min-width:0;">
+          <div class="mentor-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?php echo htmlspecialchars(mb_substr($m['nombre_completo'],0,20)); ?></div>
+          <div class="mentor-role"><?php echo htmlspecialchars($m['cedula']); ?></div>
+        </div>
+        <a href="consultar.html" class="follow-btn">
+          <i class="fas fa-id-card" style="font-size:10px;"></i> Ver
+        </a>
+      </div>
+      <?php endforeach; ?>
+      <a href="#" style="display:block;text-align:center;margin-top:14px;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;padding:10px;background:#fafafa;border-radius:10px;">Ver Todos</a>
+    </div>
+    <?php endif; ?>
+
+    <!-- Quick actions -->
+    <div class="stat-card-r" style="padding:18px;">
+      <div class="d-grid gap-2">
+        <a href="crear_comite.php" class="btn btn-primary btn-sm" style="border-radius:10px;">
+          <i class="fas fa-plus me-2"></i>Crear Comité
+        </a>
+        <a href="consultar.html" class="btn btn-sm" style="background:#f5f6fa;color:#374151;border:1px solid #eef0f6;border-radius:10px;">
+          <i class="fas fa-id-card me-2"></i>Consultar Cédula
+        </a>
+        <?php if (esAdmin()): ?>
+        <a href="config.php" class="btn btn-sm" style="background:#f5f6fa;color:#374151;border:1px solid #eef0f6;border-radius:10px;">
+          <i class="fas fa-cog me-2"></i>Configuración
+        </a>
+        <?php endif; ?>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <?php include 'includes/footer.php'; ?>
