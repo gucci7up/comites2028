@@ -25,6 +25,16 @@ include 'includes/header.php';
 ?>
 
 <style>
+/* ── RESPONSIVE DASHBOARD ───────────────────────── */
+@media (max-width: 576px) {
+    .welcome-banner { flex-direction: column; gap: 16px; }
+    .welcome-actions { width: 100%; }
+    .welcome-actions .btn { flex: 1; justify-content: center; font-size: 12px; }
+    .welcome-name { font-size: 18px; }
+    .stat-value { font-size: 24px; }
+    .chart-wrap { height: 180px; }
+}
+
 /* ── STAT CARDS ──────────────────────────────────── */
 .stat-card {
     background: var(--surface);

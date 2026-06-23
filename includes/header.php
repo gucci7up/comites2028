@@ -1,7 +1,5 @@
 <?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
+if (session_status() == PHP_SESSION_NONE) session_start();
 $pagina_actual = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
@@ -9,37 +7,41 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($titulo_pagina) ? $titulo_pagina . ' — PRM Comités' : 'PRM Comités Afectivos'; ?></title>
+    <title><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina).' — PRM Comités' : 'PRM Comités Afectivos'; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sidebar-bg:      #0d1b2a;
-            --sidebar-hover:   #1a2e42;
-            --sidebar-active:  #1d4ed8;
-            --sidebar-border:  rgba(255,255,255,0.06);
-            --sidebar-text:    rgba(255,255,255,0.65);
-            --sidebar-width:   260px;
-            --accent:          #2563eb;
-            --accent-light:    #3b82f6;
-            --success:         #10b981;
-            --warning:         #f59e0b;
-            --danger:          #ef4444;
-            --info:            #06b6d4;
-            --bg:              #f1f5f9;
-            --surface:         #ffffff;
-            --text-primary:    #0f172a;
-            --text-secondary:  #64748b;
-            --border:          #e2e8f0;
-            --shadow-sm:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md:       0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-            --shadow-lg:       0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05);
-            --radius:          12px;
-            --radius-sm:       8px;
+            --sidebar-bg:     #0d1b2a;
+            --sidebar-hover:  #1a2e42;
+            --sidebar-active: #1d4ed8;
+            --sidebar-border: rgba(255,255,255,0.06);
+            --sidebar-text:   rgba(255,255,255,0.65);
+            --sidebar-width:  260px;
+            --accent:         #2563eb;
+            --accent-light:   #3b82f6;
+            --success:        #10b981;
+            --warning:        #f59e0b;
+            --danger:         #ef4444;
+            --info:           #06b6d4;
+            --bg:             #f1f5f9;
+            --surface:        #ffffff;
+            --text-primary:   #0f172a;
+            --text-secondary: #64748b;
+            --border:         #e2e8f0;
+            --shadow-sm:      0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md:      0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-lg:      0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05);
+            --radius:         12px;
+            --radius-sm:      8px;
+            --topbar-h:       60px;
+            --fab-size:       56px;
         }
 
-        *, *::before, *::after { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
@@ -51,7 +53,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             line-height: 1.5;
         }
 
-        /* ── SIDEBAR ─────────────────────────────────────── */
+        /* ── SIDEBAR (desktop) ───────────────────────────── */
         .sidebar {
             position: fixed;
             top: 0; left: 0;
@@ -60,278 +62,151 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             background: var(--sidebar-bg);
             display: flex;
             flex-direction: column;
-            z-index: 1000;
-            transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+            z-index: 1040;
             overflow: hidden;
+            transition: transform 0.28s cubic-bezier(.4,0,.2,1),
+                        box-shadow 0.28s;
         }
 
         .sidebar-brand {
-            padding: 24px 20px 20px;
+            padding: 22px 20px 18px;
             border-bottom: 1px solid var(--sidebar-border);
             display: flex;
             align-items: center;
             gap: 12px;
             flex-shrink: 0;
         }
-
         .sidebar-brand img {
-            width: 44px;
-            height: 44px;
+            width: 42px; height: 42px;
             object-fit: contain;
             border-radius: 8px;
             background: rgba(255,255,255,0.08);
             padding: 4px;
         }
-
-        .sidebar-brand-text {
-            flex: 1;
-            min-width: 0;
-        }
-
         .sidebar-brand-name {
-            font-size: 11px;
-            font-weight: 700;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            line-height: 1.3;
+            font-size: 11px; font-weight: 700; color: #fff;
+            text-transform: uppercase; letter-spacing: .05em; line-height: 1.3;
         }
-
-        .sidebar-brand-sub {
-            font-size: 10px;
-            color: var(--sidebar-text);
-            margin-top: 2px;
-        }
+        .sidebar-brand-sub { font-size: 10px; color: var(--sidebar-text); margin-top: 2px; }
 
         .sidebar-nav {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 12px;
+            flex: 1; overflow-y: auto; padding: 14px 10px;
             scrollbar-width: none;
         }
         .sidebar-nav::-webkit-scrollbar { display: none; }
 
         .nav-section-label {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: rgba(255,255,255,0.3);
-            padding: 12px 8px 6px;
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .08em;
+            color: rgba(255,255,255,0.28);
+            padding: 10px 8px 5px;
         }
 
         .nav-item { margin-bottom: 2px; }
 
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; align-items: center; gap: 10px;
             padding: 9px 12px;
             border-radius: 8px;
             color: var(--sidebar-text);
             text-decoration: none;
-            font-size: 13.5px;
-            font-weight: 500;
-            transition: all 0.15s ease;
-            position: relative;
+            font-size: 13.5px; font-weight: 500;
+            transition: all .15s;
         }
-
-        .nav-link:hover {
-            background: var(--sidebar-hover);
-            color: #fff;
-        }
-
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
         .nav-link.active {
-            background: var(--sidebar-active);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(37,99,235,0.35);
+            background: var(--sidebar-active); color: #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,.35);
         }
-
-        .nav-link .nav-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 7px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            flex-shrink: 0;
+        .nav-icon {
+            width: 30px; height: 30px; border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; flex-shrink: 0;
             background: rgba(255,255,255,0.06);
-            transition: background 0.15s;
+            transition: background .15s;
         }
-
-        .nav-link.active .nav-icon {
-            background: rgba(255,255,255,0.15);
-        }
-
-        .nav-link:hover .nav-icon {
-            background: rgba(255,255,255,0.1);
-        }
+        .nav-link.active .nav-icon { background: rgba(255,255,255,0.15); }
+        .nav-link:hover .nav-icon   { background: rgba(255,255,255,0.10); }
 
         .sidebar-footer {
-            padding: 16px 12px;
+            padding: 14px 10px;
             border-top: 1px solid var(--sidebar-border);
             flex-shrink: 0;
         }
-
         .sidebar-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 8px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 8px;
             background: rgba(255,255,255,0.05);
         }
-
         .sidebar-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: var(--accent);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 13px;
-            flex-shrink: 0;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--accent); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 12px; flex-shrink: 0;
         }
-
         .sidebar-user-info { flex: 1; min-width: 0; }
         .sidebar-user-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 13px; font-weight: 600; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .sidebar-user-role {
-            font-size: 11px;
-            color: var(--sidebar-text);
-        }
-
+        .sidebar-user-role { font-size: 11px; color: var(--sidebar-text); }
         .sidebar-logout {
-            color: var(--sidebar-text);
-            text-decoration: none;
-            padding: 6px;
-            border-radius: 6px;
-            transition: all 0.15s;
-            font-size: 15px;
+            color: var(--sidebar-text); text-decoration: none;
+            padding: 6px; border-radius: 6px; transition: all .15s; font-size: 14px;
         }
-        .sidebar-logout:hover { color: var(--danger); background: rgba(239,68,68,0.1); }
+        .sidebar-logout:hover { color: var(--danger); background: rgba(239,68,68,.1); }
 
         /* ── TOPBAR ──────────────────────────────────────── */
         .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
             background: var(--surface);
             border-bottom: 1px solid var(--border);
-            padding: 0 24px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 0 20px;
+            height: var(--topbar-h);
+            display: flex; align-items: center; justify-content: space-between;
             box-shadow: var(--shadow-sm);
         }
-
-        .topbar-left { display: flex; align-items: center; gap: 12px; }
-
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
         .page-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
+            font-size: 16px; font-weight: 600;
+            color: var(--text-primary); margin: 0;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 200px;
         }
-
-        .breadcrumb-pill {
-            background: #eff6ff;
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 20px;
-        }
-
         .topbar-right { display: flex; align-items: center; gap: 8px; }
-
-        .topbar-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.15s;
-            font-size: 15px;
-        }
-        .topbar-btn:hover { background: var(--bg); color: var(--text-primary); }
-
         .topbar-user {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 10px 4px 4px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.15s;
+            display: flex; align-items: center; gap: 8px;
+            padding: 4px 10px 4px 4px; border-radius: 10px;
+            cursor: pointer; transition: background .15s;
         }
         .topbar-user:hover { background: var(--bg); }
-
         .topbar-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--accent);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 12px;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--accent); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 12px; flex-shrink: 0;
         }
-
-        .topbar-user-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+        .topbar-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 
         /* ── MAIN LAYOUT ─────────────────────────────────── */
         .main-wrapper {
             margin-left: var(--sidebar-width);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            min-width: 0;
-            transition: margin-left 0.25s cubic-bezier(.4,0,.2,1);
+            flex: 1; display: flex; flex-direction: column;
+            min-height: 100vh; min-width: 0;
+            transition: margin-left .28s cubic-bezier(.4,0,.2,1);
         }
+        .page-content { padding: 20px; flex: 1; }
 
-        .page-content {
-            padding: 24px;
-            flex: 1;
-        }
-
-        /* ── TOGGLE BTN ──────────────────────────────────── */
-        .toggle-sidebar {
+        /* ── OVERLAY ─────────────────────────────────────── */
+        .sidebar-overlay {
             display: none;
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 18px;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 1039;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
         }
+        .sidebar-overlay.show { display: block; }
 
         /* ── CARDS ───────────────────────────────────────── */
         .card {
@@ -343,74 +218,209 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
         .card-header {
             background: transparent;
             border-bottom: 1px solid var(--border);
-            padding: 16px 20px;
-            font-weight: 600;
-            font-size: 14px;
+            padding: 14px 18px;
+            font-weight: 600; font-size: 14px;
             color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
         }
 
         /* ── TABLES ──────────────────────────────────────── */
-        .table { font-size: 13px; }
+        .table { font-size: 13px; margin: 0; }
         .table thead th {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .05em;
             color: var(--text-secondary);
             border-bottom: 1px solid var(--border);
-            padding: 10px 16px;
-            background: #f8fafc;
+            padding: 10px 16px; background: #f8fafc;
         }
         .table td {
-            padding: 12px 16px;
-            vertical-align: middle;
-            border-bottom: 1px solid #f1f5f9;
-            color: var(--text-primary);
+            padding: 11px 16px; vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9; color: var(--text-primary);
         }
         .table tbody tr:last-child td { border-bottom: none; }
         .table tbody tr:hover td { background: #f8fafc; }
-
-        /* ── BADGES ──────────────────────────────────────── */
-        .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
 
         /* ── BUTTONS ─────────────────────────────────────── */
         .btn { font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); }
         .btn-primary { background: var(--accent); border-color: var(--accent); }
         .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
 
-        /* ── RESPONSIVE ──────────────────────────────────── */
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.show { transform: translateX(0); }
-            .main-wrapper { margin-left: 0; }
-            .toggle-sidebar { display: flex; }
-            .page-content { padding: 16px; }
+        /* ── FORMS ───────────────────────────────────────── */
+        .form-control, .form-select {
+            border-radius: var(--radius-sm); font-size: 13px;
+            border: 1px solid var(--border);
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+        }
+        .form-label { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+        .form-text  { font-size: 11px; color: var(--text-secondary); }
+
+        /* ── BADGE ───────────────────────────────────────── */
+        .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+
+        /* ════════════════════════════════════════════════════
+           MOBILE FAB MENU  (WhatsApp style)
+           ════════════════════════════════════════════════════ */
+        .fab-menu { display: none; }
+
+        /* Bottom sheet backdrop */
+        .fab-backdrop {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1048;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        .fab-backdrop.show { display: block; }
+
+        /* Bottom sheet panel */
+        .fab-sheet {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--sidebar-bg);
+            border-radius: 20px 20px 0 0;
+            z-index: 1049;
+            padding: 0 0 env(safe-area-inset-bottom, 16px);
+            transform: translateY(100%);
+            transition: transform .3s cubic-bezier(.4,0,.2,1);
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.35);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .fab-sheet.show { transform: translateY(0); }
+
+        .fab-sheet-handle {
+            width: 36px; height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin: 12px auto 0;
         }
 
-        /* ── OVERLAY ─────────────────────────────────────── */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            z-index: 999;
+        .fab-sheet-header {
+            display: flex; align-items: center; gap: 12px;
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid var(--sidebar-border);
         }
-        .sidebar-overlay.show { display: block; }
+        .fab-sheet-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: var(--accent); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+        .fab-sheet-user-name { font-size: 14px; font-weight: 600; color: #fff; }
+        .fab-sheet-user-role { font-size: 11px; color: var(--sidebar-text); }
+
+        .fab-nav { padding: 10px 12px; }
+        .fab-nav-section {
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .08em;
+            color: rgba(255,255,255,0.28);
+            padding: 10px 8px 4px;
+        }
+        .fab-nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 12px;
+            border-radius: 10px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 14px; font-weight: 500;
+            transition: all .15s;
+            margin-bottom: 2px;
+        }
+        .fab-nav-link:hover,
+        .fab-nav-link.active { background: var(--sidebar-hover); color: #fff; }
+        .fab-nav-link.active { background: var(--sidebar-active); }
+        .fab-nav-icon {
+            width: 36px; height: 36px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; flex-shrink: 0;
+            background: rgba(255,255,255,0.07);
+        }
+        .fab-nav-link.active .fab-nav-icon { background: rgba(255,255,255,0.18); }
+
+        .fab-sheet-footer {
+            padding: 12px 20px 16px;
+            border-top: 1px solid var(--sidebar-border);
+            margin-top: 4px;
+        }
+        .fab-logout-btn {
+            display: flex; align-items: center; gap: 10px;
+            width: 100%; padding: 12px 14px;
+            border-radius: 10px; border: 1px solid rgba(239,68,68,.3);
+            background: rgba(239,68,68,.08);
+            color: #f87171; font-size: 14px; font-weight: 500;
+            text-decoration: none; transition: all .15s;
+        }
+        .fab-logout-btn:hover { background: rgba(239,68,68,.16); color: #ef4444; }
+
+        /* FAB button */
+        .fab-btn {
+            position: fixed;
+            bottom: 24px; right: 20px;
+            width: var(--fab-size); height: var(--fab-size);
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            z-index: 1047;
+            box-shadow: 0 4px 20px rgba(37,99,235,.5);
+            transition: transform .2s, box-shadow .2s, background .15s;
+        }
+        .fab-btn:hover { transform: scale(1.07); box-shadow: 0 6px 24px rgba(37,99,235,.6); }
+        .fab-btn.open  { background: #1d4ed8; transform: rotate(45deg); }
+        .fab-btn.open:hover { transform: rotate(45deg) scale(1.07); }
+
+        /* ── RESPONSIVE ──────────────────────────────────── */
+        @media (max-width: 767px) {
+            /* Hide desktop sidebar */
+            .sidebar       { display: none !important; }
+            .main-wrapper  { margin-left: 0 !important; }
+
+            /* Show FAB */
+            .fab-menu  { display: block; }
+
+            /* Topbar adjustments */
+            .topbar { padding: 0 14px; }
+            .page-title { max-width: calc(100vw - 180px); font-size: 15px; }
+            .topbar-user-name { display: none; }
+            .topbar-right .btn { display: none; }
+
+            /* Page content bottom padding so FAB doesn't cover content */
+            .page-content { padding: 14px 14px 90px; }
+
+            /* Tables: horizontal scroll */
+            .table-responsive { border-radius: 0 0 var(--radius) var(--radius); }
+
+            /* Cards */
+            .card { border-radius: var(--radius); }
+        }
+
+        @media (min-width: 768px) {
+            .fab-menu     { display: none !important; }
+            .fab-backdrop { display: none !important; }
+            .fab-sheet    { display: none !important; }
+        }
+
+        /* Tablet adjustments */
+        @media (max-width: 1024px) and (min-width: 768px) {
+            :root { --sidebar-width: 220px; }
+            .page-content { padding: 16px; }
+        }
     </style>
 </head>
 <body>
 
-<!-- Sidebar overlay (mobile) -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<!-- ── SIDEBAR ── -->
+<!-- ── DESKTOP SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <img src="<?php echo str_repeat('../', substr_count($pagina_actual, '/')); ?>logo1.png" alt="PRM">
-        <div class="sidebar-brand-text">
+        <img src="logo1.png" alt="PRM">
+        <div>
             <div class="sidebar-brand-name">Partido Revolucionario<br>Moderno</div>
             <div class="sidebar-brand-sub">Comités Afectivos</div>
         </div>
@@ -418,41 +428,32 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 
     <nav class="sidebar-nav">
         <div class="nav-section-label">Principal</div>
-
         <div class="nav-item">
-            <a href="dashboard.php" class="nav-link <?php echo $pagina_actual == 'dashboard.php' ? 'active' : ''; ?>">
-                <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
-                Dashboard
+            <a href="dashboard.php" class="nav-link <?php echo $pagina_actual=='dashboard.php'?'active':''; ?>">
+                <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>Dashboard
             </a>
         </div>
         <div class="nav-item">
-            <a href="comites.php" class="nav-link <?php echo $pagina_actual == 'comites.php' ? 'active' : ''; ?>">
-                <span class="nav-icon"><i class="fas fa-layer-group"></i></span>
-                Comités
+            <a href="comites.php" class="nav-link <?php echo $pagina_actual=='comites.php'?'active':''; ?>">
+                <span class="nav-icon"><i class="fas fa-layer-group"></i></span>Comités
             </a>
         </div>
         <div class="nav-item">
-            <a href="crear_comite.php" class="nav-link <?php echo $pagina_actual == 'crear_comite.php' ? 'active' : ''; ?>">
-                <span class="nav-icon"><i class="fas fa-plus"></i></span>
-                Crear Comité
+            <a href="crear_comite.php" class="nav-link <?php echo $pagina_actual=='crear_comite.php'?'active':''; ?>">
+                <span class="nav-icon"><i class="fas fa-plus"></i></span>Crear Comité
             </a>
         </div>
-
         <div class="nav-section-label">Herramientas</div>
-
         <div class="nav-item">
-            <a href="consultar.html" class="nav-link <?php echo $pagina_actual == 'consultar.html' ? 'active' : ''; ?>">
-                <span class="nav-icon"><i class="fas fa-id-card"></i></span>
-                Consultar Cédula
+            <a href="consultar.html" class="nav-link <?php echo $pagina_actual=='consultar.html'?'active':''; ?>">
+                <span class="nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
             </a>
         </div>
-
-        <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 'admin'): ?>
+        <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol']=='admin'): ?>
         <div class="nav-section-label">Administración</div>
         <div class="nav-item">
-            <a href="usuarios.php" class="nav-link <?php echo $pagina_actual == 'usuarios.php' ? 'active' : ''; ?>">
-                <span class="nav-icon"><i class="fas fa-users-cog"></i></span>
-                Usuarios
+            <a href="usuarios.php" class="nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
+                <span class="nav-icon"><i class="fas fa-users-cog"></i></span>Usuarios
             </a>
         </div>
         <?php endif; ?>
@@ -460,16 +461,12 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 
     <div class="sidebar-footer">
         <div class="sidebar-user">
-            <div class="sidebar-avatar">
-                <?php echo strtoupper(substr($_SESSION['usuario_nombre'] ?? 'U', 0, 1)); ?>
-            </div>
+            <div class="sidebar-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
             <div class="sidebar-user-info">
-                <div class="sidebar-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario'); ?></div>
-                <div class="sidebar-user-role"><?php echo ucfirst($_SESSION['usuario_rol'] ?? 'usuario'); ?></div>
+                <div class="sidebar-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??'Usuario'); ?></div>
+                <div class="sidebar-user-role"><?php echo ucfirst($_SESSION['usuario_rol']??'usuario'); ?></div>
             </div>
-            <a href="logout.php" class="sidebar-logout" title="Cerrar sesión">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
+            <a href="logout.php" class="sidebar-logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
         </div>
     </div>
 </aside>
@@ -480,25 +477,16 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
     <!-- Topbar -->
     <header class="topbar">
         <div class="topbar-left">
-            <button class="toggle-sidebar" id="toggleSidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-            <h1 class="page-title"><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina) : 'Dashboard'; ?></h1>
-            <span class="breadcrumb-pill d-none d-sm-inline">PRM 2024</span>
+            <h1 class="page-title"><?php echo isset($titulo_pagina)?htmlspecialchars($titulo_pagina):'Dashboard'; ?></h1>
         </div>
         <div class="topbar-right">
             <a href="crear_comite.php" class="btn btn-primary btn-sm d-none d-md-inline-flex align-items-center gap-2">
                 <i class="fas fa-plus"></i> Nuevo Comité
             </a>
             <?php if (isset($_SESSION['usuario_id'])): ?>
-            <div class="topbar-user" id="topbarUser">
-                <div class="topbar-avatar">
-                    <?php echo strtoupper(substr($_SESSION['usuario_nombre'] ?? 'U', 0, 1)); ?>
-                </div>
-                <span class="topbar-user-name d-none d-sm-inline">
-                    <?php echo htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario'); ?>
-                </span>
-                <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-secondary);"></i>
+            <div class="topbar-user">
+                <div class="topbar-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
+                <span class="topbar-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??''); ?></span>
             </div>
             <?php endif; ?>
         </div>
@@ -506,3 +494,65 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 
     <!-- Page Content -->
     <main class="page-content">
+
+<!-- ══════════════════════════════════════════════════════
+     MOBILE FAB MENU
+     ══════════════════════════════════════════════════════ -->
+<div class="fab-menu">
+    <!-- Backdrop -->
+    <div class="fab-backdrop" id="fabBackdrop"></div>
+
+    <!-- Bottom sheet -->
+    <div class="fab-sheet" id="fabSheet">
+        <div class="fab-sheet-handle"></div>
+
+        <div class="fab-sheet-header">
+            <div class="fab-sheet-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
+            <div>
+                <div class="fab-sheet-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??'Usuario'); ?></div>
+                <div class="fab-sheet-user-role"><?php echo ucfirst($_SESSION['usuario_rol']??'usuario'); ?></div>
+            </div>
+        </div>
+
+        <div class="fab-nav">
+            <div class="fab-nav-section">Principal</div>
+
+            <a href="dashboard.php" class="fab-nav-link <?php echo $pagina_actual=='dashboard.php'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-chart-pie"></i></span>Dashboard
+            </a>
+            <a href="comites.php" class="fab-nav-link <?php echo $pagina_actual=='comites.php'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-layer-group"></i></span>Comités
+            </a>
+            <a href="crear_comite.php" class="fab-nav-link <?php echo $pagina_actual=='crear_comite.php'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-plus"></i></span>Crear Comité
+            </a>
+
+            <div class="fab-nav-section">Herramientas</div>
+            <a href="consultar.html" class="fab-nav-link <?php echo $pagina_actual=='consultar.html'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
+            </a>
+
+            <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol']=='admin'): ?>
+            <div class="fab-nav-section">Administración</div>
+            <a href="usuarios.php" class="fab-nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-users-cog"></i></span>Usuarios
+            </a>
+            <?php endif; ?>
+
+            <a href="perfil.php" class="fab-nav-link <?php echo $pagina_actual=='perfil.php'?'active':''; ?>">
+                <span class="fab-nav-icon"><i class="fas fa-user-circle"></i></span>Mi Perfil
+            </a>
+        </div>
+
+        <div class="fab-sheet-footer">
+            <a href="logout.php" class="fab-logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
+    <!-- FAB Button -->
+    <button class="fab-btn" id="fabBtn" aria-label="Menú">
+        <i class="fas fa-bars" id="fabIcon"></i>
+    </button>
+</div>
