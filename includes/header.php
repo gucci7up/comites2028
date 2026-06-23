@@ -1,10 +1,7 @@
 <?php
-// Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-
-// Determinar la página actual para resaltar en el menú
 $pagina_actual = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
@@ -12,330 +9,500 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Comités Afectivos - PRM</title>
+    <title><?php echo isset($titulo_pagina) ? $titulo_pagina . ' — PRM Comités' : 'PRM Comités Afectivos'; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --sidebar-width: 250px;
+            --sidebar-bg:      #0d1b2a;
+            --sidebar-hover:   #1a2e42;
+            --sidebar-active:  #1d4ed8;
+            --sidebar-border:  rgba(255,255,255,0.06);
+            --sidebar-text:    rgba(255,255,255,0.65);
+            --sidebar-width:   260px;
+            --accent:          #2563eb;
+            --accent-light:    #3b82f6;
+            --success:         #10b981;
+            --warning:         #f59e0b;
+            --danger:          #ef4444;
+            --info:            #06b6d4;
+            --bg:              #f1f5f9;
+            --surface:         #ffffff;
+            --text-primary:    #0f172a;
+            --text-secondary:  #64748b;
+            --border:          #e2e8f0;
+            --shadow-sm:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md:       0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-lg:       0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05);
+            --radius:          12px;
+            --radius-sm:       8px;
         }
-        
+
+        *, *::before, *::after { box-sizing: border-box; }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            font-size: 14px;
+            line-height: 1.5;
         }
-        
-        /* Sidebar */
+
+        /* ── SIDEBAR ─────────────────────────────────────── */
         .sidebar {
             position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
+            top: 0; left: 0;
             width: var(--sidebar-width);
-            background: var(--primary-color);
-            color: white;
-            padding-top: 20px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
             z-index: 1000;
-            transition: all 0.3s;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+            overflow: hidden;
         }
-        
-        .sidebar-header {
-            padding: 0 20px 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .sidebar-logo {
-            max-width: 120px;
-            margin-bottom: 15px;
-        }
-        
-        .sidebar-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        
-        .sidebar-subtitle {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-        
-        .sidebar-menu {
-            padding: 20px 0;
-            list-style: none;
-            margin: 0;
-        }
-        
-        .sidebar-menu li {
-            margin-bottom: 5px;
-        }
-        
-        .sidebar-menu a {
+
+        .sidebar-brand {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid var(--sidebar-border);
             display: flex;
             align-items: center;
-            padding: 12px 20px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            transition: all 0.3s;
+            gap: 12px;
+            flex-shrink: 0;
         }
-        
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-left: 4px solid var(--secondary-color);
+
+        .sidebar-brand img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.08);
+            padding: 4px;
         }
-        
-        .sidebar-menu i {
-            margin-right: 10px;
-            font-size: 18px;
-            width: 25px;
-            text-align: center;
-        }
-        
-        .sidebar-footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            padding: 15px 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .sidebar-footer a {
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-        }
-        
-        .sidebar-footer a:hover {
-            color: white;
-        }
-        
-        /* Main Content */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 20px;
+
+        .sidebar-brand-text {
             flex: 1;
-            transition: all 0.3s;
+            min-width: 0;
         }
-        
-        /* Topbar */
-        .topbar {
-            background: white;
-            border-radius: 10px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+
+        .sidebar-brand-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            line-height: 1.3;
         }
-        
-        .page-title {
-            font-size: 20px;
+
+        .sidebar-brand-sub {
+            font-size: 10px;
+            color: var(--sidebar-text);
+            margin-top: 2px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px;
+            scrollbar-width: none;
+        }
+        .sidebar-nav::-webkit-scrollbar { display: none; }
+
+        .nav-section-label {
+            font-size: 10px;
             font-weight: 600;
-            color: var(--primary-color);
-            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.3);
+            padding: 12px 8px 6px;
         }
-        
-        .user-dropdown {
+
+        .nav-item { margin-bottom: 2px; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: all 0.15s ease;
             position: relative;
         }
-        
-        .user-dropdown-toggle {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: all 0.3s;
+
+        .nav-link:hover {
+            background: var(--sidebar-hover);
+            color: #fff;
         }
-        
-        .user-dropdown-toggle:hover {
-            background: #f8f9fa;
+
+        .nav-link.active {
+            background: var(--sidebar-active);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.35);
         }
-        
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: var(--secondary-color);
-            color: white;
+
+        .nav-link .nav-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            margin-right: 10px;
+            font-size: 14px;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.06);
+            transition: background 0.15s;
         }
-        
-        .user-name {
-            font-weight: 600;
-            margin-right: 5px;
+
+        .nav-link.active .nav-icon {
+            background: rgba(255,255,255,0.15);
         }
-        
-        .user-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            padding: 10px 0;
-            min-width: 200px;
-            z-index: 1000;
-            display: none;
+
+        .nav-link:hover .nav-icon {
+            background: rgba(255,255,255,0.1);
         }
-        
-        .user-dropdown-menu.show {
-            display: block;
+
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid var(--sidebar-border);
+            flex-shrink: 0;
         }
-        
-        .user-dropdown-item {
+
+        .sidebar-user {
             display: flex;
             align-items: center;
-            padding: 8px 15px;
-            color: #333;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sidebar-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-user-info { flex: 1; min-width: 0; }
+        .sidebar-user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar-user-role {
+            font-size: 11px;
+            color: var(--sidebar-text);
+        }
+
+        .sidebar-logout {
+            color: var(--sidebar-text);
             text-decoration: none;
-            transition: all 0.2s;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.15s;
+            font-size: 15px;
         }
-        
-        .user-dropdown-item:hover {
-            background: #f8f9fa;
+        .sidebar-logout:hover { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+        /* ── TOPBAR ──────────────────────────────────────── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
         }
-        
-        .user-dropdown-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
+
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+
+        .page-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
-            .topbar {
-                position: sticky;
-                top: 0;
-                z-index: 900;
-            }
-            
-            .toggle-sidebar {
-                display: block !important;
-            }
+
+        .breadcrumb-pill {
+            background: #eff6ff;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
         }
-        
-        /* Toggle Button */
+
+        .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+        .topbar-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 15px;
+        }
+        .topbar-btn:hover { background: var(--bg); color: var(--text-primary); }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px 4px 4px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .topbar-user:hover { background: var(--bg); }
+
+        .topbar-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .topbar-user-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ── MAIN LAYOUT ─────────────────────────────────── */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            min-width: 0;
+            transition: margin-left 0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        .page-content {
+            padding: 24px;
+            flex: 1;
+        }
+
+        /* ── TOGGLE BTN ──────────────────────────────────── */
         .toggle-sidebar {
             display: none;
-            background: none;
+            width: 36px;
+            height: 36px;
             border: none;
-            font-size: 20px;
-            color: var(--primary-color);
+            background: transparent;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 18px;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            margin-right: 10px;
         }
+
+        /* ── CARDS ───────────────────────────────────────── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ── TABLES ──────────────────────────────────────── */
+        .table { font-size: 13px; }
+        .table thead th {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            background: #f8fafc;
+        }
+        .table td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            color: var(--text-primary);
+        }
+        .table tbody tr:last-child td { border-bottom: none; }
+        .table tbody tr:hover td { background: #f8fafc; }
+
+        /* ── BADGES ──────────────────────────────────────── */
+        .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+
+        /* ── BUTTONS ─────────────────────────────────────── */
+        .btn { font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); }
+        .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+        /* ── RESPONSIVE ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .toggle-sidebar { display: flex; }
+            .page-content { padding: 16px; }
+        }
+
+        /* ── OVERLAY ─────────────────────────────────────── */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+        }
+        .sidebar-overlay.show { display: block; }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <img src="logo1.png" alt="Logo PRM" class="sidebar-logo">
-            <div class="sidebar-title">PARTIDO REVOLUCIONARIO MODERNO</div>
-            <div class="sidebar-subtitle">Sistema de Comités Afectivos</div>
-        </div>
-        
-        <ul class="sidebar-menu">
-            <li>
-                <a href="dashboard.php" class="<?php echo $pagina_actual == 'dashboard.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-            </li>
-            <li>
-                <a href="comites.php" class="<?php echo $pagina_actual == 'comites.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-users"></i> Comités
-                </a>
-            </li>
-            <li>
-                <a href="crear_comite.php" class="<?php echo $pagina_actual == 'crear_comite.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-plus-circle"></i> Crear Comité
-                </a>
-            </li>
-            <li>
-                <a href="consultar.html" class="<?php echo $pagina_actual == 'consultar.html' ? 'active' : ''; ?>">
-                    <i class="fas fa-search"></i> Consultar Cédula
-                </a>
-            </li>
-            <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 'admin'): ?>
-            <li>
-                <a href="usuarios.php" class="<?php echo $pagina_actual == 'usuarios.php' ? 'active' : ''; ?>">
-                    <i class="fas fa-user-cog"></i> Gestión de Usuarios
-                </a>
-            </li>
-            <?php endif; ?>
-        </ul>
-        
-        <div class="sidebar-footer">
-            <span>&copy; 2024 PRM</span>
-            <a href="logout.php" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></a>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <img src="<?php echo str_repeat('../', substr_count($pagina_actual, '/')); ?>logo1.png" alt="PRM">
+        <div class="sidebar-brand-text">
+            <div class="sidebar-brand-name">Partido Revolucionario<br>Moderno</div>
+            <div class="sidebar-brand-sub">Comités Afectivos</div>
         </div>
     </div>
-    
-    <!-- Main Content -->
-    <div class="main-content" id="main-content">
-        <!-- Topbar -->
-        <div class="topbar">
-            <div class="d-flex align-items-center">
-                <button class="toggle-sidebar" id="toggle-sidebar">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1 class="page-title"><?php echo isset($titulo_pagina) ? $titulo_pagina : 'Dashboard'; ?></h1>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+
+        <div class="nav-item">
+            <a href="dashboard.php" class="nav-link <?php echo $pagina_actual == 'dashboard.php' ? 'active' : ''; ?>">
+                <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+                Dashboard
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="comites.php" class="nav-link <?php echo $pagina_actual == 'comites.php' ? 'active' : ''; ?>">
+                <span class="nav-icon"><i class="fas fa-layer-group"></i></span>
+                Comités
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="crear_comite.php" class="nav-link <?php echo $pagina_actual == 'crear_comite.php' ? 'active' : ''; ?>">
+                <span class="nav-icon"><i class="fas fa-plus"></i></span>
+                Crear Comité
+            </a>
+        </div>
+
+        <div class="nav-section-label">Herramientas</div>
+
+        <div class="nav-item">
+            <a href="consultar.html" class="nav-link <?php echo $pagina_actual == 'consultar.html' ? 'active' : ''; ?>">
+                <span class="nav-icon"><i class="fas fa-id-card"></i></span>
+                Consultar Cédula
+            </a>
+        </div>
+
+        <?php if (isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 'admin'): ?>
+        <div class="nav-section-label">Administración</div>
+        <div class="nav-item">
+            <a href="usuarios.php" class="nav-link <?php echo $pagina_actual == 'usuarios.php' ? 'active' : ''; ?>">
+                <span class="nav-icon"><i class="fas fa-users-cog"></i></span>
+                Usuarios
+            </a>
+        </div>
+        <?php endif; ?>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <div class="sidebar-avatar">
+                <?php echo strtoupper(substr($_SESSION['usuario_nombre'] ?? 'U', 0, 1)); ?>
             </div>
-            
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario'); ?></div>
+                <div class="sidebar-user-role"><?php echo ucfirst($_SESSION['usuario_rol'] ?? 'usuario'); ?></div>
+            </div>
+            <a href="logout.php" class="sidebar-logout" title="Cerrar sesión">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- ── MAIN WRAPPER ── -->
+<div class="main-wrapper" id="mainWrapper">
+
+    <!-- Topbar -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="toggle-sidebar" id="toggleSidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title"><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina) : 'Dashboard'; ?></h1>
+            <span class="breadcrumb-pill d-none d-sm-inline">PRM 2024</span>
+        </div>
+        <div class="topbar-right">
+            <a href="crear_comite.php" class="btn btn-primary btn-sm d-none d-md-inline-flex align-items-center gap-2">
+                <i class="fas fa-plus"></i> Nuevo Comité
+            </a>
             <?php if (isset($_SESSION['usuario_id'])): ?>
-            <div class="user-dropdown">
-                <div class="user-dropdown-toggle" id="user-dropdown-toggle">
-                    <div class="user-avatar">
-                        <?php echo substr($_SESSION['usuario_nombre'] ?? 'U', 0, 1); ?>
-                    </div>
-                    <span class="user-name"><?php echo $_SESSION['usuario_nombre'] ?? 'Usuario'; ?></span>
-                    <i class="fas fa-chevron-down"></i>
+            <div class="topbar-user" id="topbarUser">
+                <div class="topbar-avatar">
+                    <?php echo strtoupper(substr($_SESSION['usuario_nombre'] ?? 'U', 0, 1)); ?>
                 </div>
-                
-                <div class="user-dropdown-menu" id="user-dropdown-menu">
-                    <a href="perfil.php" class="user-dropdown-item">
-                        <i class="fas fa-user"></i> Mi Perfil
-                    </a>
-                    <a href="logout.php" class="user-dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                    </a>
-                </div>
+                <span class="topbar-user-name d-none d-sm-inline">
+                    <?php echo htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario'); ?>
+                </span>
+                <i class="fas fa-chevron-down" style="font-size:10px;color:var(--text-secondary);"></i>
             </div>
             <?php endif; ?>
         </div>
-        
-        <!-- Page Content -->
-        <div class="container-fluid">
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
