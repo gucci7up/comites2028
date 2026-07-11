@@ -68,6 +68,22 @@ include 'includes/header.php';
                                     <span id="fechaNacimiento"></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Sexo:</span>
+                                    <span id="sexo"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Estado Civil:</span>
+                                    <span id="estadoCivil"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Nacionalidad:</span>
+                                    <span id="nacionalidad"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Provincia:</span>
+                                    <span id="provincia"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span class="fw-bold">Municipio:</span>
                                     <span id="municipio"></span>
                                 </li>
@@ -76,8 +92,16 @@ include 'includes/header.php';
                         <div class="col-md-6">
                             <ul class="list-group">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Zona:</span>
+                                    <span id="zona"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span class="fw-bold">Recinto:</span>
                                     <span id="recinto"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Recinto Votación:</span>
+                                    <span id="recintoVotacion"></span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <span class="fw-bold">Colegio:</span>
@@ -177,11 +201,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('nombreCompleto').textContent = `${d.nombres} ${d.apellido1} ${d.apellido2}`;
                 document.getElementById('cedulaResultado').textContent = d.Cedula;
                 document.getElementById('fechaNacimiento').textContent = d.FechaNacimiento;
+                document.getElementById('sexo').textContent = d.SexoDescripcion;
+                document.getElementById('estadoCivil').textContent = d.EstadoCivil;
+                document.getElementById('nacionalidad').textContent = d.Nacionalidad;
+                document.getElementById('provincia').textContent = d.Provincia;
                 document.getElementById('municipio').textContent = d.Municipio;
+                document.getElementById('zona').textContent = d.Zona;
                 document.getElementById('recinto').textContent = d.Recinto;
+                document.getElementById('recintoVotacion').textContent = d.RecintoVotacion;
                 document.getElementById('colegio').textContent = d.CodigoColegio;
                 document.getElementById('circunscripcion').textContent = d.Circunscripcion;
-                
+
                 resultados.classList.remove('d-none');
             })
             .catch(err => {
@@ -252,8 +282,14 @@ document.addEventListener('DOMContentLoaded', function() {
             ['Cédula', document.getElementById('cedulaResultado').textContent],
             ['Nombre', document.getElementById('nombreCompleto').textContent],
             ['Nacimiento', document.getElementById('fechaNacimiento').textContent],
+            ['Sexo', document.getElementById('sexo').textContent],
+            ['Estado Civil', document.getElementById('estadoCivil').textContent],
+            ['Nacionalidad', document.getElementById('nacionalidad').textContent],
+            ['Provincia', document.getElementById('provincia').textContent],
             ['Municipio', document.getElementById('municipio').textContent],
+            ['Zona', document.getElementById('zona').textContent],
             ['Recinto', document.getElementById('recinto').textContent],
+            ['Recinto Votación', document.getElementById('recintoVotacion').textContent],
             ['Colegio', document.getElementById('colegio').textContent],
             ['Circunscripción', document.getElementById('circunscripcion').textContent]
         ];

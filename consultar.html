@@ -322,8 +322,14 @@
                         <tr><th>Cédula</th><td id="cedulaTxt"></td></tr>
                         <tr><th>Nombre</th><td id="nombreTxt"></td></tr>
                         <tr><th>Nacimiento</th><td id="nacTxt"></td></tr>
+                        <tr><th>Sexo</th><td id="sexoTxt"></td></tr>
+                        <tr><th>Estado Civil</th><td id="estadoCivilTxt"></td></tr>
+                        <tr><th>Nacionalidad</th><td id="nacionalidadTxt"></td></tr>
+                        <tr><th>Provincia</th><td id="provinciaTxt"></td></tr>
                         <tr><th>Municipio</th><td id="munTxt"></td></tr>
+                        <tr><th>Zona</th><td id="zonaTxt"></td></tr>
                         <tr><th>Recinto</th><td id="recTxt"></td></tr>
+                        <tr><th>Recinto Votación</th><td id="recintoVotacionTxt"></td></tr>
                         <tr><th>Colegio</th><td id="colTxt"></td></tr>
                       </tbody>
                     </table>
@@ -440,10 +446,16 @@
                 document.getElementById('cedulaTxt').textContent = d.Cedula;
                 document.getElementById('nombreTxt').textContent = `${d.nombres} ${d.apellido1} ${d.apellido2}`;
                 document.getElementById('nacTxt').textContent = d.FechaNacimiento;
+                document.getElementById('sexoTxt').textContent = d.SexoDescripcion;
+                document.getElementById('estadoCivilTxt').textContent = d.EstadoCivil;
+                document.getElementById('nacionalidadTxt').textContent = d.Nacionalidad;
+                document.getElementById('provinciaTxt').textContent = d.Provincia;
                 document.getElementById('munTxt').textContent = d.Municipio;
+                document.getElementById('zonaTxt').textContent = d.Zona;
                 document.getElementById('recTxt').textContent = d.Recinto;
+                document.getElementById('recintoVotacionTxt').textContent = d.RecintoVotacion;
                 document.getElementById('colTxt').textContent = d.CodigoColegio;
-                
+
                 showResults();
             }
         } catch (err) {
@@ -514,8 +526,14 @@
             ['Cédula', document.getElementById('cedulaTxt').textContent],
             ['Nombre', document.getElementById('nombreTxt').textContent],
             ['Nacimiento', document.getElementById('nacTxt').textContent],
+            ['Sexo', document.getElementById('sexoTxt').textContent],
+            ['Estado Civil', document.getElementById('estadoCivilTxt').textContent],
+            ['Nacionalidad', document.getElementById('nacionalidadTxt').textContent],
+            ['Provincia', document.getElementById('provinciaTxt').textContent],
             ['Municipio', document.getElementById('munTxt').textContent],
+            ['Zona', document.getElementById('zonaTxt').textContent],
             ['Recinto', document.getElementById('recTxt').textContent],
+            ['Recinto Votación', document.getElementById('recintoVotacionTxt').textContent],
             ['Colegio', document.getElementById('colTxt').textContent]
         ];
         

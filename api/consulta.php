@@ -25,31 +25,49 @@ try {
 /* 3. Consulta con *prepared statement* para evitar inyección SQL */
 $sql = "
 SELECT
-              dbPadronFeb2024.dbo.Padron.nombres,
-              dbPadronFeb2024.dbo.Padron.apellido1,
-              dbPadronFeb2024.dbo.Padron.apellido2,
-              dbPadronFeb2024.dbo.Padron.Cedula,
-              dbPadronFeb2024.dbo.Padron.FechaNacimiento,
-              dbPadronFeb2024.dbo.Padron.IdSexo,
-              dbPadronFeb2024.dbo.Municipio.Descripcion AS Municipio,
-              dbPadronFeb2024.dbo.Colegio.Descripcion AS Recinto,
-              CodigoRecinto,
-              dbPadronFeb2024.dbo.Colegio.CodigoColegio,
-              dbPadronFeb2024.dbo.Colegio.CantidadInscritos,
-              dbPadronFeb2024.dbo.Circunscripcion.Descripcion AS Circunscripcion,
-              dbPRM.dbo.FOTOS_PRM_PRM.Imagen
+              P.nombres,
+              P.apellido1,
+              P.apellido2,
+              P.Cedula,
+              P.FechaNacimiento,
+              P.IdSexo,
+              Mun.Descripcion AS Municipio,
+              Col.Descripcion AS Recinto,
+              P.CodigoRecinto,
+              Col.CodigoColegio,
+              Col.CantidadInscritos,
+              Cir.Descripcion AS Circunscripcion,
+              Sex.Descripcion AS SexoDescripcion,
+              EC.Descripcion AS EstadoCivil,
+              Nac.Descripcion AS Nacionalidad,
+              Prov.Descripcion AS Provincia,
+              Zon.Descripcion AS Zona,
+              Rec.Descripcion AS RecintoVotacion,
+              Foto.Imagen
           FROM
-              [dbPadronFeb2024].[dbo].[Padron]
+              [dbPadronFeb2024].[dbo].[Padron] P
           INNER JOIN
-              [dbPadronFeb2024].[dbo].[Municipio] ON [dbPadronFeb2024].[dbo].[Padron].[IdMunicipio] = [dbPadronFeb2024].[dbo].[Municipio].[ID]
+              [dbPadronFeb2024].[dbo].[Municipio] Mun ON P.IdMunicipio = Mun.ID
           INNER JOIN
-              [dbPadronFeb2024].[dbo].[Colegio] ON [dbPadronFeb2024].[dbo].[Padron].[IdColegio] = [dbPadronFeb2024].[dbo].[Colegio].[IDColegio]
+              [dbPadronFeb2024].[dbo].[Colegio] Col ON P.IdColegio = Col.IDColegio
           INNER JOIN
-              [dbPadronFeb2024].[dbo].[Circunscripcion] ON [dbPadronFeb2024].[dbo].[Padron].[CodigoCircunscripcion] = [dbPadronFeb2024].[dbo].[Circunscripcion].[ID]
+              [dbPadronFeb2024].[dbo].[Circunscripcion] Cir ON P.CodigoCircunscripcion = Cir.ID
           INNER JOIN
-              [dbPRM].[dbo].[FOTOS_PRM_PRM] ON [dbPadronFeb2024].[dbo].[Padron].[Cedula] = [dbPRM].[dbo].[FOTOS_PRM_PRM].[Cedula]
+              [dbPRM].[dbo].[FOTOS_PRM_PRM] Foto ON P.Cedula = Foto.Cedula
+          LEFT JOIN
+              [dbPadronFeb2024].[dbo].[Sexo] Sex ON P.IdSexo = Sex.IdSexo
+          LEFT JOIN
+              [dbPadronFeb2024].[dbo].[EstadoCivil] EC ON P.IdEstadoCivil = EC.Id
+          LEFT JOIN
+              [dbPadronFeb2024].[dbo].[Nacionalidad] Nac ON P.IdNacionalidad = Nac.ID
+          LEFT JOIN
+              [dbPadronFeb2024].[dbo].[Provincia] Prov ON P.IdProvincia = Prov.ID
+          LEFT JOIN
+              [dbPadronFeb2024].[dbo].[Zona] Zon ON Prov.ZONA = Zon.ID
+          LEFT JOIN
+              [dbPadronFeb2024].[dbo].[Recinto] Rec ON P.CodigoRecinto = Rec.CodigoRecinto
           WHERE
-             [dbPadronFeb2024].[dbo].[Padron].[Cedula] = :cedula";
+             P.Cedula = :cedula";
 
 $stmt = $pdo->prepare($sql);
 $stmt->bindParam(':cedula', $cedula, PDO::PARAM_STR);
