@@ -46,3 +46,8 @@ DROP TABLE IF EXISTS partidos;
 -- Nota: sin IF NOT EXISTS porque el servidor MySQL de producción no lo soporta.
 -- Si la columna ya existe, este ALTER fallará con error "Duplicate column name" — es seguro ignorarlo.
 ALTER TABLE comites ADD COLUMN zona VARCHAR(150) NULL AFTER municipio;
+
+-- Migration v5: candidato principal (nombre + foto) para el membrete de impresión
+-- Nota: sin IF NOT EXISTS, mismo motivo que arriba.
+ALTER TABLE configuracion ADD COLUMN candidato_principal_nombre VARCHAR(150) NULL;
+ALTER TABLE configuracion ADD COLUMN candidato_principal_foto LONGBLOB NULL;

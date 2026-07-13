@@ -207,12 +207,52 @@ $logo_print = !empty($tema['logo']) ? 'data:image/png;base64,'.base64_encode($te
 $colorPrincipal = $tema['color_primario'] ?? '#2563eb';
 ?>
 <div class="d-none" id="seccion-imprimir" style="font-family:Arial,Helvetica,sans-serif;color:#1e293b;">
-    <div style="text-align:center;margin-bottom:16px;">
-        <img src="<?php echo $logo_print; ?>" alt="Logo" style="width:130px;height:130px;object-fit:contain;margin-bottom:8px;">
-        <div style="font-size:28px;font-weight:800;color:#94a3b8;letter-spacing:.5px;"><?php echo htmlspecialchars(strtoupper($tema['nombre_partido'])); ?></div>
-        <div style="font-size:13px;color:#94a3b8;margin-top:2px;">Gestión y generación de fichas de afiliación</div>
-    </div>
-    <hr style="border:none;border-top:1px solid #e2e8f0;margin:14px 0 18px;">
+    <table width="100%" style="border-collapse:collapse;border:2px solid <?php echo htmlspecialchars($colorPrincipal); ?>;margin-bottom:10px;">
+        <tr>
+            <td style="width:76px;padding:8px;vertical-align:middle;text-align:center;">
+                <img src="<?php echo $logo_print; ?>" alt="Logo" style="width:60px;height:60px;object-fit:contain;">
+            </td>
+            <td style="background:<?php echo htmlspecialchars($colorPrincipal); ?>;color:#fff;text-align:center;padding:10px 14px;vertical-align:middle;">
+                <div style="font-size:16px;font-weight:800;letter-spacing:.3px;"><?php echo htmlspecialchars(strtoupper($tema['nombre_partido'])); ?><?php echo !empty($tema['siglas']) ? ' ('.htmlspecialchars($tema['siglas']).')' : ''; ?></div>
+                <div style="font-size:11px;font-weight:600;margin-top:3px;letter-spacing:.3px;">FORMULARIO COMITÉ AFECTIVO (CBA)</div>
+                <?php if (!empty($tema['candidato_principal_nombre'])): ?>
+                <div style="font-size:10px;margin-top:3px;"><?php echo htmlspecialchars(strtoupper($tema['candidato_principal_nombre'])); ?> A LA PRESIDENCIA</div>
+                <?php endif; ?>
+            </td>
+            <?php if (!empty($tema['candidato_principal_foto'])): ?>
+            <td style="width:76px;padding:8px;vertical-align:middle;text-align:center;">
+                <img src="data:image/jpeg;base64,<?php echo base64_encode($tema['candidato_principal_foto']); ?>" alt="Candidato"
+                     style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
+            </td>
+            <?php endif; ?>
+        </tr>
+    </table>
+
+    <table width="100%" style="border-collapse:collapse;margin-bottom:20px;font-size:10px;">
+        <tr>
+            <td colspan="4" style="background:#fde047;color:#111;font-weight:700;text-align:center;padding:5px;letter-spacing:.3px;border:1px solid #cbd5e1;">
+                DATOS DEL ÁREA GEOGRÁFICA DEL COMITÉ
+            </td>
+        </tr>
+        <tr>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;width:25%;">
+                <div style="color:#666;font-size:8.5px;">PROVINCIA</div>
+                <div style="font-weight:700;"><?php echo htmlspecialchars($comite['provincia'] ?: '—'); ?></div>
+            </td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;width:25%;">
+                <div style="color:#666;font-size:8.5px;">CIRCUNSCRIPCIÓN</div>
+                <div style="font-weight:700;"><?php echo htmlspecialchars($comite['circunscripcion'] ?: '—'); ?></div>
+            </td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;width:25%;">
+                <div style="color:#666;font-size:8.5px;">MUNICIPIO</div>
+                <div style="font-weight:700;"><?php echo htmlspecialchars($comite['municipio'] ?: '—'); ?></div>
+            </td>
+            <td style="border:1px solid #cbd5e1;padding:5px 8px;width:25%;">
+                <div style="color:#666;font-size:8.5px;">ZONA</div>
+                <div style="font-weight:700;"><?php echo htmlspecialchars($comite['zona'] ?: '—'); ?></div>
+            </td>
+        </tr>
+    </table>
 
     <h2 style="text-align:center;font-size:21px;font-weight:800;color:<?php echo htmlspecialchars($colorPrincipal); ?>;margin:0 0 6px;">COMITÉ DE BASE AFECTIVO</h2>
     <div style="width:100%;height:3px;background:<?php echo htmlspecialchars($colorPrincipal); ?>;margin-bottom:20px;"></div>
@@ -255,8 +295,10 @@ $colorPrincipal = $tema['color_primario'] ?? '#2563eb';
             <td style="width:50%;vertical-align:top;padding-right:8px;">
                 <div style="border:1px solid #e2e8f0;border-radius:8px;padding:14px;font-size:12px;">
                     <table style="border-collapse:collapse;">
-                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">PROVINCIA:</td><td style="padding:3px 0;"><?php echo htmlspecialchars($comite['provincia'] ?: '—'); ?></td></tr>
-                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">MUNICIPIO:</td><td style="padding:3px 0;"><?php echo htmlspecialchars($comite['municipio'] ?: '—'); ?></td></tr>
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">COMITÉ:</td><td style="padding:3px 0;"><?php echo htmlspecialchars($comite['nombre']); ?></td></tr>
+                        <?php if (!empty($comite['candidato_nombre'])): ?>
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">CANDIDATO:</td><td style="padding:3px 0;"><?php echo htmlspecialchars($comite['candidato_nombre']); ?> (<?php echo ucfirst($comite['candidato_cargo']); ?>)</td></tr>
+                        <?php endif; ?>
                     </table>
                 </div>
             </td>

@@ -51,6 +51,8 @@ function cargarConfiguracion() {
         'color_sidebar'  => '#0d1b2a',
         'color_accent'   => '#3b82f6',
         'logo'           => null,
+        'candidato_principal_nombre' => '',
+        'candidato_principal_foto'   => null,
     ];
 }
 ?>
