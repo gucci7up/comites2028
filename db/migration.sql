@@ -41,3 +41,8 @@ UPDATE usuarios SET rol = 'admin' WHERE usuario = 'admin';
 
 -- 6. Eliminar tabla partidos si existe
 DROP TABLE IF EXISTS partidos;
+
+-- Migration v4: columna "zona" en comites (llenado manual, no viene del padrón)
+-- Nota: sin IF NOT EXISTS porque el servidor MySQL de producción no lo soporta.
+-- Si la columna ya existe, este ALTER fallará con error "Duplicate column name" — es seguro ignorarlo.
+ALTER TABLE comites ADD COLUMN zona VARCHAR(150) NULL AFTER municipio;

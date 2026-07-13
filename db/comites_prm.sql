@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS comites (
     nombre VARCHAR(100) NOT NULL,
     provincia VARCHAR(100),
     municipio VARCHAR(100) NOT NULL,
+    zona VARCHAR(150),
     circunscripcion VARCHAR(100),
     candidato_id INT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

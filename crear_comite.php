@@ -6,18 +6,21 @@ require_once 'db/config.php';
 requiereAutenticacion();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nombre    = trim($_POST['nombre']);
-    $municipio = trim($_POST['municipio']);
+    $nombre     = trim($_POST['nombre']);
+    $provincia  = trim($_POST['provincia']);
+    $municipio  = trim($_POST['municipio']);
+    $zona       = trim($_POST['zona']);
     $usuario_id = $_SESSION['usuario_id'];
     $errores = [];
     if (empty($nombre))    $errores[] = "El nombre del comité es obligatorio.";
+    if (empty($provincia)) $errores[] = "La provincia es obligatoria.";
     if (empty($municipio)) $errores[] = "El municipio es obligatorio.";
     if (empty($errores)) {
         try {
             $conn = conectarDB();
             $candidato_id = $_SESSION['candidato_id'] ?? null;
-            $stmt = $conn->prepare("INSERT INTO comites (nombre, municipio, creado_por, candidato_id, fecha_creacion) VALUES (?, ?, ?, ?, NOW())");
-            $stmt->bind_param("ssii", $nombre, $municipio, $usuario_id, $candidato_id);
+            $stmt = $conn->prepare("INSERT INTO comites (nombre, provincia, municipio, zona, creado_por, candidato_id, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+            $stmt->bind_param("ssssii", $nombre, $provincia, $municipio, $zona, $usuario_id, $candidato_id);
             $stmt->execute();
             $comite_id = $conn->insert_id;
             $_SESSION['mensaje'] = "Comité creado correctamente. Ahora puede agregar un coordinador y miembros.";
@@ -63,10 +66,26 @@ include 'includes/header.php';
                                value="<?php echo isset($nombre) ? htmlspecialchars($nombre) : ''; ?>" required>
                         <div class="form-text">Nombre descriptivo del comité.</div>
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">Provincia <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="provincia" name="provincia" list="provinciaList"
+                               placeholder="Ej: Santo Domingo" autocomplete="off"
+                               value="<?php echo isset($provincia) ? htmlspecialchars($provincia) : ''; ?>" required>
+                        <datalist id="provinciaList"></datalist>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label fw-semibold" style="font-size:13px;">Municipio <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="municipio" placeholder="Ej: Santo Domingo Este"
+                        <input type="text" class="form-control" id="municipio" name="municipio" list="municipioList"
+                               placeholder="Seleccione primero una provincia" autocomplete="off" disabled
                                value="<?php echo isset($municipio) ? htmlspecialchars($municipio) : ''; ?>" required>
+                        <datalist id="municipioList"></datalist>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold" style="font-size:13px;">Zona</label>
+                        <input type="text" class="form-control" id="zona" name="zona"
+                               placeholder="Ej: Zona Norte, Sector 4..."
+                               value="<?php echo isset($zona) ? htmlspecialchars($zona) : ''; ?>">
+                        <div class="form-text">Campo de llenado manual, definido por el partido.</div>
                     </div>
                     <div class="alert alert-info d-flex gap-2 align-items-start" style="font-size:13px;">
                         <i class="fas fa-info-circle mt-1"></i>
@@ -117,5 +136,63 @@ include 'includes/header.php';
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    const provinciaInput = document.getElementById('provincia');
+    const provinciaList  = document.getElementById('provinciaList');
+    const municipioInput = document.getElementById('municipio');
+    const municipioList  = document.getElementById('municipioList');
+    let provincias = [];
+
+    function escapeAttr(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function cargarMunicipios(provinciaId, valorPrevio) {
+        municipioInput.disabled = true;
+        municipioInput.placeholder = 'Cargando municipios...';
+        municipioList.innerHTML = '';
+
+        fetch(`api/municipios.php?provincia_id=${provinciaId}`)
+            .then(r => r.json())
+            .then(json => {
+                if (!json.success) return;
+                municipioList.innerHTML = json.data.map(m => `<option value="${escapeAttr(m.Descripcion)}"></option>`).join('');
+                municipioInput.disabled = false;
+                municipioInput.placeholder = 'Escriba para buscar...';
+                municipioInput.value = valorPrevio || '';
+            })
+            .catch(err => {
+                console.error('Error cargando municipios:', err);
+                municipioInput.placeholder = 'Error al cargar municipios';
+            });
+    }
+
+    provinciaInput.addEventListener('input', function() {
+        const match = provincias.find(p => p.Descripcion === provinciaInput.value);
+        if (match) {
+            cargarMunicipios(match.ID);
+        } else {
+            municipioInput.disabled = true;
+            municipioInput.value = '';
+            municipioInput.placeholder = 'Seleccione primero una provincia';
+            municipioList.innerHTML = '';
+        }
+    });
+
+    fetch('api/provincias.php')
+        .then(r => r.json())
+        .then(json => {
+            if (!json.success) return;
+            provincias = json.data;
+            provinciaList.innerHTML = provincias.map(p => `<option value="${escapeAttr(p.Descripcion)}"></option>`).join('');
+
+            const match = provincias.find(p => p.Descripcion === provinciaInput.value);
+            if (match) cargarMunicipios(match.ID, municipioInput.value);
+        })
+        .catch(err => console.error('Error cargando provincias:', err));
+})();
+</script>
 
 <?php include 'includes/footer.php'; ?>
