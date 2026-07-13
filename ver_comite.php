@@ -204,11 +204,11 @@ include 'includes/header.php';
 <div class="d-none" id="seccion-imprimir">
     <div style="text-align:center;margin-bottom:24px;">
         <?php
-        $tema = cargarTemaPartido();
+        $tema = cargarConfiguracion();
         $logo_print = !empty($tema['logo']) ? 'data:image/png;base64,'.base64_encode($tema['logo']) : 'logo1.png';
         ?>
         <img src="<?php echo $logo_print; ?>" alt="Logo" style="max-width:100px;max-height:80px;object-fit:contain;">
-        <h2 style="margin-top:8px;font-size:16px;"><?php echo htmlspecialchars($tema['nombre']); ?></h2>
+        <h2 style="margin-top:8px;font-size:16px;"><?php echo htmlspecialchars($tema['nombre_partido']); ?></h2>
         <h3 style="font-size:13px;">Comité Afectivo</h3>
         <?php if (!empty($comite['candidato_nombre'])): ?>
         <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:16px;border:1px solid #ccc;border-radius:8px;padding:12px;display:inline-flex;">
