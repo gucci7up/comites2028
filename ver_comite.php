@@ -37,6 +37,17 @@ include 'includes/header.php';
 .coord-avatar { width:72px;height:72px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0; }
 .action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;background:none;cursor:pointer;transition:all .15s; }
 .action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
+@media print {
+    body * { visibility: hidden; }
+    #seccion-imprimir, #seccion-imprimir * { visibility: visible; }
+    #seccion-imprimir {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
 </style>
 
 <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
@@ -157,9 +168,14 @@ include 'includes/header.php';
                 <tr>
                     <td>
                         <div class="d-flex align-items-center gap-2">
+                            <?php if (!empty($m['foto'])): ?>
+                            <img src="data:image/jpeg;base64,<?php echo $m['foto']; ?>" alt="Foto"
+                                 style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                            <?php else: ?>
                             <div style="width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">
                                 <?php echo strtoupper(substr($m['nombre_completo'] ?? $m['nombre'] ?? '?', 0, 1)); ?>
                             </div>
+                            <?php endif; ?>
                             <span style="font-weight:500;"><?php echo htmlspecialchars($m['nombre_completo'] ?? $m['nombre'] ?? '—'); ?></span>
                         </div>
                     </td>
@@ -231,6 +247,7 @@ include 'includes/header.php';
 </div>
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
@@ -240,11 +257,7 @@ $(document).ready(function() {
     }
 });
 function imprimirComite() {
-    const orig = document.body.innerHTML;
-    document.body.innerHTML = '<div style="padding:20px;">' + document.getElementById('seccion-imprimir').innerHTML + '</div>';
     window.print();
-    document.body.innerHTML = orig;
-    location.reload();
 }
 </script>
 
