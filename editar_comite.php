@@ -537,15 +537,21 @@ include 'includes/header.php';
     </div>
 </div>
 
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
 // Inicializar DataTable
 $(document).ready(function() {
-    $('#miembrosTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
-        }
-    });
-    
+    if ($('#miembrosTable tbody tr').length > 1) {
+        $('#miembrosTable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json'
+            }
+        });
+    }
+
     // Buscar coordinador por cédula
     $('#buscar-coordinador-btn').click(function() {
         const cedula = $('#cedula-coordinador').val().trim();
@@ -566,37 +572,38 @@ $(document).ready(function() {
             type: 'GET',
             data: { cedula: cedula },
             dataType: 'json',
-            success: function(data) {
+            success: function(resp) {
                 // Ocultar loading
                 $('#loading-coordinador').addClass('d-none');
-                
-                if (data && data.nombre) {
+
+                if (resp && resp.success && resp.data) {
+                    const d = resp.data;
+                    const nombreCompleto = `${d.nombres} ${d.apellido1} ${d.apellido2}`;
+
                     // Mostrar resultados
                     $('#resultado-coordinador').removeClass('d-none');
-                    
+
                     // Llenar datos
-                    $('#nombre-coordinador').text(data.nombre);
-                    $('#cedula-coordinador-resultado').text(data.cedula);
-                    $('#fecha-nac-coordinador').text(data.fecha_nacimiento);
-                    $('#municipio-coordinador').text(data.municipio);
-                    $('#recinto-coordinador').text(data.recinto);
-                    $('#colegio-coordinador').text(data.colegio);
-                    
+                    $('#nombre-coordinador').text(nombreCompleto);
+                    $('#cedula-coordinador-resultado').text(d.Cedula);
+                    $('#fecha-nac-coordinador').text(d.FechaNacimiento);
+                    $('#municipio-coordinador').text(d.Municipio);
+                    $('#recinto-coordinador').text(d.Recinto);
+                    $('#colegio-coordinador').text(d.CodigoColegio);
+
                     // Llenar campos ocultos
-                    $('#cedula-coordinador-hidden').val(data.cedula);
-                    $('#nombre-coordinador-hidden').val(data.nombre);
-                    $('#fecha-nac-coordinador-hidden').val(data.fecha_nacimiento);
-                    $('#municipio-coordinador-hidden').val(data.municipio);
-                    $('#recinto-coordinador-hidden').val(data.recinto);
-                    $('#colegio-coordinador-hidden').val(data.colegio);
-                    $('#foto-coordinador-hidden').val(data.foto);
-                    
+                    $('#cedula-coordinador-hidden').val(d.Cedula);
+                    $('#nombre-coordinador-hidden').val(nombreCompleto);
+                    $('#fecha-nac-coordinador-hidden').val(d.FechaNacimiento);
+                    $('#municipio-coordinador-hidden').val(d.Municipio);
+                    $('#recinto-coordinador-hidden').val(d.Recinto);
+                    $('#colegio-coordinador-hidden').val(d.CodigoColegio);
+                    $('#foto-coordinador-hidden').val(d.Imagen);
+
                     // Mostrar foto
-                    if (data.foto) {
-                        $('#foto-coordinador').attr('src', 'data:image/jpeg;base64,' + data.foto);
+                    if (d.Imagen) {
+                        $('#foto-coordinador').attr('src', 'data:image/jpeg;base64,' + d.Imagen);
                     } else {
-                        // Mostrar avatar con inicial
-                        const inicial = data.nombre.charAt(0).toUpperCase();
                         $('#foto-coordinador').attr('src', 'fotos/default.svg');
                     }
                 } else {
@@ -632,37 +639,38 @@ $(document).ready(function() {
             type: 'GET',
             data: { cedula: cedula },
             dataType: 'json',
-            success: function(data) {
+            success: function(resp) {
                 // Ocultar loading
                 $('#loading-miembro').addClass('d-none');
-                
-                if (data && data.nombre) {
+
+                if (resp && resp.success && resp.data) {
+                    const d = resp.data;
+                    const nombreCompleto = `${d.nombres} ${d.apellido1} ${d.apellido2}`;
+
                     // Mostrar resultados
                     $('#resultado-miembro').removeClass('d-none');
-                    
+
                     // Llenar datos
-                    $('#nombre-miembro').text(data.nombre);
-                    $('#cedula-miembro-resultado').text(data.cedula);
-                    $('#fecha-nac-miembro').text(data.fecha_nacimiento);
-                    $('#municipio-miembro').text(data.municipio);
-                    $('#recinto-miembro').text(data.recinto);
-                    $('#colegio-miembro').text(data.colegio);
-                    
+                    $('#nombre-miembro').text(nombreCompleto);
+                    $('#cedula-miembro-resultado').text(d.Cedula);
+                    $('#fecha-nac-miembro').text(d.FechaNacimiento);
+                    $('#municipio-miembro').text(d.Municipio);
+                    $('#recinto-miembro').text(d.Recinto);
+                    $('#colegio-miembro').text(d.CodigoColegio);
+
                     // Llenar campos ocultos
-                    $('#cedula-miembro-hidden').val(data.cedula);
-                    $('#nombre-miembro-hidden').val(data.nombre);
-                    $('#fecha-nac-miembro-hidden').val(data.fecha_nacimiento);
-                    $('#municipio-miembro-hidden').val(data.municipio);
-                    $('#recinto-miembro-hidden').val(data.recinto);
-                    $('#colegio-miembro-hidden').val(data.colegio);
-                    $('#foto-miembro-hidden').val(data.foto);
-                    
+                    $('#cedula-miembro-hidden').val(d.Cedula);
+                    $('#nombre-miembro-hidden').val(nombreCompleto);
+                    $('#fecha-nac-miembro-hidden').val(d.FechaNacimiento);
+                    $('#municipio-miembro-hidden').val(d.Municipio);
+                    $('#recinto-miembro-hidden').val(d.Recinto);
+                    $('#colegio-miembro-hidden').val(d.CodigoColegio);
+                    $('#foto-miembro-hidden').val(d.Imagen);
+
                     // Mostrar foto
-                    if (data.foto) {
-                        $('#foto-miembro').attr('src', 'data:image/jpeg;base64,' + data.foto);
+                    if (d.Imagen) {
+                        $('#foto-miembro').attr('src', 'data:image/jpeg;base64,' + d.Imagen);
                     } else {
-                        // Mostrar avatar con inicial
-                        const inicial = data.nombre.charAt(0).toUpperCase();
                         $('#foto-miembro').attr('src', 'fotos/default.svg');
                     }
                 } else {
