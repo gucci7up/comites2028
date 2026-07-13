@@ -206,98 +206,119 @@ $tema = cargarConfiguracion();
 $logo_print = !empty($tema['logo']) ? 'data:image/png;base64,'.base64_encode($tema['logo']) : 'logo1.png';
 $colorPrincipal = $tema['color_primario'] ?? '#2563eb';
 ?>
-<div class="d-none" id="seccion-imprimir" style="font-family:Arial,Helvetica,sans-serif;color:#111;">
-    <table width="100%" style="border-collapse:collapse;border-bottom:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;padding-bottom:10px;margin-bottom:14px;">
-        <tr>
-            <td style="width:64px;vertical-align:top;">
-                <img src="<?php echo $logo_print; ?>" alt="Logo" style="width:56px;height:56px;object-fit:contain;">
-            </td>
-            <td style="vertical-align:top;">
-                <div style="font-size:16px;font-weight:800;letter-spacing:.3px;"><?php echo htmlspecialchars(strtoupper($tema['nombre_partido'])); ?></div>
-                <div style="font-size:10px;color:#555;margin-top:2px;">COMITÉ AFECTIVO</div>
-                <div style="font-size:11px;font-weight:600;margin-top:4px;"><?php echo htmlspecialchars($comite['nombre']); ?></div>
-            </td>
-            <td style="width:230px;vertical-align:top;font-size:10px;">
-                <table width="100%" style="border-collapse:collapse;">
-                    <tr><td style="color:#666;padding:1px 6px 1px 0;">País:</td><td style="font-weight:600;">REPÚBLICA DOMINICANA</td></tr>
-                    <tr><td style="color:#666;padding:1px 6px 1px 0;">Provincia:</td><td style="font-weight:600;"><?php echo htmlspecialchars($comite['provincia'] ?: '—'); ?></td></tr>
-                    <tr><td style="color:#666;padding:1px 6px 1px 0;">Municipio:</td><td style="font-weight:600;"><?php echo htmlspecialchars($comite['municipio'] ?: '—'); ?></td></tr>
-                    <tr><td style="color:#666;padding:1px 6px 1px 0;">Circ.:</td><td style="font-weight:600;"><?php echo htmlspecialchars($comite['circunscripcion'] ?: '—'); ?></td></tr>
-                    <tr><td style="color:#666;padding:1px 6px 1px 0;">Zona:</td><td style="font-weight:600;"><?php echo htmlspecialchars($comite['zona'] ?: '—'); ?></td></tr>
-                    <tr><td style="color:#666;padding:1px 6px 1px 0;">Fecha:</td><td style="font-weight:600;"><?php echo date('d/m/Y', strtotime($comite['fecha_creacion'])); ?></td></tr>
-                </table>
-            </td>
-            <?php if (!empty($comite['candidato_nombre'])): ?>
-            <td style="width:150px;vertical-align:top;text-align:right;">
-                <?php if (!empty($comite['candidato_foto'])): ?>
-                <img src="data:image/jpeg;base64,<?php echo base64_encode($comite['candidato_foto']); ?>" style="width:56px;height:56px;border-radius:50%;object-fit:cover;">
-                <?php endif; ?>
-                <div style="font-size:10px;font-weight:700;margin-top:2px;"><?php echo htmlspecialchars($comite['candidato_nombre']); ?></div>
-                <div style="font-size:9px;color:#666;"><?php echo ucfirst($comite['candidato_cargo'] ?? ''); ?></div>
-            </td>
-            <?php endif; ?>
-        </tr>
-    </table>
+<div class="d-none" id="seccion-imprimir" style="font-family:Arial,Helvetica,sans-serif;color:#1e293b;">
+    <div style="text-align:center;margin-bottom:16px;">
+        <img src="<?php echo $logo_print; ?>" alt="Logo" style="width:130px;height:130px;object-fit:contain;margin-bottom:8px;">
+        <div style="font-size:28px;font-weight:800;color:#94a3b8;letter-spacing:.5px;"><?php echo htmlspecialchars(strtoupper($tema['nombre_partido'])); ?></div>
+        <div style="font-size:13px;color:#94a3b8;margin-top:2px;">Gestión y generación de fichas de afiliación</div>
+    </div>
+    <hr style="border:none;border-top:1px solid #e2e8f0;margin:14px 0 18px;">
+
+    <h2 style="text-align:center;font-size:21px;font-weight:800;color:<?php echo htmlspecialchars($colorPrincipal); ?>;margin:0 0 6px;">COMITÉ DE BASE AFECTIVO</h2>
+    <div style="width:100%;height:3px;background:<?php echo htmlspecialchars($colorPrincipal); ?>;margin-bottom:20px;"></div>
 
     <?php if ($coordinador): ?>
-    <div style="border:2px solid <?php echo htmlspecialchars($colorPrincipal); ?>;border-radius:8px;padding:12px;margin-bottom:16px;">
+    <div style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px;page-break-inside:avoid;">
         <table width="100%" style="border-collapse:collapse;">
             <tr>
-                <td style="width:110px;vertical-align:top;">
+                <td style="width:90px;vertical-align:top;">
                     <?php if (!empty($coordinador['foto'])): ?>
-                    <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" style="width:100px;height:120px;object-fit:cover;border-radius:6px;border:1px solid #ccc;">
+                    <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
                     <?php else: ?>
-                    <div style="width:100px;height:120px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#999;">
+                    <div style="width:76px;height:76px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
                         <?php echo strtoupper(substr($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '?', 0, 1)); ?>
                     </div>
                     <?php endif; ?>
                 </td>
-                <td style="vertical-align:top;padding-left:14px;font-size:12px;">
-                    <div style="font-size:11px;font-weight:700;color:<?php echo htmlspecialchars($colorPrincipal); ?>;letter-spacing:1px;">COORDINADOR</div>
-                    <div style="font-size:17px;font-weight:700;margin:4px 0 6px;"><?php echo htmlspecialchars($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '—'); ?></div>
-                    <div>Cédula: <strong><?php echo htmlspecialchars($coordinador['cedula'] ?? '—'); ?></strong> &nbsp;&nbsp; Colegio: <strong><?php echo htmlspecialchars($coordinador['colegio'] ?? '—'); ?></strong></div>
-                    <div>Teléfono: <strong><?php echo htmlspecialchars($coordinador['telefono'] ?? '—'); ?></strong></div>
-                    <div style="color:#555;margin-top:4px;">Recinto <?php echo htmlspecialchars($coordinador['recinto'] ?? '—'); ?>, <?php echo htmlspecialchars($coordinador['municipio'] ?? '—'); ?></div>
+                <td style="vertical-align:top;padding-left:14px;">
+                    <table width="100%" style="border-collapse:collapse;">
+                        <tr>
+                            <td style="font-size:16px;font-weight:700;"><?php echo htmlspecialchars($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '—'); ?></td>
+                            <td style="text-align:right;font-size:11px;font-weight:700;color:#94a3b8;letter-spacing:1px;vertical-align:top;white-space:nowrap;">COORDINADOR</td>
+                        </tr>
+                    </table>
+                    <div style="font-size:12px;margin-top:6px;line-height:1.7;">
+                        <div><strong>Cédula:</strong> <?php echo htmlspecialchars($coordinador['cedula'] ?? '—'); ?></div>
+                        <div><strong>Teléfono:</strong> <?php echo htmlspecialchars($coordinador['telefono'] ?: 'N/A'); ?></div>
+                        <div><strong>Municipio:</strong> <?php echo htmlspecialchars($coordinador['municipio'] ?? '—'); ?></div>
+                        <div><strong>Recinto:</strong> <?php echo htmlspecialchars($coordinador['recinto'] ?? '—'); ?></div>
+                        <div><strong>Colegio:</strong> <?php echo htmlspecialchars($coordinador['colegio'] ?? '—'); ?></div>
+                    </div>
                 </td>
             </tr>
         </table>
     </div>
     <?php endif; ?>
 
-    <?php if (count($miembros)): ?>
-    <div style="font-size:11px;font-weight:700;color:<?php echo htmlspecialchars($colorPrincipal); ?>;margin-bottom:6px;">MIEMBROS (<?php echo count($miembros); ?>)</div>
-    <table width="100%" style="border-collapse:collapse;">
-        <?php foreach (array_chunk($miembros, 2) as $fila): ?>
+    <table width="100%" style="border-collapse:collapse;margin-bottom:22px;">
         <tr>
-            <?php foreach ($fila as $m): ?>
-            <td width="50%" style="vertical-align:top;padding:4px;">
-                <table width="100%" style="border-collapse:collapse;border:1px solid #ccc;border-radius:6px;">
-                    <tr>
-                        <td style="width:64px;padding:6px;vertical-align:top;">
-                            <?php if (!empty($m['foto'])): ?>
-                            <img src="data:image/jpeg;base64,<?php echo $m['foto']; ?>" style="width:56px;height:70px;object-fit:cover;border-radius:4px;">
-                            <?php else: ?>
-                            <div style="width:56px;height:70px;border-radius:4px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#999;">
-                                <?php echo strtoupper(substr($m['nombre_completo'] ?? $m['nombre'] ?? '?', 0, 1)); ?>
-                            </div>
-                            <?php endif; ?>
-                        </td>
-                        <td style="padding:6px 8px 6px 0;vertical-align:top;font-size:9.5px;">
-                            <div style="font-weight:700;color:<?php echo htmlspecialchars($colorPrincipal); ?>;font-size:9px;">MIEMBRO</div>
-                            <div style="font-weight:700;font-size:11px;margin:2px 0;"><?php echo htmlspecialchars($m['nombre_completo'] ?? $m['nombre'] ?? '—'); ?></div>
-                            <div>Cédula: <?php echo htmlspecialchars($m['cedula'] ?? '—'); ?></div>
-                            <div>Colegio: <?php echo htmlspecialchars($m['colegio'] ?? '—'); ?> &nbsp; Tel: <?php echo htmlspecialchars($m['telefono'] ?? '—'); ?></div>
-                            <div style="color:#666;">Recinto <?php echo htmlspecialchars($m['recinto'] ?? '—'); ?>, <?php echo htmlspecialchars($m['municipio'] ?? '—'); ?></div>
-                        </td>
-                    </tr>
-                </table>
+            <td style="width:50%;vertical-align:top;padding-right:8px;">
+                <div style="border:1px solid #e2e8f0;border-radius:8px;padding:14px;font-size:12px;">
+                    <table style="border-collapse:collapse;">
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">PROVINCIA:</td><td style="padding:3px 0;"><?php echo htmlspecialchars($comite['provincia'] ?: '—'); ?></td></tr>
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">MUNICIPIO:</td><td style="padding:3px 0;"><?php echo htmlspecialchars($comite['municipio'] ?: '—'); ?></td></tr>
+                    </table>
+                </div>
             </td>
-            <?php endforeach; ?>
-            <?php if (count($fila) === 1): ?><td width="50%"></td><?php endif; ?>
+            <td style="width:50%;vertical-align:top;padding-left:8px;">
+                <div style="border:1px solid #e2e8f0;border-radius:8px;padding:14px;font-size:12px;">
+                    <table style="border-collapse:collapse;">
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">TOTAL MIEMBROS:</td><td style="padding:3px 0;"><?php echo count($miembros); ?></td></tr>
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">FECHA CREACIÓN:</td><td style="padding:3px 0;"><?php echo date('d/m/Y', strtotime($comite['fecha_creacion'])); ?></td></tr>
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">RESPONSABLE:</td><td style="padding:3px 0;"><?php echo htmlspecialchars($comite['creador'] ?? '—'); ?></td></tr>
+                        <tr><td style="font-weight:700;padding:3px 10px 3px 0;white-space:nowrap;">ESTADO:</td><td style="padding:3px 0;color:#94a3b8;"><?php echo htmlspecialchars(ucfirst($comite['estado'] ?? 'activo')); ?></td></tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <?php if (count($miembros)): ?>
+    <h3 style="text-align:center;font-size:15px;font-weight:700;color:<?php echo htmlspecialchars($colorPrincipal); ?>;margin-bottom:12px;">&#9776; INTEGRANTES DEL COMITÉ</h3>
+    <table width="100%" style="border-collapse:collapse;font-size:11px;">
+        <thead>
+            <tr style="color:#94a3b8;">
+                <th style="padding:6px;text-align:left;">Foto</th>
+                <th style="padding:6px;text-align:left;">No.</th>
+                <th style="padding:6px;text-align:left;">Nombre Completo</th>
+                <th style="padding:6px;text-align:left;">Cédula</th>
+                <th style="padding:6px;text-align:left;">Teléfono</th>
+                <th style="padding:6px;text-align:left;">Municipio</th>
+                <th style="padding:6px;text-align:left;">Recinto</th>
+                <th style="padding:6px;text-align:left;">Colegio</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($miembros as $i => $m): ?>
+        <tr style="border-top:1px solid #e2e8f0;page-break-inside:avoid;">
+            <td style="padding:6px;">
+                <?php if (!empty($m['foto'])): ?>
+                <img src="data:image/jpeg;base64,<?php echo $m['foto']; ?>" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
+                <?php else: ?>
+                <div style="width:38px;height:38px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#999;">
+                    <?php echo strtoupper(substr($m['nombre_completo'] ?? $m['nombre'] ?? '?', 0, 1)); ?>
+                </div>
+                <?php endif; ?>
+            </td>
+            <td style="padding:6px;"><?php echo $i + 1; ?></td>
+            <td style="padding:6px;"><?php echo htmlspecialchars($m['nombre_completo'] ?? $m['nombre'] ?? '—'); ?></td>
+            <td style="padding:6px;"><?php echo htmlspecialchars($m['cedula'] ?? '—'); ?></td>
+            <td style="padding:6px;"><?php echo htmlspecialchars($m['telefono'] ?: 'N/A'); ?></td>
+            <td style="padding:6px;"><?php echo htmlspecialchars($m['municipio'] ?? '—'); ?></td>
+            <td style="padding:6px;"><?php echo htmlspecialchars($m['recinto'] ?? '—'); ?></td>
+            <td style="padding:6px;"><?php echo htmlspecialchars($m['colegio'] ?? '—'); ?></td>
         </tr>
         <?php endforeach; ?>
+        </tbody>
     </table>
     <?php endif; ?>
+
+    <div style="margin-top:22px;font-size:12px;font-weight:700;">NO DE FICHAS DE AFILIACIÓN ANEXAS: <?php echo count($miembros); ?></div>
+
+    <div style="text-align:center;margin-top:60px;page-break-inside:avoid;">
+        <div style="width:260px;border-top:1px solid #333;margin:0 auto 8px;"></div>
+        <div style="font-size:12px;font-weight:700;">FIRMA DEL RESPONSABLE</div>
+    </div>
 </div>
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
