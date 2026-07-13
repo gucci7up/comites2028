@@ -20,7 +20,6 @@ $email = $_POST['email'] ?? '';
 $municipio = $_POST['municipio'] ?? '';
 $recinto = $_POST['recinto'] ?? '';
 $colegio = $_POST['colegio'] ?? '';
-$fecha_nacimiento = $_POST['fecha_nacimiento'] ?? null;
 $foto = $_POST['foto'] ?? null;
 
 $conn = conectarDB();
@@ -51,9 +50,9 @@ try {
     }
     
     // Insertar el nuevo coordinador
-    $stmt = $conn->prepare("INSERT INTO coordinadores (cedula, nombre, telefono, email, municipio, recinto, colegio, fecha_nacimiento, foto) 
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssssss", $cedula, $nombre, $telefono, $email, $municipio, $recinto, $colegio, $fecha_nacimiento, $foto);
+    $stmt = $conn->prepare("INSERT INTO coordinadores (cedula, nombre_completo, telefono, email, municipio, recinto, colegio, foto)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssssss", $cedula, $nombre, $telefono, $email, $municipio, $recinto, $colegio, $foto);
     $stmt->execute();
     
     $coordinador_id = $conn->insert_id;
