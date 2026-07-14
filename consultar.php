@@ -4,6 +4,9 @@ require_once 'db/config.php';
 
 requiereAutenticacion();
 
+$conn = conectarDB();
+$comites_lista = $conn->query("SELECT id, nombre, municipio FROM comites ORDER BY nombre")->fetch_all(MYSQLI_ASSOC);
+
 $titulo_pagina    = 'Consultar Cédula';
 $subtitulo_pagina = 'Buscá datos de un ciudadano por su cédula';
 include 'includes/header.php';
@@ -67,13 +70,47 @@ include 'includes/header.php';
         <div><div class="consulta-field-label">Colegio</div><div class="consulta-field-value" id="colegio"></div></div>
         <div><div class="consulta-field-label">Circunscripción</div><div class="consulta-field-value" id="circunscripcion"></div></div>
     </div>
-    <div class="consulta-footer">
-        <span style="font-size:12.5px;color:var(--text-tertiary);">¿Agregar como miembro a un comité?</span>
-        <div class="consulta-actions">
-            <button id="btnImprimir" class="action-link" title="Imprimir"><i class="fas fa-print"></i></button>
-            <button id="btnPDF" class="action-link" title="Guardar PDF"><i class="fas fa-file-pdf"></i></button>
-            <a href="crear_comite.php" class="consulta-cta"><i class="fas fa-user-plus"></i>Agregar</a>
+    <div class="consulta-footer" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <span style="font-size:12.5px;color:var(--text-tertiary);">¿Agregar como miembro a un comité?</span>
+            <div class="consulta-actions">
+                <button id="btnImprimir" type="button" class="action-link" title="Imprimir"><i class="fas fa-print"></i></button>
+                <button id="btnPDF" type="button" class="action-link" title="Guardar PDF"><i class="fas fa-file-pdf"></i></button>
+            </div>
         </div>
+        <?php if (empty($comites_lista)): ?>
+        <div style="font-size:12.5px;color:var(--text-tertiary);">No hay comités creados aún. <a href="crear_comite.php" style="font-weight:600;">Creá el primero</a> para poder agregar miembros.</div>
+        <?php else: ?>
+        <form id="formAgregarMiembro" method="POST" action="guardar_miembro.php" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+            <input type="hidden" name="cedula" id="hiddenCedula">
+            <input type="hidden" name="nombre" id="hiddenNombre">
+            <input type="hidden" name="fecha_nacimiento" id="hiddenFechaNac">
+            <input type="hidden" name="municipio" id="hiddenMunicipio">
+            <input type="hidden" name="recinto" id="hiddenRecinto">
+            <input type="hidden" name="colegio" id="hiddenColegio">
+            <input type="hidden" name="foto" id="hiddenFoto">
+            <div style="flex:2;min-width:180px;">
+                <label class="lbl">Comité</label>
+                <select name="comite_id" class="fld" required>
+                    <option value="">Seleccionar comité...</option>
+                    <?php foreach ($comites_lista as $cm): ?>
+                    <option value="<?php echo $cm['id']; ?>"><?php echo htmlspecialchars($cm['nombre']); ?> — <?php echo htmlspecialchars($cm['municipio']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div style="flex:1;min-width:130px;">
+                <label class="lbl">Teléfono</label>
+                <input type="tel" class="fld" name="telefono" required>
+            </div>
+            <div style="flex:1;min-width:130px;">
+                <label class="lbl">Email <span style="font-weight:400;">(opcional)</span></label>
+                <input type="email" class="fld" name="email">
+            </div>
+            <button type="submit" class="consulta-cta" style="border:none;cursor:pointer;height:38px;">
+                <i class="fas fa-user-plus"></i>Agregar
+            </button>
+        </form>
+        <?php endif; ?>
     </div>
   </div>
 
@@ -158,6 +195,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('recinto').textContent         = d.Recinto;
                 document.getElementById('colegio').textContent         = d.CodigoColegio;
                 document.getElementById('circunscripcion').textContent = d.Circunscripcion;
+
+                const hCedula = document.getElementById('hiddenCedula');
+                if (hCedula) hCedula.value = d.Cedula;
+                const hNombre = document.getElementById('hiddenNombre');
+                if (hNombre) hNombre.value = nombreCompleto;
+                const hFechaNac = document.getElementById('hiddenFechaNac');
+                if (hFechaNac) hFechaNac.value = d.FechaNacimiento;
+                const hMunicipio = document.getElementById('hiddenMunicipio');
+                if (hMunicipio) hMunicipio.value = d.Municipio;
+                const hRecinto = document.getElementById('hiddenRecinto');
+                if (hRecinto) hRecinto.value = d.Recinto;
+                const hColegio = document.getElementById('hiddenColegio');
+                if (hColegio) hColegio.value = d.CodigoColegio;
+                const hFoto = document.getElementById('hiddenFoto');
+                if (hFoto) hFoto.value = d.Imagen || '';
 
                 resultados.classList.remove('d-none');
             })
