@@ -207,6 +207,19 @@ include 'includes/header.php';
         </form>
     </div>
 
+    <!-- Enlace público -->
+    <div class="step-card">
+        <div class="step-title">Enlace público de registro</div>
+        <p style="font-size:12.5px;color:var(--text-tertiary);margin:-10px 0 16px;">Compartí este enlace para que cualquier persona pueda registrar su propio comité, sin necesidad de una cuenta. Los comités creados así quedan marcados como "Enlace público" en el sistema.</p>
+        <div style="display:flex;gap:10px;">
+            <input type="text" class="fld" id="enlacePublico" readonly
+                   value="<?php echo htmlspecialchars((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/comite_publico.php'); ?>">
+            <button type="button" class="btn btn-primary" id="btnCopiarEnlace" style="white-space:nowrap;">
+                <i class="fas fa-copy me-1"></i> Copiar
+            </button>
+        </div>
+    </div>
+
     <!-- Candidatos -->
     <div class="step-card" id="candidatos" style="margin-bottom:0;">
         <div class="d-flex align-items-center justify-content-between" style="margin-bottom:18px;">
@@ -400,6 +413,19 @@ function previewCandFoto(input) {
     };
     reader.readAsDataURL(input.files[0]);
 }
+
+document.getElementById('btnCopiarEnlace').addEventListener('click', function() {
+    const input = document.getElementById('enlacePublico');
+    const btn = this;
+    navigator.clipboard.writeText(input.value).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check me-1"></i> Copiado';
+        setTimeout(() => { btn.innerHTML = original; }, 1800);
+    }).catch(() => {
+        input.select();
+        document.execCommand('copy');
+    });
+});
 </script>
 
 <?php include 'includes/footer.php'; ?>

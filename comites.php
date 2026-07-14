@@ -128,7 +128,13 @@ include 'includes/header.php';
                     <?php echo $coord ? htmlspecialchars($coord['nombre_completo']) : '<span style="color:var(--text-tertiary);">—</span>'; ?>
                 </td>
                 <td><span class="miembros-pill"><?php echo $cnt; ?></span></td>
-                <td style="font-size:13px;color:var(--text-secondary);"><?php echo htmlspecialchars($c['creador'] ?? '—'); ?></td>
+                <td style="font-size:13px;color:var(--text-secondary);">
+                    <?php if (($c['origen'] ?? 'interno') === 'publico'): ?>
+                    <span style="background:var(--accent-tint);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;"><i class="fas fa-link me-1"></i>Enlace público</span>
+                    <?php else: ?>
+                    <?php echo htmlspecialchars($c['creador'] ?? '—'); ?>
+                    <?php endif; ?>
+                </td>
                 <td style="font-size:12px;color:var(--text-tertiary);"><?php echo date('d/m/Y', strtotime($c['fecha_creacion'])); ?></td>
                 <td>
                     <div class="d-flex gap-1 justify-content-end">

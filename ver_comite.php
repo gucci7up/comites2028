@@ -81,7 +81,13 @@ include 'includes/header.php';
                 </div>
                 <div class="info-row">
                     <span class="info-label"><i class="fas fa-user me-1"></i> Creado por</span>
-                    <span class="info-value"><?php echo htmlspecialchars($comite['creador'] ?? '—'); ?></span>
+                    <span class="info-value">
+                        <?php if (($comite['origen'] ?? 'interno') === 'publico'): ?>
+                        <span style="background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;"><i class="fas fa-link me-1"></i>Enlace público</span>
+                        <?php else: ?>
+                        <?php echo htmlspecialchars($comite['creador'] ?? '—'); ?>
+                        <?php endif; ?>
+                    </span>
                 </div>
                 <div class="info-row">
                     <span class="info-label"><i class="fas fa-users me-1"></i> Miembros</span>
