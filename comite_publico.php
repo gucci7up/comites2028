@@ -116,6 +116,23 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text-pr
 .exito-hd i { font-size:44px; color:var(--success); margin-bottom:10px; display:block; }
 .exito-actions { display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
 
+.landing-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:560px) { .landing-grid { grid-template-columns:1fr; } }
+.landing-option { background:var(--surface); border:1.5px solid var(--border); border-radius:var(--radius-card); padding:26px; text-align:center; cursor:pointer; transition:all .15s; }
+.landing-option:hover { border-color:var(--accent); box-shadow:var(--shadow-sm); }
+.landing-option i { font-size:32px; color:var(--accent); margin-bottom:14px; display:block; }
+.landing-option h3 { font-size:15px; font-weight:700; margin:0 0 6px; }
+.landing-option p { font-size:12px; color:var(--text-tertiary); margin:0; }
+
+.back-link { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-secondary); background:none; border:none; cursor:pointer; margin-bottom:16px; padding:0; }
+.back-link:hover { color:var(--accent); }
+
+.panel-comite-card { background:var(--accent-tint); border-radius:14px; padding:16px; margin-bottom:20px; }
+.panel-comite-card .nombre { font-size:16px; font-weight:700; }
+.panel-comite-card .meta { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+.comite-pick-item { display:flex; align-items:center; justify-content:space-between; padding:14px; border:1.5px solid var(--border); border-radius:14px; margin-bottom:10px; cursor:pointer; }
+.comite-pick-item:hover { border-color:var(--accent); }
+
 /* Bloque imprimible: mismo lenguaje visual que el membrete interno (ver_comite.php) */
 #seccionImprimir { display:none; }
 @media print {
@@ -139,7 +156,110 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text-pr
     </div>
 </div>
 
-<div class="pub-wrap" id="wizardWrap">
+<!-- PANTALLA INICIAL: elegir crear o ingresar -->
+<div class="pub-wrap" id="landingWrap">
+    <div class="pub-hero">
+        <h1>Registro de Comités</h1>
+        <p>Creá un comité nuevo o ingresá al que ya registraste para seguir agregando miembros.</p>
+    </div>
+    <div class="landing-grid">
+        <div class="landing-option" id="btnIrCrear">
+            <i class="fas fa-plus-circle"></i>
+            <h3>Crear un comité nuevo</h3>
+            <p>Registrá tu comité, candidato, coordinador y miembros.</p>
+        </div>
+        <div class="landing-option" id="btnIrLogin">
+            <i class="fas fa-right-to-bracket"></i>
+            <h3>Ya tengo mi comité</h3>
+            <p>Ingresá con tu cédula para ver o agregar miembros.</p>
+        </div>
+    </div>
+</div>
+
+<!-- PANTALLA LOGIN COORDINADOR -->
+<div class="pub-wrap" id="loginWrap" style="display:none;">
+    <button type="button" class="back-link" data-volver="landing"><i class="fas fa-arrow-left"></i> Volver</button>
+    <div class="pub-card">
+        <h2 style="font-size:16px;font-weight:700;margin:0 0 4px;">Ingresá a tu comité</h2>
+        <p class="step-copy">Usá la cédula del coordinador y los últimos 4 dígitos de esa misma cédula como contraseña.</p>
+        <div style="margin-bottom:16px;">
+            <label class="lbl">Cédula del coordinador</label>
+            <input type="text" class="fld" id="login_cedula" placeholder="000-0000000-0" maxlength="13">
+        </div>
+        <div style="margin-bottom:16px;">
+            <label class="lbl">Últimos 4 dígitos (contraseña)</label>
+            <input type="text" class="fld" id="login_ultimos4" placeholder="0000" maxlength="4" inputmode="numeric">
+        </div>
+        <div id="login_error" class="alert alert-danger d-none" style="font-size:12.5px;"></div>
+        <button type="button" class="btn btn-primary w-100" id="btnLogin"><i class="fas fa-right-to-bracket me-1"></i>Ingresar</button>
+    </div>
+</div>
+
+<!-- PANTALLA PANEL DEL COORDINADOR -->
+<div class="pub-wrap" id="panelWrap" style="display:none;">
+    <button type="button" class="back-link" data-volver="landing"><i class="fas fa-arrow-left"></i> Volver</button>
+
+    <div id="panelPicker" style="display:none;">
+        <div class="pub-card">
+            <h2 style="font-size:16px;font-weight:700;margin:0 0 14px;">Elegí un comité</h2>
+            <div id="panelPickerList"></div>
+        </div>
+    </div>
+
+    <div id="panelDetalle" style="display:none;">
+        <div class="pub-card">
+            <div class="panel-comite-card">
+                <div class="nombre" id="pd_nombre"></div>
+                <div class="meta" id="pd_meta"></div>
+            </div>
+            <div class="field-row">
+                <div>
+                    <div class="lbl">Candidato</div>
+                    <div style="font-size:13.5px;font-weight:600;" id="pd_candidato"></div>
+                </div>
+                <div>
+                    <div class="lbl">Coordinador</div>
+                    <div style="font-size:13.5px;font-weight:600;" id="pd_coordinador"></div>
+                </div>
+            </div>
+
+            <h2 style="font-size:15px;font-weight:700;margin:20px 0 10px;">Miembros (<span id="pd_total">0</span>)</h2>
+            <div class="miembro-list" id="pd_miembroList" style="margin-bottom:18px;"></div>
+
+            <h2 style="font-size:15px;font-weight:700;margin:0 0 4px;">Agregar un miembro</h2>
+            <p class="step-copy">Buscá por cédula y agregalo a tu comité.</p>
+            <div class="busqueda-box">
+                <input type="text" class="fld" id="pd_cedula" placeholder="000-0000000-0" maxlength="13">
+                <button type="button" class="btn btn-primary" id="pd_buscar" style="white-space:nowrap;"><i class="fas fa-search me-1"></i>Buscar</button>
+            </div>
+            <div id="pd_loading" class="text-center mb-3 d-none"><div class="spinner-border spinner-border-sm" style="color:var(--accent);"></div></div>
+            <div id="pd_error" class="alert alert-danger d-none" style="font-size:12.5px;"></div>
+            <div class="persona-preview" id="pd_preview">
+                <img id="pd_foto" src="" alt="">
+                <div style="flex:1;">
+                    <div class="persona-preview-name" id="pd_nombre_txt"></div>
+                    <div class="persona-preview-meta" id="pd_meta_txt"></div>
+                </div>
+            </div>
+            <div class="field-row" id="pd_extra" style="display:none;">
+                <div>
+                    <label class="lbl">Teléfono <span style="font-weight:400;">(opcional)</span></label>
+                    <input type="tel" class="fld" id="pd_telefono" placeholder="809-000-0000">
+                </div>
+                <div style="align-self:end;">
+                    <button type="button" class="btn btn-primary w-100" id="pd_agregar"><i class="fas fa-plus me-1"></i>Agregar al comité</button>
+                </div>
+            </div>
+
+            <div class="exito-actions" style="margin-top:22px;">
+                <button type="button" class="btn btn-ghost" id="pd_imprimir"><i class="fas fa-print me-1"></i>Imprimir comprobante</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pub-wrap" id="wizardWrap" style="display:none;">
+    <button type="button" class="back-link" data-volver="landing"><i class="fas fa-arrow-left"></i> Volver</button>
     <div class="pub-hero">
         <h1>Registrá tu Comité</h1>
         <p>Completá los datos en unos minutos. Al finalizar vas a poder imprimir o guardar tu comprobante en PDF.</p>
@@ -790,6 +910,286 @@ document.addEventListener('DOMContentLoaded', function() {
             wrap.innerHTML = '';
         }
     }
+
+    // ── Pantalla inicial: crear vs. ingresar a un comité existente ──
+    let loginCreds = null;
+    let comiteActual = null;
+    let miembroEncontradoPanel = null;
+
+    function mostrarPantalla(nombre) {
+        ['landing', 'login', 'wizard', 'panel'].forEach(id => {
+            document.getElementById(id + 'Wrap').style.display = (id === nombre) ? '' : 'none';
+        });
+        document.getElementById('pantallaExito').classList.remove('show');
+    }
+
+    document.getElementById('btnIrCrear').addEventListener('click', () => mostrarPantalla('wizard'));
+    document.getElementById('btnIrLogin').addEventListener('click', () => mostrarPantalla('login'));
+    document.querySelectorAll('[data-volver="landing"]').forEach(btn => {
+        btn.addEventListener('click', () => mostrarPantalla('landing'));
+    });
+
+    // ── Login del coordinador (cédula + últimos 4 dígitos) ──
+    formatearCedula(document.getElementById('login_cedula'));
+    document.getElementById('login_ultimos4').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    });
+
+    document.getElementById('btnLogin').addEventListener('click', function() {
+        const cedula = document.getElementById('login_cedula').value.trim();
+        const ultimos4 = document.getElementById('login_ultimos4').value.trim();
+        const error = document.getElementById('login_error');
+        error.classList.add('d-none');
+
+        if (!cedula || cedula.replace(/\D/g, '').length < 5) {
+            error.textContent = 'Ingresá tu cédula completa.';
+            error.classList.remove('d-none');
+            return;
+        }
+        if (!/^\d{4}$/.test(ultimos4)) {
+            error.textContent = 'Ingresá los 4 dígitos de tu cédula.';
+            error.classList.remove('d-none');
+            return;
+        }
+
+        fetch('api/publico_login_comite.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cedula, ultimos4 })
+        })
+            .then(r => r.json())
+            .then(json => {
+                if (!json.success) {
+                    error.textContent = json.message || 'No se pudo verificar tu comité.';
+                    error.classList.remove('d-none');
+                    return;
+                }
+                loginCreds = { cedula: cedula.replace(/\D/g, ''), ultimos4 };
+                mostrarPantalla('panel');
+                if (json.comites.length === 1) {
+                    mostrarComitePicker(null);
+                    mostrarDetalleComite(json.comites[0]);
+                } else {
+                    mostrarComitePicker(json.comites);
+                }
+            })
+            .catch(() => {
+                error.textContent = 'Error de conexión. Intentá de nuevo.';
+                error.classList.remove('d-none');
+            });
+    });
+
+    function mostrarComitePicker(comites) {
+        const picker = document.getElementById('panelPicker');
+        const detalle = document.getElementById('panelDetalle');
+        if (!comites) {
+            picker.style.display = 'none';
+            detalle.style.display = 'block';
+            return;
+        }
+        detalle.style.display = 'none';
+        picker.style.display = 'block';
+        document.getElementById('panelPickerList').innerHTML = comites.map((c, i) => `
+            <div class="comite-pick-item" data-idx="${i}">
+                <div>
+                    <div style="font-weight:600;font-size:13.5px;">${escapeHtml(c.nombre)}</div>
+                    <div style="font-size:11.5px;color:var(--text-tertiary);">${escapeHtml(c.municipio)}</div>
+                </div>
+                <i class="fas fa-chevron-right" style="color:var(--text-tertiary);"></i>
+            </div>
+        `).join('');
+        document.getElementById('panelPickerList').querySelectorAll('.comite-pick-item').forEach(item => {
+            item.addEventListener('click', function() {
+                mostrarComitePicker(null);
+                mostrarDetalleComite(comites[parseInt(item.dataset.idx, 10)]);
+            });
+        });
+    }
+
+    function renderPdMiembros() {
+        const list = document.getElementById('pd_miembroList');
+        document.getElementById('pd_total').textContent = comiteActual.miembros.length;
+        if (comiteActual.miembros.length === 0) {
+            list.innerHTML = `<div style="font-size:12.5px;color:var(--text-tertiary);">Todavía no hay miembros agregados.</div>`;
+            return;
+        }
+        list.innerHTML = comiteActual.miembros.map(m => `
+            <div class="miembro-chip">
+                ${m.foto ? `<img class="miembro-chip-av" src="data:image/jpeg;base64,${m.foto}">` : `<div class="miembro-chip-av">${escapeHtml((m.nombre || '?').charAt(0).toUpperCase())}</div>`}
+                <div class="miembro-chip-name">${escapeHtml(m.nombre)}</div>
+                <div class="miembro-chip-cedula">${escapeHtml(m.cedula)}</div>
+            </div>
+        `).join('');
+    }
+
+    function mostrarDetalleComite(comite) {
+        comiteActual = comite;
+        document.getElementById('panelDetalle').style.display = 'block';
+        document.getElementById('pd_nombre').textContent = comite.nombre;
+        document.getElementById('pd_meta').textContent = `${comite.municipio}${comite.provincia ? ' · ' + comite.provincia : ''}`;
+        document.getElementById('pd_candidato').textContent = comite.candidato ? `${comite.candidato.nombre} (${CARGOS[comite.candidato.cargo] || comite.candidato.cargo})` : 'Sin candidato asignado';
+        document.getElementById('pd_coordinador').textContent = comite.coordinador ? `${comite.coordinador.nombre} · ${comite.coordinador.telefono || 'sin teléfono'}` : '—';
+        renderPdMiembros();
+    }
+
+    // ── Agregar miembro desde el panel (guarda de inmediato) ──
+    formatearCedula(document.getElementById('pd_cedula'));
+
+    document.getElementById('pd_buscar').addEventListener('click', function() {
+        const cedula = document.getElementById('pd_cedula').value.trim();
+        const loading = document.getElementById('pd_loading');
+        const error = document.getElementById('pd_error');
+        const preview = document.getElementById('pd_preview');
+        const extra = document.getElementById('pd_extra');
+        error.classList.add('d-none');
+        if (!cedula || cedula.replace(/\D/g, '').length < 11) {
+            error.textContent = 'Ingresá una cédula válida.';
+            error.classList.remove('d-none');
+            return;
+        }
+        loading.classList.remove('d-none');
+        preview.classList.remove('show');
+        extra.style.display = 'none';
+        fetch(`api/consulta.php?cedula=${encodeURIComponent(cedula)}`)
+            .then(r => r.json())
+            .then(json => {
+                loading.classList.add('d-none');
+                if (!json.success || !json.data) {
+                    error.textContent = json.message || 'No se encontraron resultados para esa cédula.';
+                    error.classList.remove('d-none');
+                    miembroEncontradoPanel = null;
+                    return;
+                }
+                const d = json.data;
+                const nombreCompleto = `${d.nombres} ${d.apellido1} ${d.apellido2}`;
+                document.getElementById('pd_foto').src = d.Imagen ? ('data:image/jpeg;base64,' + d.Imagen) : 'fotos/default.svg';
+                document.getElementById('pd_nombre_txt').textContent = nombreCompleto;
+                document.getElementById('pd_meta_txt').textContent = `Cédula ${d.Cedula} · ${d.Municipio || ''}`;
+                preview.classList.add('show');
+                extra.style.display = 'grid';
+                miembroEncontradoPanel = {
+                    cedula: d.Cedula, nombre: nombreCompleto, municipio: d.Municipio || '',
+                    recinto: d.Recinto || '', colegio: d.CodigoColegio || '', foto: d.Imagen || ''
+                };
+            })
+            .catch(() => {
+                loading.classList.add('d-none');
+                error.textContent = 'Error al consultar. Intentá de nuevo.';
+                error.classList.remove('d-none');
+            });
+    });
+
+    document.getElementById('pd_agregar').addEventListener('click', function() {
+        if (!miembroEncontradoPanel || !comiteActual || !loginCreds) return;
+        const error = document.getElementById('pd_error');
+        if (comiteActual.miembros.some(m => m.cedula === miembroEncontradoPanel.cedula)) {
+            error.textContent = 'Esa persona ya es miembro de este comité.';
+            error.classList.remove('d-none');
+            return;
+        }
+        const payload = {
+            comite_id: comiteActual.id,
+            cedula: loginCreds.cedula,
+            ultimos4: loginCreds.ultimos4,
+            miembro: Object.assign({}, miembroEncontradoPanel, {
+                telefono: document.getElementById('pd_telefono').value.trim(),
+                email: ''
+            })
+        };
+        fetch('api/publico_agregar_miembro.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(r => r.json())
+            .then(json => {
+                if (!json.success) {
+                    error.textContent = json.message || 'No se pudo agregar el miembro.';
+                    error.classList.remove('d-none');
+                    return;
+                }
+                error.classList.add('d-none');
+                comiteActual.miembros.push(json.miembro);
+                renderPdMiembros();
+                document.getElementById('pd_cedula').value = '';
+                document.getElementById('pd_telefono').value = '';
+                document.getElementById('pd_preview').classList.remove('show');
+                document.getElementById('pd_extra').style.display = 'none';
+                miembroEncontradoPanel = null;
+            })
+            .catch(() => {
+                error.textContent = 'Error de conexión. Intentá de nuevo.';
+                error.classList.remove('d-none');
+            });
+    });
+
+    // ── Imprimir comprobante desde el panel ──
+    document.getElementById('pd_imprimir').addEventListener('click', function() {
+        if (!comiteActual) return;
+        const c = comiteActual;
+        document.getElementById('pi_nombre').textContent = c.nombre;
+        document.getElementById('pi_provincia').textContent = c.provincia || '—';
+        document.getElementById('pi_circunscripcion').textContent = c.circunscripcion || '—';
+        document.getElementById('pi_municipio').textContent = c.municipio || '—';
+        document.getElementById('pi_zona').textContent = c.zona || '—';
+        document.getElementById('pi_candidato').textContent = c.candidato ? `${c.candidato.nombre} (${CARGOS[c.candidato.cargo] || c.candidato.cargo})` : '—';
+        document.getElementById('pi_candidato_linea').textContent = c.candidato ? `${c.candidato.nombre.toUpperCase()} PARA ${(CARGOS[c.candidato.cargo] || c.candidato.cargo || '').toUpperCase()}` : '';
+        document.getElementById('pi_total_miembros').textContent = c.miembros.length;
+        document.getElementById('pi_total_miembros2').textContent = c.miembros.length;
+        document.getElementById('pi_fecha').textContent = new Date().toLocaleDateString();
+
+        const coord = c.coordinador || {};
+        document.getElementById('pi_coord_nombre').textContent = coord.nombre || '—';
+        document.getElementById('pi_coord_cedula').textContent = coord.cedula || '—';
+        document.getElementById('pi_coord_telefono').textContent = coord.telefono || '—';
+        document.getElementById('pi_coord_municipio').textContent = coord.municipio || '—';
+        document.getElementById('pi_coord_recinto').textContent = coord.recinto || '—';
+        document.getElementById('pi_coord_colegio').textContent = coord.colegio || '—';
+        document.getElementById('pi_coord_foto_td').innerHTML = coord.foto
+            ? `<img src="data:image/jpeg;base64,${coord.foto}" style="width:76px;height:76px;border-radius:6px;object-fit:cover;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">`
+            : `<div style="width:76px;height:76px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">${escapeHtml((coord.nombre || '?').charAt(0).toUpperCase())}</div>`;
+
+        const candFotoTd = document.getElementById('pi_candidato_foto_td');
+        if (c.candidato && c.candidato.foto) {
+            candFotoTd.innerHTML = `<img src="data:image/jpeg;base64,${c.candidato.foto}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;">`;
+        } else if (c.candidato) {
+            candFotoTd.innerHTML = `<div style="width:60px;height:60px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#999;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;margin:0 auto;">${escapeHtml((c.candidato.nombre || '?').charAt(0).toUpperCase())}</div>`;
+        } else {
+            candFotoTd.innerHTML = '';
+        }
+
+        const wrap2 = document.getElementById('pi_miembros_wrap');
+        if (c.miembros.length > 0) {
+            wrap2.innerHTML = `
+                <h3 style="text-align:center;font-size:15px;font-weight:700;color:<?php echo htmlspecialchars($color_primary); ?>;margin-bottom:12px;">&#9776; INTEGRANTES DEL COMITÉ</h3>
+                <table width="100%" style="border-collapse:collapse;font-size:11px;">
+                    <thead><tr style="color:#94a3b8;">
+                        <th style="padding:6px;text-align:left;">Foto</th>
+                        <th style="padding:6px;text-align:left;">No.</th>
+                        <th style="padding:6px;text-align:left;">Nombre Completo</th>
+                        <th style="padding:6px;text-align:left;">Cédula</th>
+                        <th style="padding:6px;text-align:left;">Teléfono</th>
+                        <th style="padding:6px;text-align:left;">Municipio</th>
+                    </tr></thead>
+                    <tbody>
+                    ${c.miembros.map((m, i) => `
+                        <tr style="border-top:1px solid #e2e8f0;page-break-inside:avoid;">
+                            <td style="padding:6px;">${m.foto ? `<img src="data:image/jpeg;base64,${m.foto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">` : `<div style="width:38px;height:38px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#999;">${escapeHtml((m.nombre || '?').charAt(0).toUpperCase())}</div>`}</td>
+                            <td style="padding:6px;">${i + 1}</td>
+                            <td style="padding:6px;">${escapeHtml(m.nombre)}</td>
+                            <td style="padding:6px;">${escapeHtml(m.cedula)}</td>
+                            <td style="padding:6px;">${escapeHtml(m.telefono || 'N/A')}</td>
+                            <td style="padding:6px;">${escapeHtml(m.municipio)}</td>
+                        </tr>
+                    `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } else {
+            wrap2.innerHTML = '';
+        }
+        window.print();
+    });
 });
 </script>
 </body>
