@@ -34,7 +34,9 @@ include 'includes/header.php';
 .info-row:last-child { border-bottom:none; }
 .info-label { color:var(--text-secondary);width:130px;flex-shrink:0; }
 .info-value { color:var(--text-primary);font-weight:500; }
-.coord-avatar { width:72px;height:72px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;flex-shrink:0; }
+.coord-avatar { width:110px;height:110px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;flex-shrink:0; }
+.miembro-avatar { width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0; }
+.miembro-avatar-fallback { width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0; }
 .action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;background:none;cursor:pointer;transition:all .15s; }
 .action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
 @media print {
@@ -106,7 +108,7 @@ include 'includes/header.php';
                 <div class="d-flex gap-4 align-items-start">
                     <?php if (!empty($coordinador['foto'])): ?>
                     <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" alt="Foto"
-                         style="width:72px;height:72px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                         style="width:110px;height:110px;border-radius:50%;object-fit:cover;flex-shrink:0;">
                     <?php else: ?>
                     <div class="coord-avatar"><?php echo strtoupper(substr($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '?', 0, 1)); ?></div>
                     <?php endif; ?>
@@ -167,12 +169,11 @@ include 'includes/header.php';
                 <?php foreach ($miembros as $m): ?>
                 <tr>
                     <td>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-3">
                             <?php if (!empty($m['foto'])): ?>
-                            <img src="data:image/jpeg;base64,<?php echo $m['foto']; ?>" alt="Foto"
-                                 style="width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                            <img src="data:image/jpeg;base64,<?php echo $m['foto']; ?>" alt="Foto" class="miembro-avatar">
                             <?php else: ?>
-                            <div style="width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">
+                            <div class="miembro-avatar-fallback">
                                 <?php echo strtoupper(substr($m['nombre_completo'] ?? $m['nombre'] ?? '?', 0, 1)); ?>
                             </div>
                             <?php endif; ?>
