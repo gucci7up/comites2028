@@ -64,7 +64,6 @@ include 'includes/header.php';
         <div><div class="consulta-field-label">Municipio</div><div class="consulta-field-value" id="municipio"></div></div>
         <div><div class="consulta-field-label">Zona</div><div class="consulta-field-value" id="zona"></div></div>
         <div><div class="consulta-field-label">Recinto</div><div class="consulta-field-value" id="recinto"></div></div>
-        <div><div class="consulta-field-label">Recinto votación</div><div class="consulta-field-value" id="recintoVotacion"></div></div>
         <div><div class="consulta-field-label">Colegio</div><div class="consulta-field-value" id="colegio"></div></div>
         <div><div class="consulta-field-label">Circunscripción</div><div class="consulta-field-value" id="circunscripcion"></div></div>
     </div>
@@ -157,7 +156,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('municipio').textContent       = d.Municipio;
                 document.getElementById('zona').textContent            = d.Zona;
                 document.getElementById('recinto').textContent         = d.Recinto;
-                document.getElementById('recintoVotacion').textContent = d.RecintoVotacion;
                 document.getElementById('colegio').textContent         = d.CodigoColegio;
                 document.getElementById('circunscripcion').textContent = d.Circunscripcion;
 
@@ -223,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ['Municipio', document.getElementById('municipio').textContent],
             ['Zona', document.getElementById('zona').textContent],
             ['Recinto', document.getElementById('recinto').textContent],
-            ['Recinto Votación', document.getElementById('recintoVotacion').textContent],
             ['Colegio', document.getElementById('colegio').textContent],
             ['Circunscripción', document.getElementById('circunscripcion').textContent]
         ];
