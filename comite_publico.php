@@ -1059,18 +1059,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('pd_meta').textContent = `${comite.municipio}${comite.provincia ? ' · ' + comite.provincia : ''}`;
         document.getElementById('pd_candidato').textContent = comite.candidato ? `${comite.candidato.nombre} (${CARGOS[comite.candidato.cargo] || comite.candidato.cargo})` : 'Sin candidato asignado';
         document.getElementById('pd_coordinador').textContent = comite.coordinador ? `${comite.coordinador.nombre} · ${comite.coordinador.telefono || 'sin teléfono'}` : '—';
-
-        // Diagnóstico temporal visible (no expone la foto en sí, solo si llegó y su tamaño):
-        const fotoCoordDiag = comite.coordinador && comite.coordinador.foto ? `presente (${comite.coordinador.foto.length} caracteres, empieza con "${comite.coordinador.foto.slice(0, 12)}")` : 'vacía/ausente';
-        const fotoCandDiag = comite.candidato && comite.candidato.foto ? `presente (${comite.candidato.foto.length} caracteres, empieza con "${comite.candidato.foto.slice(0, 12)}")` : 'vacía/ausente';
-        let diagBox = document.getElementById('diagFotoBox');
-        if (!diagBox) {
-            diagBox = document.createElement('div');
-            diagBox.id = 'diagFotoBox';
-            diagBox.style.cssText = 'margin-top:14px;padding:12px;border-radius:10px;background:#fff7ed;border:1px solid #fdba74;font-size:11.5px;color:#7c2d12;font-family:monospace;';
-            document.getElementById('pd_coordinador').closest('.field-row').after(diagBox);
-        }
-        diagBox.innerHTML = `<strong>Diagnóstico temporal</strong><br>Foto coordinador: ${fotoCoordDiag}<br>Foto candidato: ${fotoCandDiag}`;
         renderPdMiembros();
     }
 
