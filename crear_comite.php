@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $provincia  = trim($_POST['provincia']);
     $municipio  = trim($_POST['municipio']);
     $zona       = trim($_POST['zona']);
+    $circunscripcion = trim($_POST['circunscripcion'] ?? '');
     $candidato_id = !empty($_POST['candidato_id']) ? (int)$_POST['candidato_id'] : ($_SESSION['candidato_id'] ?? null);
     $usuario_id = $_SESSION['usuario_id'];
     $errores = [];
@@ -19,8 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errores)) {
         try {
             $conn = conectarDB();
-            $stmt = $conn->prepare("INSERT INTO comites (nombre, provincia, municipio, zona, creado_por, candidato_id, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-            $stmt->bind_param("ssssii", $nombre, $provincia, $municipio, $zona, $usuario_id, $candidato_id);
+            $stmt = $conn->prepare("INSERT INTO comites (nombre, provincia, municipio, zona, circunscripcion, creado_por, candidato_id, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+            $stmt->bind_param("sssssii", $nombre, $provincia, $municipio, $zona, $circunscripcion, $usuario_id, $candidato_id);
             $stmt->execute();
             $comite_id = $conn->insert_id;
             $_SESSION['mensaje'] = "Comité creado correctamente. Ahora puede agregar un coordinador y miembros.";
@@ -111,16 +112,23 @@ include 'includes/header.php';
                            value="<?php echo isset($zona) ? htmlspecialchars($zona) : ''; ?>">
                 </div>
                 <div>
-                    <label class="lbl">Candidato</label>
-                    <select class="fld" name="candidato_id">
-                        <option value="">Sin candidato asignado</option>
-                        <?php foreach ($candidatos as $c): ?>
-                        <option value="<?php echo $c['id']; ?>" <?php echo (int)$candidato_seleccionado === (int)$c['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label class="lbl">Circunscripción</label>
+                    <input type="text" class="fld" id="circunscripcion" name="circunscripcion" list="circunscripcionList"
+                           placeholder="Ej: 1ra. Circunscripción" autocomplete="off"
+                           value="<?php echo isset($circunscripcion) ? htmlspecialchars($circunscripcion) : ''; ?>">
+                    <datalist id="circunscripcionList"></datalist>
                 </div>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label class="lbl">Candidato</label>
+                <select class="fld" name="candidato_id">
+                    <option value="">Sin candidato asignado</option>
+                    <?php foreach ($candidatos as $c): ?>
+                    <option value="<?php echo $c['id']; ?>" <?php echo (int)$candidato_seleccionado === (int)$c['id'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="info-box">
@@ -176,6 +184,7 @@ include 'includes/header.php';
     const provinciaList  = document.getElementById('provinciaList');
     const municipioInput = document.getElementById('municipio');
     const municipioList  = document.getElementById('municipioList');
+    const circunscripcionList = document.getElementById('circunscripcionList');
     let provincias = [];
 
     function escapeAttr(str) {
@@ -225,6 +234,14 @@ include 'includes/header.php';
             if (match) cargarMunicipios(match.ID, municipioInput.value);
         })
         .catch(err => console.error('Error cargando provincias:', err));
+
+    fetch('api/circunscripciones.php')
+        .then(r => r.json())
+        .then(json => {
+            if (!json.success) return;
+            circunscripcionList.innerHTML = json.data.map(c => `<option value="${escapeAttr(c.Descripcion)}"></option>`).join('');
+        })
+        .catch(err => console.error('Error cargando circunscripciones:', err));
 })();
 </script>
 

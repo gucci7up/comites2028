@@ -271,9 +271,9 @@ $cargoAlaFrase = [
             <tr>
                 <td style="width:90px;vertical-align:top;">
                     <?php if (!empty($coordinador['foto'])): ?>
-                    <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" style="width:76px;height:76px;border-radius:50%;object-fit:cover;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
+                    <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" style="width:76px;height:76px;border-radius:6px;object-fit:cover;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
                     <?php else: ?>
-                    <div style="width:76px;height:76px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
+                    <div style="width:76px;height:76px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
                         <?php echo strtoupper(substr($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '?', 0, 1)); ?>
                     </div>
                     <?php endif; ?>

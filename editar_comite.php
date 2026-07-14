@@ -56,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_comite']))
     $provincia = trim($_POST['provincia']);
     $municipio = trim($_POST['municipio']);
     $zona = trim($_POST['zona']);
+    $circunscripcion = trim($_POST['circunscripcion'] ?? '');
     $candidato_id = !empty($_POST['candidato_id']) ? (int)$_POST['candidato_id'] : null;
 
     // Validar datos
@@ -72,8 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_comite']))
     // Si no hay errores, actualizar el comité
     if (empty($errores)) {
         try {
-            $stmt = $conn->prepare("UPDATE comites SET nombre = ?, provincia = ?, municipio = ?, zona = ?, candidato_id = ?, fecha_modificacion = NOW() WHERE id = ?");
-            $stmt->bind_param("ssssii", $nombre, $provincia, $municipio, $zona, $candidato_id, $comite_id);
+            $stmt = $conn->prepare("UPDATE comites SET nombre = ?, provincia = ?, municipio = ?, zona = ?, circunscripcion = ?, candidato_id = ?, fecha_modificacion = NOW() WHERE id = ?");
+            $stmt->bind_param("sssssii", $nombre, $provincia, $municipio, $zona, $circunscripcion, $candidato_id, $comite_id);
             $stmt->execute();
 
             // Actualizar datos en memoria
@@ -81,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_comite']))
             $comite['provincia'] = $provincia;
             $comite['municipio'] = $municipio;
             $comite['zona'] = $zona;
+            $comite['circunscripcion'] = $circunscripcion;
             $comite['candidato_id'] = $candidato_id;
 
             $_SESSION['mensaje'] = "Comité actualizado correctamente.";
@@ -201,16 +203,22 @@ include 'includes/header.php';
                            value="<?php echo htmlspecialchars($comite['zona'] ?? ''); ?>">
                 </div>
                 <div>
-                    <label class="lbl">Candidato</label>
-                    <select class="fld" id="candidato_id" name="candidato_id">
-                        <option value="">Sin candidato asignado</option>
-                        <?php foreach ($candidatos as $c): ?>
-                        <option value="<?php echo $c['id']; ?>" <?php echo (int)($comite['candidato_id'] ?? 0) === (int)$c['id'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label class="lbl">Circunscripción</label>
+                    <input type="text" class="fld" id="circunscripcion" name="circunscripcion" list="circunscripcionList" autocomplete="off"
+                           value="<?php echo htmlspecialchars($comite['circunscripcion'] ?? ''); ?>">
+                    <datalist id="circunscripcionList"></datalist>
                 </div>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label class="lbl">Candidato</label>
+                <select class="fld" id="candidato_id" name="candidato_id">
+                    <option value="">Sin candidato asignado</option>
+                    <?php foreach ($candidatos as $c): ?>
+                    <option value="<?php echo $c['id']; ?>" <?php echo (int)($comite['candidato_id'] ?? 0) === (int)$c['id'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <button type="submit" name="actualizar_comite" class="btn btn-primary w-100">
@@ -749,6 +757,7 @@ function confirmarEliminarMiembro(id, nombre) {
     const provinciaList  = document.getElementById('provinciaList');
     const municipioInput = document.getElementById('municipio');
     const municipioList  = document.getElementById('municipioList');
+    const circunscripcionList = document.getElementById('circunscripcionList');
     let provincias = [];
 
     function escapeAttr(str) {
@@ -783,6 +792,14 @@ function confirmarEliminarMiembro(id, nombre) {
             if (match) cargarMunicipios(match.ID, municipioInput.value);
         })
         .catch(err => console.error('Error cargando provincias:', err));
+
+    fetch('api/circunscripciones.php')
+        .then(r => r.json())
+        .then(json => {
+            if (!json.success) return;
+            circunscripcionList.innerHTML = json.data.map(c => `<option value="${escapeAttr(c.Descripcion)}"></option>`).join('');
+        })
+        .catch(err => console.error('Error cargando circunscripciones:', err));
 })();
 </script>
 
