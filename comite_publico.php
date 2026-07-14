@@ -538,10 +538,12 @@ document.addEventListener('DOMContentLoaded', function() {
         card.addEventListener('click', function() {
             document.querySelectorAll('.cand-select-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
+            const fotoImg = card.querySelector('.cand-photo');
             state.candidato = {
                 id: card.dataset.id,
                 nombre: card.querySelector('.cand-name').textContent,
-                cargo: card.querySelector('.cand-cargo').textContent
+                cargo: card.querySelector('.cand-cargo').textContent,
+                foto: fotoImg ? fotoImg.src : ''
             };
             clearError();
         });
@@ -748,8 +750,13 @@ document.addEventListener('DOMContentLoaded', function() {
             ? `<img src="data:image/jpeg;base64,${c.foto}" style="width:76px;height:76px;border-radius:6px;object-fit:cover;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">`
             : `<div style="width:76px;height:76px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">${escapeHtml((c.nombre||'?').charAt(0).toUpperCase())}</div>`;
 
-        if (state.candidato) {
-            document.getElementById('pi_candidato_foto_td').innerHTML = '';
+        const candFotoTd = document.getElementById('pi_candidato_foto_td');
+        if (state.candidato && state.candidato.foto) {
+            candFotoTd.innerHTML = `<img src="${state.candidato.foto}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;">`;
+        } else if (state.candidato) {
+            candFotoTd.innerHTML = `<div style="width:60px;height:60px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#999;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;margin:0 auto;">${escapeHtml((state.candidato.nombre||'?').charAt(0).toUpperCase())}</div>`;
+        } else {
+            candFotoTd.innerHTML = '';
         }
 
         const wrap = document.getElementById('pi_miembros_wrap');
