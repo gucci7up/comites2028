@@ -1205,6 +1205,14 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             wrap2.innerHTML = '';
         }
+
+        // Diagnóstico temporal: confirma qué quedó realmente insertado antes de imprimir.
+        const diagHtml = document.getElementById('pi_coord_foto_td').innerHTML;
+        alert('DIAGNÓSTICO — casilla de foto del coordinador:\n\n'
+            + 'Longitud del HTML: ' + diagHtml.length + '\n'
+            + '¿Contiene <img>?: ' + diagHtml.includes('<img') + '\n'
+            + 'Primeros 80 caracteres: ' + diagHtml.slice(0, 80));
+
         window.print();
     });
 });
