@@ -421,7 +421,7 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text-pr
             <p style="font-size:13px;color:var(--text-secondary);margin:0;">Guardá o imprimí tu comprobante para tus registros.</p>
         </div>
         <div class="exito-actions">
-            <button type="button" class="btn btn-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>Imprimir / Guardar PDF</button>
+            <button type="button" class="btn btn-primary" onclick="imprimirCuandoCarguenImagenes()"><i class="fas fa-print me-1"></i>Imprimir / Guardar PDF</button>
             <button type="button" class="btn btn-ghost" onclick="location.reload()"><i class="fas fa-rotate-left me-1"></i>Registrar otro comité</button>
         </div>
     </div>
@@ -530,6 +530,31 @@ function escapeHtml(str) {
     const d = document.createElement('div');
     d.textContent = str == null ? '' : String(str);
     return d.innerHTML;
+}
+
+// Las fotos del comprobante se insertan por JS justo antes de imprimir; si
+// window.print() se llama de inmediato, algunos navegadores abren el diálogo
+// de impresión antes de que esas imágenes terminen de decodificar y las
+// muestran en blanco. Se espera a que todas las <img> del bloque imprimible
+// terminen de cargar (o fallen) antes de imprimir.
+function imprimirCuandoCarguenImagenes() {
+    const imgs = Array.from(document.querySelectorAll('#seccionImprimir img'));
+    const pendientes = imgs.filter(img => !img.complete);
+    if (pendientes.length === 0) {
+        window.print();
+        return;
+    }
+    let restantes = pendientes.length;
+    const listo = () => {
+        restantes--;
+        if (restantes <= 0) window.print();
+    };
+    pendientes.forEach(img => {
+        img.addEventListener('load', listo, { once: true });
+        img.addEventListener('error', listo, { once: true });
+    });
+    // Salvaguarda: si alguna imagen nunca dispara load/error, no bloquear para siempre.
+    setTimeout(() => { if (restantes > 0) { restantes = 0; window.print(); } }, 3000);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1206,14 +1231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wrap2.innerHTML = '';
         }
 
-        // Diagnóstico temporal: confirma qué quedó realmente insertado antes de imprimir.
-        const diagHtml = document.getElementById('pi_coord_foto_td').innerHTML;
-        alert('DIAGNÓSTICO — casilla de foto del coordinador:\n\n'
-            + 'Longitud del HTML: ' + diagHtml.length + '\n'
-            + '¿Contiene <img>?: ' + diagHtml.includes('<img') + '\n'
-            + 'Primeros 80 caracteres: ' + diagHtml.slice(0, 80));
-
-        window.print();
+        imprimirCuandoCarguenImagenes();
     });
 });
 </script>
