@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $provincia  = trim($_POST['provincia']);
     $municipio  = trim($_POST['municipio']);
     $zona       = trim($_POST['zona']);
+    $candidato_id = !empty($_POST['candidato_id']) ? (int)$_POST['candidato_id'] : ($_SESSION['candidato_id'] ?? null);
     $usuario_id = $_SESSION['usuario_id'];
     $errores = [];
     if (empty($nombre))    $errores[] = "El nombre del comité es obligatorio.";
@@ -18,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errores)) {
         try {
             $conn = conectarDB();
-            $candidato_id = $_SESSION['candidato_id'] ?? null;
             $stmt = $conn->prepare("INSERT INTO comites (nombre, provincia, municipio, zona, creado_por, candidato_id, fecha_creacion) VALUES (?, ?, ?, ?, ?, ?, NOW())");
             $stmt->bind_param("ssssii", $nombre, $provincia, $municipio, $zona, $usuario_id, $candidato_id);
             $stmt->execute();
@@ -32,6 +32,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$conn = conectarDB();
+$candidatos = $conn->query("SELECT id, nombre, cargo FROM candidatos WHERE activo = 1 ORDER BY FIELD(cargo,'presidente','senador','diputado','alcalde','regidor'), nombre")->fetch_all(MYSQLI_ASSOC);
+$cargos = ['presidente'=>'Presidente','senador'=>'Senador','diputado'=>'Diputado','alcalde'=>'Alcalde','regidor'=>'Regidor'];
+$candidato_seleccionado = $candidato_id ?? ($_SESSION['candidato_id'] ?? null);
 
 $titulo_pagina = 'Crear Comité';
 include 'includes/header.php';
@@ -80,12 +85,24 @@ include 'includes/header.php';
                                value="<?php echo isset($municipio) ? htmlspecialchars($municipio) : ''; ?>" required>
                         <datalist id="municipioList"></datalist>
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label fw-semibold" style="font-size:13px;">Zona</label>
                         <input type="text" class="form-control" id="zona" name="zona"
                                placeholder="Ej: Zona Norte, Sector 4..."
                                value="<?php echo isset($zona) ? htmlspecialchars($zona) : ''; ?>">
                         <div class="form-text">Campo de llenado manual, definido por el partido.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold" style="font-size:13px;">Candidato</label>
+                        <select class="form-select" name="candidato_id">
+                            <option value="">Sin candidato asignado</option>
+                            <?php foreach ($candidatos as $c): ?>
+                            <option value="<?php echo $c['id']; ?>" <?php echo (int)$candidato_seleccionado === (int)$c['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="form-text">A qué candidato pertenece este comité (opcional).</div>
                     </div>
                     <div class="alert alert-info d-flex gap-2 align-items-start" style="font-size:13px;">
                         <i class="fas fa-info-circle mt-1"></i>

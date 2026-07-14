@@ -9,9 +9,7 @@ CREATE TABLE IF NOT EXISTS configuracion (
     logo LONGBLOB,
     color_primario VARCHAR(7) DEFAULT '#2563eb',
     color_sidebar  VARCHAR(7) DEFAULT '#0d1b2a',
-    color_accent   VARCHAR(7) DEFAULT '#3b82f6',
-    candidato_principal_nombre VARCHAR(150),
-    candidato_principal_foto LONGBLOB
+    color_accent   VARCHAR(7) DEFAULT '#3b82f6'
 );
 INSERT INTO configuracion (nombre_partido, siglas) VALUES ('Mi Partido', 'MP');
 

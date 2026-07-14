@@ -205,6 +205,13 @@ include 'includes/header.php';
 $tema = cargarConfiguracion();
 $logo_print = !empty($tema['logo']) ? 'data:image/png;base64,'.base64_encode($tema['logo']) : 'logo1.png';
 $colorPrincipal = $tema['color_primario'] ?? '#2563eb';
+$cargoAlaFrase = [
+    'presidente' => 'A LA PRESIDENCIA',
+    'senador'    => 'AL SENADO',
+    'diputado'   => 'A LA DIPUTACIÓN',
+    'alcalde'    => 'A LA ALCALDÍA',
+    'regidor'    => 'A LA REGIDURÍA',
+];
 ?>
 <div class="d-none" id="seccion-imprimir" style="font-family:Arial,Helvetica,sans-serif;color:#1e293b;">
     <table width="100%" style="border-collapse:collapse;border:2px solid <?php echo htmlspecialchars($colorPrincipal); ?>;margin-bottom:10px;">
@@ -215,13 +222,13 @@ $colorPrincipal = $tema['color_primario'] ?? '#2563eb';
             <td style="background:<?php echo htmlspecialchars($colorPrincipal); ?>;color:#fff;text-align:center;padding:10px 14px;vertical-align:middle;">
                 <div style="font-size:16px;font-weight:800;letter-spacing:.3px;"><?php echo htmlspecialchars(strtoupper($tema['nombre_partido'])); ?><?php echo !empty($tema['siglas']) ? ' ('.htmlspecialchars($tema['siglas']).')' : ''; ?></div>
                 <div style="font-size:11px;font-weight:600;margin-top:3px;letter-spacing:.3px;">FORMULARIO COMITÉ AFECTIVO (CBA)</div>
-                <?php if (!empty($tema['candidato_principal_nombre'])): ?>
-                <div style="font-size:10px;margin-top:3px;"><?php echo htmlspecialchars(strtoupper($tema['candidato_principal_nombre'])); ?> A LA PRESIDENCIA</div>
+                <?php if (!empty($comite['candidato_nombre'])): ?>
+                <div style="font-size:10px;margin-top:3px;"><?php echo htmlspecialchars(strtoupper($comite['candidato_nombre'])); ?> <?php echo $cargoAlaFrase[$comite['candidato_cargo']] ?? ''; ?></div>
                 <?php endif; ?>
             </td>
-            <?php if (!empty($tema['candidato_principal_foto'])): ?>
+            <?php if (!empty($comite['candidato_foto'])): ?>
             <td style="width:76px;padding:8px;vertical-align:middle;text-align:center;">
-                <img src="data:image/jpeg;base64,<?php echo base64_encode($tema['candidato_principal_foto']); ?>" alt="Candidato"
+                <img src="data:image/jpeg;base64,<?php echo base64_encode($comite['candidato_foto']); ?>" alt="Candidato"
                      style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
             </td>
             <?php endif; ?>

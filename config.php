@@ -20,10 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_tema'])) {
     $cs = preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color_sidebar']  ?? '') ? $_POST['color_sidebar']  : '#0d1b2a';
     $ca = preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color_accent']   ?? '') ? $_POST['color_accent']   : '#3b82f6';
 
-    $candNombre = trim($_POST['candidato_principal_nombre'] ?? '');
-
-    $s = $conn->prepare("UPDATE configuracion SET nombre_partido=?,siglas=?,color_primario=?,color_sidebar=?,color_accent=?,candidato_principal_nombre=? WHERE id=?");
-    $s->bind_param("ssssssi",$nombre,$siglas,$cp,$cs,$ca,$candNombre,$cfg['id']);
+    $s = $conn->prepare("UPDATE configuracion SET nombre_partido=?,siglas=?,color_primario=?,color_sidebar=?,color_accent=? WHERE id=?");
+    $s->bind_param("sssssi",$nombre,$siglas,$cp,$cs,$ca,$cfg['id']);
     $s->execute();
 
     if (!empty($_FILES['logo']['tmp_name'])) {
@@ -32,15 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_tema'])) {
         $null = null;
         $s->bind_param("bi",$null,$cfg['id']);
         $s->send_long_data(0,$logo);
-        $s->execute();
-    }
-
-    if (!empty($_FILES['candidato_principal_foto']['tmp_name'])) {
-        $candFoto = file_get_contents($_FILES['candidato_principal_foto']['tmp_name']);
-        $s = $conn->prepare("UPDATE configuracion SET candidato_principal_foto=? WHERE id=?");
-        $null = null;
-        $s->bind_param("bi",$null,$cfg['id']);
-        $s->send_long_data(0,$candFoto);
         $s->execute();
     }
 
@@ -157,23 +146,6 @@ include 'includes/header.php';
                             <img id="logoPreviewImg" style="max-height:80px;max-width:100%;object-fit:contain;border-radius:8px;border:1px solid var(--border);padding:8px;background:#f8fafc;">
                         </div>
                         <?php endif; ?>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Candidato Principal <span style="color:var(--text-secondary);font-weight:400;">(para el membrete de impresión)</span></label>
-                        <input type="text" name="candidato_principal_nombre" class="form-control form-control-sm mb-2"
-                               placeholder="Ej: Luis Abinader"
-                               value="<?php echo htmlspecialchars($cfg['candidato_principal_nombre'] ?? ''); ?>">
-                        <div class="upload-zone" onclick="document.getElementById('candPrincipalInput').click()">
-                            <input type="file" id="candPrincipalInput" name="candidato_principal_foto" accept="image/*" onchange="onCandPrincipalChange(this)">
-                            <i class="fas fa-user-circle fa-2x mb-2" style="color:#94a3b8;"></i>
-                            <div style="font-size:13px;color:#64748b;">Clic para subir la foto</div>
-                        </div>
-                        <?php $candFotoB64 = !empty($cfg['candidato_principal_foto']) ? base64_encode($cfg['candidato_principal_foto']) : ''; ?>
-                        <div id="candPrincipalPreviewBox" style="margin-top:10px;text-align:center;<?php echo $candFotoB64 ? '' : 'display:none;'; ?>">
-                            <img id="candPrincipalPreviewImg"
-                                 src="<?php echo $candFotoB64 ? 'data:image/jpeg;base64,'.$candFotoB64 : ''; ?>"
-                                 style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);">
-                        </div>
                     </div>
                     <div class="mb-4">
                         <label class="form-label">Colores del tema</label>
@@ -402,16 +374,6 @@ function onLogoChange(input) {
             } catch(e) {}
         };
         tmp.src = src;
-    };
-    reader.readAsDataURL(input.files[0]);
-}
-
-function onCandPrincipalChange(input) {
-    if (!input.files[0]) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('candPrincipalPreviewImg').src = e.target.result;
-        document.getElementById('candPrincipalPreviewBox').style.display = 'block';
     };
     reader.readAsDataURL(input.files[0]);
 }
