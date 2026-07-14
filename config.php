@@ -95,7 +95,7 @@ include 'includes/header.php';
 <style>
 .config-layout { display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:22px; align-items:start; }
 @media (max-width:1100px) { .config-layout { grid-template-columns:1fr; } }
-.step-card { background:#fff; border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); margin-bottom:22px; }
+.step-card { background:#fff; border:var(--card-border); border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); margin-bottom:22px; }
 .step-title { font-size:15px; font-weight:700; margin-bottom:18px; }
 .identity-row { display:grid; grid-template-columns:110px 1fr; gap:20px; align-items:start; margin-bottom:20px; }
 @media (max-width:500px) { .identity-row { grid-template-columns:1fr; } }

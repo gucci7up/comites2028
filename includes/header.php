@@ -39,8 +39,9 @@ $_logo_b64 = !empty($_cfg['logo']) ? base64_encode($_cfg['logo']) : '';
             --text-secondary: #5b5678;
             --text-tertiary:  #9691b0;
             --border:         #eceafc;
-            --shadow-sm:      0 1px 2px rgba(30,27,46,.05);
-            --shadow-md:      0 8px 24px rgba(30,27,46,.08);
+            --shadow-sm:      0 1px 3px rgba(30,27,46,.09), 0 1px 2px rgba(30,27,46,.06);
+            --shadow-md:      0 8px 24px rgba(30,27,46,.12);
+            --card-border:    1px solid var(--border);
             --radius:         12px;
             --radius-sm:      9px;
             --radius-card:    22px;
@@ -185,7 +186,7 @@ $_logo_b64 = !empty($_cfg['logo']) ? base64_encode($_cfg['logo']) : '';
         .topbar-icon-btn {
             width: 40px; height: 40px; border-radius: 12px;
             background: var(--surface); box-shadow: var(--shadow-sm);
-            border: none; display: flex; align-items: center; justify-content: center;
+            border: var(--card-border); display: flex; align-items: center; justify-content: center;
             color: var(--text-secondary); font-size: 15px; cursor: pointer;
         }
         .topbar-icon-btn:hover { color: var(--accent); }
@@ -207,7 +208,7 @@ $_logo_b64 = !empty($_cfg['logo']) ? base64_encode($_cfg['logo']) : '';
         /* ── SHARED PAGE STYLES ──────────────────────────── */
         .card {
             background: var(--surface);
-            border: none;
+            border: var(--card-border);
             border-radius: var(--radius-card);
             box-shadow: var(--shadow-sm);
         }

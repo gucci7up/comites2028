@@ -33,7 +33,7 @@ include 'includes/header.php';
 ?>
 
 <style>
-.filter-card { background:#fff; border-radius:var(--radius-card); box-shadow:var(--shadow-sm); padding:20px 24px; margin-bottom:22px; display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:16px; align-items:end; }
+.filter-card { background:#fff; border:var(--card-border); border-radius:var(--radius-card); box-shadow:var(--shadow-sm); padding:20px 24px; margin-bottom:22px; display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:16px; align-items:end; }
 @media (max-width:900px) { .filter-card { grid-template-columns:1fr 1fr; } }
 @media (max-width:560px) { .filter-card { grid-template-columns:1fr; } }
 .comite-badge { width:38px; height:38px; border-radius:12px; background:var(--accent-tint); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }

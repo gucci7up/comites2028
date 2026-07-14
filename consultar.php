@@ -11,7 +11,7 @@ include 'includes/header.php';
 
 <style>
 .consulta-wrap { display:flex; flex-direction:column; align-items:center; }
-.consulta-card { width:100%; max-width:640px; background:#fff; border-radius:var(--radius-card); padding:28px; box-shadow:var(--shadow-sm); margin-bottom:22px; }
+.consulta-card { width:100%; max-width:640px; background:#fff; border:var(--card-border); border-radius:var(--radius-card); padding:28px; box-shadow:var(--shadow-sm); margin-bottom:22px; }
 .consulta-search { display:flex; gap:12px; }
 .consulta-result-hd { display:flex; align-items:center; gap:16px; margin-bottom:22px; }
 .consulta-avatar { width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent-light)); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; flex-shrink:0; overflow:hidden; }

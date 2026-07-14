@@ -64,7 +64,7 @@ include 'includes/header.php';
 <style>
 .perfil-layout { display:grid; grid-template-columns:300px minmax(0,1fr); gap:22px; align-items:start; }
 @media (max-width:900px) { .perfil-layout { grid-template-columns:1fr; } }
-.step-card { background:#fff; border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); }
+.step-card { background:#fff; border:var(--card-border); border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); }
 .step-title { font-size:15px; font-weight:700; margin-bottom:18px; }
 .field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
 @media (max-width:560px) { .field-row { grid-template-columns:1fr; } }

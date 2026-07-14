@@ -46,7 +46,7 @@ include 'includes/header.php';
 <style>
 .create-layout { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:22px; align-items:start; }
 @media (max-width:1100px) { .create-layout { grid-template-columns:1fr; } }
-.step-card { background:#fff; border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); margin-bottom:22px; }
+.step-card { background:#fff; border:var(--card-border); border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); margin-bottom:22px; }
 .step-hd { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
 .step-num { width:28px; height:28px; border-radius:8px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .step-title { font-size:15px; font-weight:700; }
@@ -130,7 +130,7 @@ include 'includes/header.php';
 
             <div style="display:flex;gap:12px;">
                 <button type="submit" class="btn btn-primary" style="padding:12px 24px;">Guardar Comité</button>
-                <a href="comites.php" class="btn" style="background:#fff;color:var(--text-secondary);box-shadow:var(--shadow-sm);padding:12px 24px;">Cancelar</a>
+                <a href="comites.php" class="btn" style="background:#fff;color:var(--text-secondary);border:var(--card-border);box-shadow:var(--shadow-sm);padding:12px 24px;">Cancelar</a>
             </div>
         </form>
     </div>

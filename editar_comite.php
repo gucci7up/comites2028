@@ -139,7 +139,7 @@ include 'includes/header.php';
 <style>
 .edit-layout { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:22px; }
 @media (max-width:1000px) { .edit-layout { grid-template-columns:1fr; } }
-.step-card { background:#fff; border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); }
+.step-card { background:#fff; border:var(--card-border); border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); }
 .step-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
 .step-hd-left { display:flex; align-items:center; gap:12px; }
 .step-num { width:28px; height:28px; border-radius:8px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
@@ -162,7 +162,7 @@ include 'includes/header.php';
 
 <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
     <a href="comites.php" class="page-back" style="margin-bottom:0;"><i class="fas fa-arrow-left"></i> Volver a Comités</a>
-    <a href="ver_comite.php?id=<?php echo $comite_id; ?>" class="btn" style="background:#fff;color:var(--text-secondary);box-shadow:var(--shadow-sm);">
+    <a href="ver_comite.php?id=<?php echo $comite_id; ?>" class="btn" style="background:#fff;color:var(--text-secondary);border:var(--card-border);box-shadow:var(--shadow-sm);">
         <i class="fas fa-eye me-1"></i> Ver Comité
     </a>
 </div>
