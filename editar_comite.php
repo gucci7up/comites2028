@@ -53,33 +53,39 @@ while ($fila = $resultado->fetch_assoc()) {
 // Procesar formulario de actualización del comité
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_comite'])) {
     $nombre = trim($_POST['nombre']);
+    $provincia = trim($_POST['provincia']);
     $municipio = trim($_POST['municipio']);
-    
+    $zona = trim($_POST['zona']);
+    $candidato_id = !empty($_POST['candidato_id']) ? (int)$_POST['candidato_id'] : null;
+
     // Validar datos
     $errores = [];
-    
+
     if (empty($nombre)) {
         $errores[] = "El nombre del comité es obligatorio.";
     }
-    
+
     if (empty($municipio)) {
         $errores[] = "El municipio es obligatorio.";
     }
-    
+
     // Si no hay errores, actualizar el comité
     if (empty($errores)) {
         try {
-            $stmt = $conn->prepare("UPDATE comites SET nombre = ?, municipio = ?, fecha_modificacion = NOW() WHERE id = ?");
-            $stmt->bind_param("ssi", $nombre, $municipio, $comite_id);
+            $stmt = $conn->prepare("UPDATE comites SET nombre = ?, provincia = ?, municipio = ?, zona = ?, candidato_id = ?, fecha_modificacion = NOW() WHERE id = ?");
+            $stmt->bind_param("ssssii", $nombre, $provincia, $municipio, $zona, $candidato_id, $comite_id);
             $stmt->execute();
-            
+
             // Actualizar datos en memoria
             $comite['nombre'] = $nombre;
+            $comite['provincia'] = $provincia;
             $comite['municipio'] = $municipio;
-            
+            $comite['zona'] = $zona;
+            $comite['candidato_id'] = $candidato_id;
+
             $_SESSION['mensaje'] = "Comité actualizado correctamente.";
             $_SESSION['tipo_mensaje'] = "success";
-            
+
         } catch (Exception $e) {
             $_SESSION['mensaje'] = "Error al actualizar el comité: " . $e->getMessage();
             $_SESSION['tipo_mensaje'] = "danger";
@@ -120,6 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_miembro'])) 
     }
 }
 
+// Candidatos para el selector
+$candidatos = $conn->query("SELECT id, nombre, cargo FROM candidatos WHERE activo = 1 ORDER BY FIELD(cargo,'presidente','senador','diputado','alcalde','regidor'), nombre")->fetch_all(MYSQLI_ASSOC);
+$cargos = ['presidente'=>'Presidente','senador'=>'Senador','diputado'=>'Diputado','alcalde'=>'Alcalde','regidor'=>'Regidor'];
+
 // Título de la página
 $titulo_pagina = 'Editar Comité';
 include 'includes/header.php';
@@ -155,12 +165,39 @@ include 'includes/header.php';
                         <label for="nombre" class="form-label">Nombre del Comité</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($comite['nombre']); ?>" required>
                     </div>
-                    
+
+                    <div class="mb-3">
+                        <label for="provincia" class="form-label">Provincia</label>
+                        <input type="text" class="form-control" id="provincia" name="provincia" list="provinciaList" autocomplete="off"
+                               value="<?php echo htmlspecialchars($comite['provincia'] ?? ''); ?>">
+                        <datalist id="provinciaList"></datalist>
+                    </div>
+
                     <div class="mb-3">
                         <label for="municipio" class="form-label">Municipio</label>
-                        <input type="text" class="form-control" id="municipio" name="municipio" value="<?php echo htmlspecialchars($comite['municipio']); ?>" required>
+                        <input type="text" class="form-control" id="municipio" name="municipio" list="municipioList" autocomplete="off"
+                               value="<?php echo htmlspecialchars($comite['municipio']); ?>" required>
+                        <datalist id="municipioList"></datalist>
                     </div>
-                    
+
+                    <div class="mb-3">
+                        <label for="zona" class="form-label">Zona</label>
+                        <input type="text" class="form-control" id="zona" name="zona"
+                               value="<?php echo htmlspecialchars($comite['zona'] ?? ''); ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="candidato_id" class="form-label">Candidato</label>
+                        <select class="form-select" id="candidato_id" name="candidato_id">
+                            <option value="">Sin candidato asignado</option>
+                            <?php foreach ($candidatos as $c): ?>
+                            <option value="<?php echo $c['id']; ?>" <?php echo (int)($comite['candidato_id'] ?? 0) === (int)$c['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
                     <button type="submit" name="actualizar_comite" class="btn btn-primary w-100 btn-sm">
                         <i class="fas fa-save me-1"></i> Guardar Cambios
                     </button>
@@ -694,6 +731,49 @@ function confirmarEliminarMiembro(id, nombre) {
     var modal = new bootstrap.Modal(document.getElementById('eliminarMiembroModal'));
     modal.show();
 }
+</script>
+
+<script>
+(function() {
+    const provinciaInput = document.getElementById('provincia');
+    const provinciaList  = document.getElementById('provinciaList');
+    const municipioInput = document.getElementById('municipio');
+    const municipioList  = document.getElementById('municipioList');
+    let provincias = [];
+
+    function escapeAttr(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function cargarMunicipios(provinciaId, valorPrevio) {
+        municipioList.innerHTML = '';
+        fetch(`api/municipios.php?provincia_id=${provinciaId}`)
+            .then(r => r.json())
+            .then(json => {
+                if (!json.success) return;
+                municipioList.innerHTML = json.data.map(m => `<option value="${escapeAttr(m.Descripcion)}"></option>`).join('');
+                if (valorPrevio !== undefined) municipioInput.value = valorPrevio;
+            })
+            .catch(err => console.error('Error cargando municipios:', err));
+    }
+
+    provinciaInput.addEventListener('input', function() {
+        const match = provincias.find(p => p.Descripcion === provinciaInput.value);
+        if (match) cargarMunicipios(match.ID);
+    });
+
+    fetch('api/provincias.php')
+        .then(r => r.json())
+        .then(json => {
+            if (!json.success) return;
+            provincias = json.data;
+            provinciaList.innerHTML = provincias.map(p => `<option value="${escapeAttr(p.Descripcion)}"></option>`).join('');
+
+            const match = provincias.find(p => p.Descripcion === provinciaInput.value);
+            if (match) cargarMunicipios(match.ID, municipioInput.value);
+        })
+        .catch(err => console.error('Error cargando provincias:', err));
+})();
 </script>
 
 <?php include 'includes/footer.php'; ?>
