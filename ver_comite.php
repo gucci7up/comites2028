@@ -206,11 +206,11 @@ $tema = cargarConfiguracion();
 $logo_print = !empty($tema['logo']) ? 'data:image/png;base64,'.base64_encode($tema['logo']) : 'logo1.png';
 $colorPrincipal = $tema['color_primario'] ?? '#2563eb';
 $cargoAlaFrase = [
-    'presidente' => 'A LA PRESIDENCIA',
-    'senador'    => 'AL SENADO',
-    'diputado'   => 'A LA DIPUTACIÓN',
-    'alcalde'    => 'A LA ALCALDÍA',
-    'regidor'    => 'A LA REGIDURÍA',
+    'presidente' => 'PARA PRESIDENTE',
+    'senador'    => 'PARA SENADOR',
+    'diputado'   => 'PARA DIPUTADO',
+    'alcalde'    => 'PARA ALCALDE',
+    'regidor'    => 'PARA REGIDOR',
 ];
 ?>
 <div class="d-none" id="seccion-imprimir" style="font-family:Arial,Helvetica,sans-serif;color:#1e293b;">
