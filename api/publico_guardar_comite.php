@@ -106,8 +106,11 @@ try {
 
     if ($coordExistente) {
         $coordinador_id = $coordExistente['id'];
-        $stmt = $conn->prepare("UPDATE coordinadores SET nombre_completo=?, telefono=?, email=?, municipio=?, recinto=?, colegio=? WHERE id=?");
-        $stmt->bind_param("ssssssi", $coord_nombre, $coord_telefono, $coord_email, $coord_municipio, $coord_recinto, $coord_colegio, $coordinador_id);
+        // COALESCE(NULLIF(?, ''), foto): si esta consulta trae una foto nueva, se usa;
+        // si viene vacía, se conserva la que ya tenía (por si un envío anterior
+        // se quedó sin foto, esta también la rellena).
+        $stmt = $conn->prepare("UPDATE coordinadores SET nombre_completo=?, telefono=?, email=?, municipio=?, recinto=?, colegio=?, foto=COALESCE(NULLIF(?, ''), foto) WHERE id=?");
+        $stmt->bind_param("sssssssi", $coord_nombre, $coord_telefono, $coord_email, $coord_municipio, $coord_recinto, $coord_colegio, $coord_foto, $coordinador_id);
         $stmt->execute();
     } else {
         $stmt = $conn->prepare("INSERT INTO coordinadores (cedula, nombre_completo, telefono, email, municipio, recinto, colegio, foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
