@@ -91,12 +91,14 @@ include 'includes/header.php';
             <input type="hidden" name="foto" id="hiddenFoto">
             <div style="flex:2;min-width:180px;">
                 <label class="lbl">Comité</label>
-                <select name="comite_id" class="fld" required>
-                    <option value="">Seleccionar comité...</option>
+                <input type="text" class="fld" id="comiteInput" list="comiteList" placeholder="Buscar comité por nombre..." autocomplete="off" required>
+                <datalist id="comiteList">
                     <?php foreach ($comites_lista as $cm): ?>
-                    <option value="<?php echo $cm['id']; ?>"><?php echo htmlspecialchars($cm['nombre']); ?> — <?php echo htmlspecialchars($cm['municipio']); ?></option>
+                    <option value="<?php echo htmlspecialchars($cm['nombre']); ?> — <?php echo htmlspecialchars($cm['municipio']); ?>"></option>
                     <?php endforeach; ?>
-                </select>
+                </datalist>
+                <input type="hidden" name="comite_id" id="comiteIdHidden">
+                <div class="form-text mt-1" id="comiteError" style="display:none;color:var(--danger);">Seleccioná un comité de la lista.</div>
             </div>
             <div style="flex:1;min-width:130px;">
                 <label class="lbl">Teléfono</label>
@@ -123,8 +125,36 @@ include 'includes/header.php';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
+const comitesData = <?php echo json_encode(array_map(function($cm) {
+    return ['id' => $cm['id'], 'label' => $cm['nombre'] . ' — ' . $cm['municipio']];
+}, $comites_lista), JSON_UNESCAPED_UNICODE); ?>;
+</script>
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const formBusqueda = document.getElementById('formBusqueda');
+    const comiteInput      = document.getElementById('comiteInput');
+    const comiteIdHidden   = document.getElementById('comiteIdHidden');
+    const comiteError      = document.getElementById('comiteError');
+    const formAgregarMiembro = document.getElementById('formAgregarMiembro');
+
+    if (comiteInput) {
+        comiteInput.addEventListener('input', function() {
+            const match = comitesData.find(c => c.label === comiteInput.value);
+            comiteIdHidden.value = match ? match.id : '';
+            comiteInput.style.borderColor = '';
+            comiteError.style.display = 'none';
+        });
+    }
+    if (formAgregarMiembro) {
+        formAgregarMiembro.addEventListener('submit', function(e) {
+            if (!comiteIdHidden.value) {
+                e.preventDefault();
+                comiteInput.style.borderColor = 'var(--danger)';
+                comiteError.style.display = 'block';
+                comiteInput.focus();
+            }
+        });
+    }
     const cedulaInput  = document.getElementById('cedula');
     const loading      = document.getElementById('loading');
     const error        = document.getElementById('error');
