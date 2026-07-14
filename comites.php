@@ -27,14 +27,17 @@ $comites = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $municipios = $conn->query("SELECT DISTINCT municipio FROM comites ORDER BY municipio")->fetch_all(MYSQLI_ASSOC);
 $usuarios   = $conn->query("SELECT DISTINCT u.nombre FROM usuarios u JOIN comites c ON u.id = c.creado_por ORDER BY u.nombre")->fetch_all(MYSQLI_ASSOC);
 
-$titulo_pagina = 'Comités';
+$titulo_pagina    = 'Comités';
+$subtitulo_pagina = count($comites) . ' comité' . (count($comites) !== 1 ? 's' : '') . ' registrado' . (count($comites) !== 1 ? 's' : '');
 include 'includes/header.php';
 ?>
 
 <style>
-.filter-card { background:#fff; border:1px solid #eef0f6; border-radius:16px; padding:20px; margin-bottom:20px; }
-.filter-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#9ca3af; margin-bottom:6px; display:block; }
-.comite-badge { width:38px; height:38px; border-radius:10px; background:color-mix(in srgb,var(--accent) 10%,white); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.filter-card { background:#fff; border-radius:var(--radius-card); box-shadow:var(--shadow-sm); padding:20px 24px; margin-bottom:22px; display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:16px; align-items:end; }
+@media (max-width:900px) { .filter-card { grid-template-columns:1fr 1fr; } }
+@media (max-width:560px) { .filter-card { grid-template-columns:1fr; } }
+.comite-badge { width:38px; height:38px; border-radius:12px; background:var(--accent-tint); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.miembros-pill { background:var(--accent-tint); color:var(--accent); font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
 </style>
 
 <?php if (isset($_SESSION['mensaje'])): ?>
@@ -45,51 +48,45 @@ include 'includes/header.php';
 <?php endif; ?>
 
 <!-- Filters -->
-<div class="filter-card">
-    <form method="GET" class="row g-3 align-items-end">
-        <div class="col-md-3">
-            <label class="filter-label">Nombre</label>
-            <input type="text" name="nombre" class="form-control form-control-sm" placeholder="Buscar comité..." value="<?php echo htmlspecialchars($filtro_nombre); ?>">
-        </div>
-        <div class="col-md-3">
-            <label class="filter-label">Municipio</label>
-            <select name="municipio" class="form-select form-select-sm">
-                <option value="">Todos los municipios</option>
-                <?php foreach ($municipios as $m): ?>
-                <option value="<?php echo htmlspecialchars($m['municipio']); ?>" <?php echo $filtro_municipio === $m['municipio'] ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($m['municipio']); ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="filter-label">Creado por</label>
-            <select name="usuario" class="form-select form-select-sm">
-                <option value="">Todos los usuarios</option>
-                <?php foreach ($usuarios as $u): ?>
-                <option value="<?php echo htmlspecialchars($u['nombre']); ?>" <?php echo $filtro_usuario === $u['nombre'] ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($u['nombre']); ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary btn-sm flex-fill">
-                <i class="fas fa-search me-1"></i> Filtrar
-            </button>
-            <a href="comites.php" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-times"></i>
-            </a>
-        </div>
-    </form>
-</div>
+<form method="GET" class="filter-card">
+    <div>
+        <label class="lbl">Nombre</label>
+        <input type="text" name="nombre" class="fld" placeholder="Buscar comité..." value="<?php echo htmlspecialchars($filtro_nombre); ?>">
+    </div>
+    <div>
+        <label class="lbl">Municipio</label>
+        <select name="municipio" class="fld">
+            <option value="">Todos los municipios</option>
+            <?php foreach ($municipios as $m): ?>
+            <option value="<?php echo htmlspecialchars($m['municipio']); ?>" <?php echo $filtro_municipio === $m['municipio'] ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($m['municipio']); ?>
+            </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div>
+        <label class="lbl">Creado por</label>
+        <select name="usuario" class="fld">
+            <option value="">Todos los usuarios</option>
+            <?php foreach ($usuarios as $u): ?>
+            <option value="<?php echo htmlspecialchars($u['nombre']); ?>" <?php echo $filtro_usuario === $u['nombre'] ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($u['nombre']); ?>
+            </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <button type="submit" class="btn btn-primary" style="white-space:nowrap;">
+            <i class="fas fa-search me-1"></i> Filtrar
+        </button>
+        <a href="comites.php" class="action-link" title="Limpiar filtros" style="width:44px;height:44px;"><i class="fas fa-times"></i></a>
+    </div>
+</form>
 
 <!-- Table -->
 <div class="card">
     <div class="card-header">
-        <span><i class="fas fa-layer-group me-2 text-primary"></i>Comités Registrados
-            <span style="font-size:12px;color:var(--text-secondary);font-weight:400;"> — <?php echo count($comites); ?> resultado<?php echo count($comites) !== 1 ? 's' : ''; ?></span>
-        </span>
+        <span><i class="fas fa-layer-group me-2" style="color:var(--accent);"></i>Comités Registrados</span>
         <a href="crear_comite.php" class="btn btn-primary btn-sm">
             <i class="fas fa-plus me-1"></i> Crear Comité
         </a>
@@ -122,19 +119,19 @@ include 'includes/header.php';
                     <div class="d-flex align-items-center gap-3">
                         <div class="comite-badge"><i class="fas fa-layer-group"></i></div>
                         <div>
-                            <div style="font-weight:500;color:var(--text-primary);"><?php echo htmlspecialchars($c['nombre']); ?></div>
-                            <div style="font-size:12px;color:var(--text-secondary);"><i class="fas fa-map-pin me-1"></i><?php echo htmlspecialchars($c['municipio']); ?></div>
+                            <div style="font-weight:600;color:var(--text-primary);"><?php echo htmlspecialchars($c['nombre']); ?></div>
+                            <div style="font-size:11.5px;color:var(--text-tertiary);"><i class="fas fa-map-pin me-1"></i><?php echo htmlspecialchars($c['municipio']); ?></div>
                         </div>
                     </div>
                 </td>
-                <td style="font-size:13px;">
-                    <?php echo $coord ? htmlspecialchars($coord['nombre_completo']) : '<span class="text-muted">—</span>'; ?>
+                <td style="font-size:13px;color:var(--text-secondary);">
+                    <?php echo $coord ? htmlspecialchars($coord['nombre_completo']) : '<span style="color:var(--text-tertiary);">—</span>'; ?>
                 </td>
-                <td><span style="background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;"><?php echo $cnt; ?></span></td>
+                <td><span class="miembros-pill"><?php echo $cnt; ?></span></td>
                 <td style="font-size:13px;color:var(--text-secondary);"><?php echo htmlspecialchars($c['creador'] ?? '—'); ?></td>
-                <td style="font-size:12px;color:var(--text-secondary);"><?php echo date('d/m/Y', strtotime($c['fecha_creacion'])); ?></td>
+                <td style="font-size:12px;color:var(--text-tertiary);"><?php echo date('d/m/Y', strtotime($c['fecha_creacion'])); ?></td>
                 <td>
-                    <div class="d-flex gap-1">
+                    <div class="d-flex gap-1 justify-content-end">
                         <a href="ver_comite.php?id=<?php echo $c['id']; ?>" class="action-link" title="Ver"><i class="fas fa-eye"></i></a>
                         <a href="editar_comite.php?id=<?php echo $c['id']; ?>" class="action-link" title="Editar"><i class="fas fa-pen"></i></a>
                         <button class="action-link danger" title="Eliminar" onclick="confirmarEliminar(<?php echo $c['id']; ?>,'<?php echo htmlspecialchars(addslashes($c['nombre'])); ?>')">
@@ -149,8 +146,8 @@ include 'includes/header.php';
     </div>
     <?php else: ?>
     <div class="empty-state" style="padding:60px 20px;">
-        <i class="fas fa-folder-open d-block" style="font-size:48px;opacity:.2;margin-bottom:16px;"></i>
-        <p style="font-size:14px;color:var(--text-secondary);">
+        <i class="fas fa-folder-open"></i>
+        <p>
             <?php echo (!empty($filtro_nombre)||!empty($filtro_municipio)||!empty($filtro_usuario)) ? 'No se encontraron comités con esos filtros.' : 'No hay comités creados aún.'; ?>
         </p>
         <a href="crear_comite.php" class="btn btn-primary btn-sm mt-2"><i class="fas fa-plus me-1"></i>Crear primer comité</a>
@@ -161,15 +158,15 @@ include 'includes/header.php';
 <!-- Delete Modal -->
 <div class="modal fade" id="eliminarModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:var(--radius);border:1px solid var(--border);">
-            <div class="modal-header" style="border-bottom:1px solid var(--border);">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h6 class="modal-title fw-semibold">Eliminar comité</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="font-size:13px;">
                 ¿Eliminar <strong id="comite-nombre"></strong>? Esta acción no se puede deshacer.
             </div>
-            <div class="modal-footer" style="border-top:1px solid var(--border);gap:8px;">
+            <div class="modal-footer" style="gap:8px;">
                 <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
                 <form method="POST" action="eliminar_comite.php" class="d-inline">
                     <input type="hidden" id="comite-id" name="id">
@@ -179,13 +176,6 @@ include 'includes/header.php';
         </div>
     </div>
 </div>
-
-<style>
-.action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;background:none;cursor:pointer;transition:all .15s; }
-.action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
-.action-link.danger:hover { border-color:var(--danger);color:var(--danger);background:#fef2f2; }
-.empty-state { text-align:center; }
-</style>
 
 <script>
 function confirmarEliminar(id, nombre) {

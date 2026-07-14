@@ -38,16 +38,29 @@ $candidatos = $conn->query("SELECT id, nombre, cargo FROM candidatos WHERE activ
 $cargos = ['presidente'=>'Presidente','senador'=>'Senador','diputado'=>'Diputado','alcalde'=>'Alcalde','regidor'=>'Regidor'];
 $candidato_seleccionado = $candidato_id ?? ($_SESSION['candidato_id'] ?? null);
 
-$titulo_pagina = 'Crear Comité';
+$titulo_pagina    = 'Crear Comité';
+$subtitulo_pagina = 'Registrá un nuevo comité afectivo';
 include 'includes/header.php';
 ?>
 
 <style>
-.page-back { display:inline-flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;text-decoration:none;margin-bottom:20px;transition:color .15s; }
-.page-back:hover { color:var(--accent); }
-.step-card { background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:20px;text-align:center; }
-.step-card { background:#fafafa;border:1px solid #eef0f6;border-radius:14px;padding:20px;text-align:center; }
-.step-icon { width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px; }
+.create-layout { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:22px; align-items:start; }
+@media (max-width:1100px) { .create-layout { grid-template-columns:1fr; } }
+.step-card { background:#fff; border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); margin-bottom:22px; }
+.step-hd { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+.step-num { width:28px; height:28px; border-radius:8px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.step-title { font-size:15px; font-weight:700; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+@media (max-width:560px) { .field-row { grid-template-columns:1fr; } }
+.info-box { background:var(--accent-tint); color:var(--text-secondary); border-radius:var(--radius); padding:14px 16px; font-size:12.5px; display:flex; gap:10px; align-items:flex-start; margin-bottom:20px; }
+.info-box i { color:var(--accent); margin-top:1px; }
+.guide-panel { background:linear-gradient(160deg,var(--accent),var(--accent-700)); border-radius:var(--radius-card); padding:26px; color:#fff; }
+.guide-title { font-size:15px; font-weight:700; margin-bottom:14px; }
+.guide-copy { font-size:12.5px; color:rgba(255,255,255,.85); line-height:1.6; margin-bottom:18px; }
+.guide-step { display:flex; align-items:center; gap:10px; font-size:12.5px; margin-bottom:10px; }
+.guide-step:last-child { margin-bottom:0; }
+.mini-step { text-align:center; }
+.mini-step-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:20px; margin:0 auto 12px; }
 </style>
 
 <a href="comites.php" class="page-back"><i class="fas fa-arrow-left"></i> Volver a Comités</a>
@@ -59,99 +72,102 @@ include 'includes/header.php';
 </div>
 <?php endif; ?>
 
-<div class="row g-4">
-    <div class="col-lg-5">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-plus-circle me-2 text-primary"></i>Nuevo Comité</div>
-            <div class="p-4">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="font-size:13px;">Nombre del Comité <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="nombre" placeholder="Ej: Comité Afectivo Zona Norte"
-                               value="<?php echo isset($nombre) ? htmlspecialchars($nombre) : ''; ?>" required>
-                        <div class="form-text">Nombre descriptivo del comité.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="font-size:13px;">Provincia <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="provincia" name="provincia" list="provinciaList"
-                               placeholder="Ej: Santo Domingo" autocomplete="off"
-                               value="<?php echo isset($provincia) ? htmlspecialchars($provincia) : ''; ?>" required>
-                        <datalist id="provinciaList"></datalist>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="font-size:13px;">Municipio <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="municipio" name="municipio" list="municipioList"
-                               placeholder="Seleccione primero una provincia" autocomplete="off" disabled
-                               value="<?php echo isset($municipio) ? htmlspecialchars($municipio) : ''; ?>" required>
-                        <datalist id="municipioList"></datalist>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="font-size:13px;">Zona</label>
-                        <input type="text" class="form-control" id="zona" name="zona"
-                               placeholder="Ej: Zona Norte, Sector 4..."
-                               value="<?php echo isset($zona) ? htmlspecialchars($zona) : ''; ?>">
-                        <div class="form-text">Campo de llenado manual, definido por el partido.</div>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold" style="font-size:13px;">Candidato</label>
-                        <select class="form-select" name="candidato_id">
-                            <option value="">Sin candidato asignado</option>
-                            <?php foreach ($candidatos as $c): ?>
-                            <option value="<?php echo $c['id']; ?>" <?php echo (int)$candidato_seleccionado === (int)$c['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <div class="form-text">A qué candidato pertenece este comité (opcional).</div>
-                    </div>
-                    <div class="alert alert-info d-flex gap-2 align-items-start" style="font-size:13px;">
-                        <i class="fas fa-info-circle mt-1"></i>
-                        <span>Después de crear el comité podrá asignar un coordinador y agregar miembros.</span>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-save me-2"></i> Crear Comité
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+<div class="create-layout">
+  <div style="min-width:0;">
 
-    <div class="col-lg-7">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-map-signs me-2 text-primary"></i>Cómo funciona</div>
-            <div class="p-4">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="step-card">
-                            <div class="step-icon" style="background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);">
-                                <i class="fas fa-clipboard-list"></i>
-                            </div>
-                            <div style="font-size:13px;font-weight:600;margin-bottom:6px;">1. Crear Comité</div>
-                            <div style="font-size:12px;color:var(--text-secondary);">Complete el formulario con el nombre y municipio del comité.</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="step-card">
-                            <div class="step-icon" style="background:#f0fdf4;color:#16a34a;">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                            <div style="font-size:13px;font-weight:600;margin-bottom:6px;">2. Coordinador</div>
-                            <div style="font-size:12px;color:var(--text-secondary);">Busque y asigne un coordinador usando su cédula.</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="step-card">
-                            <div class="step-icon" style="background:#faf5ff;color:#7c3aed;">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div style="font-size:13px;font-weight:600;margin-bottom:6px;">3. Miembros</div>
-                            <div style="font-size:12px;color:var(--text-secondary);">Agregue miembros por cédula o manualmente.</div>
-                        </div>
-                    </div>
+    <div class="step-card">
+        <div class="step-hd">
+            <div class="step-num">1</div>
+            <div class="step-title">Datos del Comité</div>
+        </div>
+        <form method="POST">
+            <div style="margin-bottom:16px;">
+                <label class="lbl">Nombre del comité</label>
+                <input type="text" class="fld" name="nombre" placeholder="Ej: Comité Afectivo Zona Norte"
+                       value="<?php echo isset($nombre) ? htmlspecialchars($nombre) : ''; ?>" required>
+                <div class="form-text mt-1">Nombre descriptivo del comité.</div>
+            </div>
+            <div class="field-row">
+                <div>
+                    <label class="lbl">Provincia</label>
+                    <input type="text" class="fld" id="provincia" name="provincia" list="provinciaList"
+                           placeholder="Ej: Santo Domingo" autocomplete="off"
+                           value="<?php echo isset($provincia) ? htmlspecialchars($provincia) : ''; ?>" required>
+                    <datalist id="provinciaList"></datalist>
+                </div>
+                <div>
+                    <label class="lbl">Municipio</label>
+                    <input type="text" class="fld" id="municipio" name="municipio" list="municipioList"
+                           placeholder="Seleccione primero una provincia" autocomplete="off" disabled
+                           value="<?php echo isset($municipio) ? htmlspecialchars($municipio) : ''; ?>" required>
+                    <datalist id="municipioList"></datalist>
                 </div>
             </div>
+            <div class="field-row">
+                <div>
+                    <label class="lbl">Zona</label>
+                    <input type="text" class="fld" id="zona" name="zona"
+                           placeholder="Ej: Zona Norte, Sector 4..."
+                           value="<?php echo isset($zona) ? htmlspecialchars($zona) : ''; ?>">
+                </div>
+                <div>
+                    <label class="lbl">Candidato</label>
+                    <select class="fld" name="candidato_id">
+                        <option value="">Sin candidato asignado</option>
+                        <?php foreach ($candidatos as $c): ?>
+                        <option value="<?php echo $c['id']; ?>" <?php echo (int)$candidato_seleccionado === (int)$c['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <span>Después de crear el comité podrá asignar un coordinador y agregar miembros.</span>
+            </div>
+
+            <div style="display:flex;gap:12px;">
+                <button type="submit" class="btn btn-primary" style="padding:12px 24px;">Guardar Comité</button>
+                <a href="comites.php" class="btn" style="background:#fff;color:var(--text-secondary);box-shadow:var(--shadow-sm);padding:12px 24px;">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="step-card" style="margin-bottom:0;">
+        <div class="step-hd">
+            <div class="step-num" style="background:var(--text-tertiary);">2</div>
+            <div class="step-title">Cómo funciona</div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-4 mini-step">
+                <div class="mini-step-icon" style="background:var(--accent-tint);color:var(--accent);"><i class="fas fa-clipboard-list"></i></div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:6px;">1. Crear Comité</div>
+                <div style="font-size:12px;color:var(--text-secondary);">Complete el formulario con el nombre y municipio del comité.</div>
+            </div>
+            <div class="col-md-4 mini-step">
+                <div class="mini-step-icon" style="background:var(--success-bg);color:var(--success);"><i class="fas fa-user-tie"></i></div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:6px;">2. Coordinador</div>
+                <div style="font-size:12px;color:var(--text-secondary);">Busque y asigne un coordinador usando su cédula.</div>
+            </div>
+            <div class="col-md-4 mini-step">
+                <div class="mini-step-icon" style="background:#faf5ff;color:#7c3aed;"><i class="fas fa-users"></i></div>
+                <div style="font-size:13px;font-weight:600;margin-bottom:6px;">3. Miembros</div>
+                <div style="font-size:12px;color:var(--text-secondary);">Agregue miembros por cédula o manualmente.</div>
+            </div>
         </div>
     </div>
+  </div>
+
+  <!-- GUIDE PANEL -->
+  <div class="guide-panel">
+    <div class="guide-title">Guía rápida</div>
+    <div class="guide-copy">Completá los datos para registrar el comité. Podés agregar coordinador y miembros luego desde la vista de edición.</div>
+    <div class="guide-step"><i class="fas fa-circle-notch"></i>Nombre y ubicación</div>
+    <div class="guide-step"><i class="far fa-circle"></i>Coordinador asignado</div>
+    <div class="guide-step"><i class="far fa-circle"></i>Miembros agregados</div>
+  </div>
 </div>
 
 <script>

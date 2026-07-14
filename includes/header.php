@@ -6,20 +6,10 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 // Cargar configuración del sistema
 $_cfg = cargarConfiguracion();
 $_color_primary = $_cfg['color_primario'] ?? '#2563eb';
-$_color_sidebar = $_cfg['color_sidebar']  ?? '#0d1b2a';
 $_color_accent  = $_cfg['color_accent']   ?? '#3b82f6';
 $_sistema_nombre = $_cfg['nombre_partido'] ?? 'Sistema';
 $_sistema_siglas = $_cfg['siglas'] ?? '';
 $_logo_b64 = !empty($_cfg['logo']) ? base64_encode($_cfg['logo']) : '';
-
-function _lightenHex($hex, $factor = 1.5) {
-    $hex = ltrim($hex,'#');
-    $r = min(255, (int)(hexdec(substr($hex,0,2)) * $factor));
-    $g = min(255, (int)(hexdec(substr($hex,2,2)) * $factor));
-    $b = min(255, (int)(hexdec(substr($hex,4,2)) * $factor));
-    return sprintf('#%02x%02x%02x',$r,$g,$b);
-}
-$_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -29,33 +19,33 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
     <title><?php echo isset($titulo_pagina) ? htmlspecialchars($titulo_pagina).' — '.$_sistema_siglas : $_sistema_nombre; ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sidebar-bg:     <?php echo $_color_sidebar; ?>;
-            --sidebar-hover:  <?php echo $_color_sidebar_hover; ?>;
-            --sidebar-active: <?php echo $_color_primary; ?>;
-            --sidebar-border: rgba(255,255,255,0.06);
-            --sidebar-text:   rgba(255,255,255,0.65);
-            --sidebar-width:  260px;
             --accent:         <?php echo $_color_primary; ?>;
             --accent-light:   <?php echo $_color_accent; ?>;
-            --success:        #10b981;
-            --warning:        #f59e0b;
+            --accent-700:     color-mix(in srgb, var(--accent) 70%, black);
+            --accent-tint:    color-mix(in srgb, var(--accent) 8%, white);
+            --success:        #16a34a;
+            --success-bg:     #e8f9ee;
+            --warning:        #d97706;
+            --warning-bg:     #fef3e2;
             --danger:         #ef4444;
+            --danger-bg:      #fef2f2;
             --info:           #06b6d4;
-            --bg:             #f1f5f9;
+            --bg:             #f4f5fa;
             --surface:        #ffffff;
-            --text-primary:   #0f172a;
-            --text-secondary: #64748b;
-            --border:         #e2e8f0;
-            --shadow-sm:      0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md:      0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-            --shadow-lg:      0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.05);
+            --text-primary:   #1e1b2e;
+            --text-secondary: #5b5678;
+            --text-tertiary:  #9691b0;
+            --border:         #eceafc;
+            --shadow-sm:      0 1px 2px rgba(30,27,46,.05);
+            --shadow-md:      0 8px 24px rgba(30,27,46,.08);
             --radius:         12px;
-            --radius-sm:      8px;
-            --topbar-h:       60px;
-            --fab-size:       56px;
+            --radius-sm:      9px;
+            --radius-card:    22px;
+            --sidebar-width:  248px;
+            --topbar-h:       72px;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -78,158 +68,156 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
             top: 0; left: 0;
             width: var(--sidebar-width);
             height: 100vh;
-            background: var(--sidebar-bg);
+            background: var(--surface);
+            box-shadow: 1px 0 0 var(--border);
             display: flex;
             flex-direction: column;
+            padding: 22px 16px;
             z-index: 1040;
-            overflow: hidden;
-            transition: transform 0.28s cubic-bezier(.4,0,.2,1),
-                        box-shadow 0.28s;
         }
 
         .sidebar-brand {
-            padding: 22px 20px 18px;
-            border-bottom: 1px solid var(--sidebar-border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 10px;
+            padding: 0 8px 24px;
             flex-shrink: 0;
         }
-        .sidebar-brand img {
-            width: 42px; height: 42px;
-            object-fit: contain;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.08);
-            padding: 4px;
+        .brand-logo {
+            width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 14px; overflow: hidden;
         }
-        .sidebar-brand-name {
-            font-size: 11px; font-weight: 700; color: #fff;
-            text-transform: uppercase; letter-spacing: .05em; line-height: 1.3;
-        }
-        .sidebar-brand-sub { font-size: 10px; color: var(--sidebar-text); margin-top: 2px; }
+        .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .brand-name { font-weight: 800; font-size: 16px; line-height: 1.2; }
 
         .sidebar-nav {
-            flex: 1; overflow-y: auto; padding: 14px 10px;
+            flex: 1; overflow-y: auto;
             scrollbar-width: none;
         }
         .sidebar-nav::-webkit-scrollbar { display: none; }
 
         .nav-section-label {
-            font-size: 10px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: .08em;
-            color: rgba(255,255,255,0.28);
-            padding: 10px 8px 5px;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em;
+            color: var(--text-tertiary);
+            padding: 8px 12px 6px;
         }
-
-        .nav-item { margin-bottom: 2px; }
+        .nav-section-label:first-child { padding-top: 0; }
 
         .nav-link {
-            display: flex; align-items: center; gap: 10px;
-            padding: 9px 12px;
-            border-radius: 8px;
-            color: var(--sidebar-text);
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            color: var(--text-secondary);
             text-decoration: none;
             font-size: 13.5px; font-weight: 500;
-            transition: all .15s;
+            margin-bottom: 4px;
+            transition: background .15s, color .15s;
         }
-        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link i { width: 17px; text-align: center; font-size: 14px; flex-shrink: 0; }
+        .nav-link:hover { background: var(--accent-tint); color: var(--accent); }
         .nav-link.active {
-            background: var(--sidebar-active); color: #fff;
-            box-shadow: 0 2px 8px rgba(37,99,235,.35);
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #fff; font-weight: 600;
         }
-        .nav-icon {
-            width: 30px; height: 30px; border-radius: 7px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; flex-shrink: 0;
-            background: rgba(255,255,255,0.06);
-            transition: background .15s;
-        }
-        .nav-link.active .nav-icon { background: rgba(255,255,255,0.15); }
-        .nav-link:hover .nav-icon   { background: rgba(255,255,255,0.10); }
+        .nav-link.active:hover { color: #fff; }
 
-        .sidebar-footer {
-            padding: 14px 10px;
-            border-top: 1px solid var(--sidebar-border);
+        /* Candidate strip */
+        .sidebar-candidate {
+            margin: 8px 4px 12px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: var(--accent-tint);
+            display: flex; align-items: center; gap: 8px;
             flex-shrink: 0;
         }
+        .sidebar-candidate-label {
+            font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+            color: var(--accent); font-weight: 700; margin-bottom: 2px;
+        }
+        .sidebar-candidate-name {
+            font-size: 12px; font-weight: 600; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sidebar-candidate-role { font-size: 10.5px; color: var(--text-tertiary); }
+        .sidebar-candidate-switch { margin-left: auto; color: var(--text-tertiary); flex-shrink: 0; text-decoration: none; }
+        .sidebar-candidate-switch:hover { color: var(--accent); }
+
+        /* User footer card */
+        .sidebar-footer { flex-shrink: 0; padding-top: 8px; }
         .sidebar-user {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px 10px; border-radius: 8px;
-            background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px; border-radius: 14px;
+            background: var(--bg);
+        }
+        .sidebar-user-link {
+            flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: inherit;
         }
         .sidebar-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: var(--accent); color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 12px; flex-shrink: 0;
+            width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 12px;
         }
         .sidebar-user-info { flex: 1; min-width: 0; }
         .sidebar-user-name {
-            font-size: 13px; font-weight: 600; color: #fff;
+            font-size: 12.5px; font-weight: 600; color: var(--text-primary);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .sidebar-user-role { font-size: 11px; color: var(--sidebar-text); }
+        .sidebar-user-role { font-size: 10.5px; color: var(--text-tertiary); }
         .sidebar-logout {
-            color: var(--sidebar-text); text-decoration: none;
-            padding: 6px; border-radius: 6px; transition: all .15s; font-size: 14px;
+            color: var(--text-tertiary); text-decoration: none;
+            padding: 6px; border-radius: 8px; transition: all .15s; font-size: 14px;
+            flex-shrink: 0;
         }
-        .sidebar-logout:hover { color: var(--danger); background: rgba(239,68,68,.1); }
+        .sidebar-logout:hover { color: var(--danger); background: var(--danger-bg); }
 
         /* ── TOPBAR ──────────────────────────────────────── */
         .topbar {
-            position: sticky; top: 0; z-index: 100;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 0 20px;
-            height: var(--topbar-h);
+            height: var(--topbar-h); flex-shrink: 0;
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: var(--shadow-sm);
+            padding: 0 32px;
         }
-        .topbar-left { display: flex; align-items: center; gap: 10px; }
-        .page-title {
-            font-size: 16px; font-weight: 600;
-            color: var(--text-primary); margin: 0;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 200px;
+        .page-title { font-size: 20px; font-weight: 800; color: var(--text-primary); line-height: 1.2; }
+        .page-subtitle { font-size: 12.5px; color: var(--text-tertiary); margin-top: 2px; }
+        .topbar-right { display: flex; align-items: center; gap: 14px; }
+        .topbar-icon-btn {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: var(--surface); box-shadow: var(--shadow-sm);
+            border: none; display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary); font-size: 15px; cursor: pointer;
         }
-        .topbar-right { display: flex; align-items: center; gap: 8px; }
-        .topbar-user {
-            display: flex; align-items: center; gap: 8px;
-            padding: 4px 10px 4px 4px; border-radius: 10px;
-            cursor: pointer; transition: background .15s;
-        }
-        .topbar-user:hover { background: var(--bg); }
+        .topbar-icon-btn:hover { color: var(--accent); }
         .topbar-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: var(--accent); color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 12px; flex-shrink: 0;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px; text-decoration: none; flex-shrink: 0;
         }
-        .topbar-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 
         /* ── MAIN LAYOUT ─────────────────────────────────── */
         .main-wrapper {
             margin-left: var(--sidebar-width);
             flex: 1; display: flex; flex-direction: column;
             min-height: 100vh; min-width: 0;
-            transition: margin-left .28s cubic-bezier(.4,0,.2,1);
         }
-        .page-content { padding: 20px; flex: 1; background: #f5f6fa; }
+        .page-content { padding: 0 32px 32px; flex: 1; }
 
         /* ── SHARED PAGE STYLES ──────────────────────────── */
         .card {
-            background: #fff;
-            border: 1px solid #eef0f6;
-            border-radius: 16px;
-            box-shadow: none;
+            background: var(--surface);
+            border: none;
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-sm);
         }
         .card-header {
             background: transparent;
-            border-bottom: 1px solid #eef0f6;
-            padding: 16px 20px;
-            font-weight: 700; font-size: 14px;
-            color: #111827;
-            border-radius: 16px 16px 0 0;
+            border-bottom: 1px solid #f0f0f6;
+            padding: 18px 24px;
+            font-weight: 700; font-size: 15px;
+            color: var(--text-primary);
+            display: flex; align-items: center; justify-content: space-between;
         }
         .page-back {
             display: inline-flex; align-items: center; gap: 8px;
@@ -238,112 +226,65 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
             transition: color .15s;
         }
         .page-back:hover { color: var(--accent); }
-        .table { font-size: 13px; }
+        .table { font-size: 13px; margin: 0; }
         .table thead th {
             font-size: 11px; font-weight: 700;
             text-transform: uppercase; letter-spacing: .05em;
-            color: #9ca3af; border-bottom: 1px solid #eef0f6;
-            padding: 10px 16px; background: #fafafa;
+            color: var(--text-tertiary); border-bottom: 1px solid #f0f0f6;
+            padding: 12px 24px; background: #fafafd;
         }
         .table td {
-            padding: 12px 16px; vertical-align: middle;
-            border-bottom: 1px solid #f5f6fa; color: #374151;
+            padding: 14px 24px; vertical-align: middle;
+            border-bottom: 1px solid #f0f0f6; color: var(--text-primary);
         }
         .table tbody tr:last-child td { border-bottom: none; }
-        .table tbody tr:hover td { background: #fafafa; }
-        .btn { border-radius: 10px; font-size: 13px; font-weight: 500; }
+        .table tbody tr:hover td { background: #fafafd; }
+        .btn { border-radius: var(--radius); font-size: 13px; font-weight: 600; }
         .btn-primary { background: var(--accent); border-color: var(--accent); }
-        .btn-primary:hover { filter: brightness(1.08); border-color: transparent; }
+        .btn-primary:hover { filter: brightness(1.08); border-color: transparent; background: var(--accent); }
         .form-control, .form-select {
-            border-radius: 10px; font-size: 13px;
-            border: 1px solid #eef0f6; background: #fafafa;
+            border-radius: var(--radius); font-size: 13px;
+            border: 1px solid var(--border); background: #f7f7fb;
         }
         .form-control:focus, .form-select:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
             background: #fff;
         }
-        .badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
-        .alert { border-radius: 12px; border: none; font-size: 13px; }
-        .modal-content { border-radius: 16px; border: 1px solid #eef0f6; }
-        .modal-header { border-bottom: 1px solid #eef0f6; padding: 16px 20px; }
-        .modal-footer { border-top: 1px solid #eef0f6; }
+        .form-label { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
+        .form-text  { font-size: 11px; color: var(--text-tertiary); }
+        .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+        .alert { border-radius: var(--radius); border: none; font-size: 13px; }
+        .modal-content { border-radius: var(--radius-card); border: none; box-shadow: var(--shadow-md); }
+        .modal-header { border-bottom: 1px solid #f0f0f6; padding: 18px 22px; }
+        .modal-body { padding: 22px; }
+        .modal-footer { border-top: 1px solid #f0f0f6; padding: 16px 22px; }
         .action-link {
-            width: 30px; height: 30px; border-radius: 8px;
+            width: 30px; height: 30px; border-radius: var(--radius-sm);
             display: inline-flex; align-items: center; justify-content: center;
-            font-size: 12px; border: 1px solid #eef0f6;
-            color: #9ca3af; background: none; cursor: pointer;
+            font-size: 12px; border: none;
+            color: var(--text-secondary); background: var(--bg); cursor: pointer;
             text-decoration: none; transition: all .15s;
         }
-        .action-link:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb,var(--accent) 8%,white); }
-        .action-link.danger:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
-        .empty-state { text-align: center; padding: 48px 20px; color: #d1d5db; }
-        .empty-state i { font-size: 40px; margin-bottom: 12px; display: block; }
-        .empty-state p { font-size: 13px; margin: 0; color: #9ca3af; }
+        .action-link:hover { color: var(--accent); background: var(--accent-tint); }
+        .action-link.danger { background: var(--danger-bg); color: var(--danger); }
+        .action-link.danger:hover { background: var(--danger); color: #fff; }
+        .empty-state { text-align: center; padding: 48px 20px; color: var(--text-tertiary); }
+        .empty-state i { font-size: 40px; margin-bottom: 12px; display: block; opacity: .3; }
+        .empty-state p { font-size: 13px; margin: 0; }
 
-        /* ── OVERLAY ─────────────────────────────────────── */
-        .sidebar-overlay {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.55);
-            z-index: 1039;
-            backdrop-filter: blur(2px);
-            -webkit-backdrop-filter: blur(2px);
+        /* Shared form field classes used across create/edit/profile/config forms */
+        .fld {
+            width: 100%; box-sizing: border-box;
+            border: 1px solid var(--border); background: #f7f7fb;
+            border-radius: var(--radius); padding: 11px 14px;
+            font-size: 13.5px; font-family: inherit; color: var(--text-primary);
         }
-        .sidebar-overlay.show { display: block; }
-
-        /* ── CARDS ───────────────────────────────────────── */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
+        .fld:focus {
+            outline: none; border-color: var(--accent); background: #fff;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
         }
-        .card-header {
-            background: transparent;
-            border-bottom: 1px solid var(--border);
-            padding: 14px 18px;
-            font-weight: 600; font-size: 14px;
-            color: var(--text-primary);
-            display: flex; align-items: center; justify-content: space-between;
-        }
-
-        /* ── TABLES ──────────────────────────────────────── */
-        .table { font-size: 13px; margin: 0; }
-        .table thead th {
-            font-size: 11px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: .05em;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 16px; background: #f8fafc;
-        }
-        .table td {
-            padding: 11px 16px; vertical-align: middle;
-            border-bottom: 1px solid #f1f5f9; color: var(--text-primary);
-        }
-        .table tbody tr:last-child td { border-bottom: none; }
-        .table tbody tr:hover td { background: #f8fafc; }
-
-        /* ── BUTTONS ─────────────────────────────────────── */
-        .btn { font-size: 13px; font-weight: 500; border-radius: var(--radius-sm); }
-        .btn-primary { background: var(--accent); border-color: var(--accent); }
-        .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
-
-        /* ── FORMS ───────────────────────────────────────── */
-        .form-control, .form-select {
-            border-radius: var(--radius-sm); font-size: 13px;
-            border: 1px solid var(--border);
-            transition: border-color .15s, box-shadow .15s;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-        }
-        .form-label { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; }
-        .form-text  { font-size: 11px; color: var(--text-secondary); }
-
-        /* ── BADGE ───────────────────────────────────────── */
-        .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+        .lbl { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px; }
 
         /* ════════════════════════════════════════════════════
            MOBILE PILL NAV BAR
@@ -493,10 +434,10 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
             .main-wrapper { margin-left: 0 !important; }
             .mob-nav      { display: block; }
             .topbar { padding: 0 14px; }
-            .page-title { max-width: calc(100vw - 140px); font-size: 15px; }
-            .topbar-user-name { display: none; }
-            .topbar-right .btn { display: none; }
-            .page-content { padding: 14px 14px 100px; }
+            .page-title { max-width: calc(100vw - 60px); font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .page-subtitle { display: none; }
+            .topbar-right .topbar-icon-btn { display: none; }
+            .page-content { padding: 0 14px 100px; }
             .card { border-radius: var(--radius); }
         }
 
@@ -510,7 +451,6 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
         /* Tablet adjustments */
         @media (max-width: 1024px) and (min-width: 768px) {
             :root { --sidebar-width: 220px; }
-            .page-content { padding: 16px; }
         }
     </style>
 </head>
@@ -519,88 +459,76 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
 <!-- ── DESKTOP SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <?php if ($_logo_b64): ?>
-        <img src="data:image/png;base64,<?php echo $_logo_b64; ?>" alt="Logo">
-        <?php else: ?>
-        <img src="logo_sistema.png" alt="Logo">
-        <?php endif; ?>
-        <div>
-            <div class="sidebar-brand-name"><?php echo htmlspecialchars($_sistema_nombre); ?></div>
-            <div class="sidebar-brand-sub">Comités Afectivos</div>
+        <div class="brand-logo">
+            <?php if ($_logo_b64): ?>
+            <img src="data:image/png;base64,<?php echo $_logo_b64; ?>" alt="Logo">
+            <?php else: ?>
+            <?php echo htmlspecialchars(mb_substr($_sistema_siglas ?: $_sistema_nombre, 0, 1)); ?>
+            <?php endif; ?>
         </div>
+        <span class="brand-name"><?php echo htmlspecialchars($_sistema_nombre); ?></span>
     </div>
 
     <nav class="sidebar-nav">
         <div class="nav-section-label">Principal</div>
-        <div class="nav-item">
-            <a href="dashboard.php" class="nav-link <?php echo $pagina_actual=='dashboard.php'?'active':''; ?>">
-                <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>Dashboard
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="comites.php" class="nav-link <?php echo $pagina_actual=='comites.php'?'active':''; ?>">
-                <span class="nav-icon"><i class="fas fa-layer-group"></i></span>Comités
-            </a>
-        </div>
-        <div class="nav-item">
-            <a href="crear_comite.php" class="nav-link <?php echo $pagina_actual=='crear_comite.php'?'active':''; ?>">
-                <span class="nav-icon"><i class="fas fa-plus"></i></span>Crear Comité
-            </a>
-        </div>
+        <a href="dashboard.php" class="nav-link <?php echo $pagina_actual=='dashboard.php'?'active':''; ?>">
+            <i class="fas fa-chart-pie"></i>Dashboard
+        </a>
+        <a href="comites.php" class="nav-link <?php echo $pagina_actual=='comites.php'?'active':''; ?>">
+            <i class="fas fa-layer-group"></i>Comités
+        </a>
+        <a href="crear_comite.php" class="nav-link <?php echo $pagina_actual=='crear_comite.php'?'active':''; ?>">
+            <i class="fas fa-plus"></i>Crear Comité
+        </a>
+
         <div class="nav-section-label">Herramientas</div>
-        <div class="nav-item">
-            <a href="consultar.html" class="nav-link <?php echo $pagina_actual=='consultar.html'?'active':''; ?>">
-                <span class="nav-icon"><i class="fas fa-id-card"></i></span>Consultar Cédula
-            </a>
-        </div>
-        <?php if (esSupervisor()): ?>
+        <a href="consultar.php" class="nav-link <?php echo $pagina_actual=='consultar.php'?'active':''; ?>">
+            <i class="fas fa-id-card"></i>Consultar Cédula
+        </a>
+
+        <?php if (esSupervisor() || esAdmin()): ?>
         <div class="nav-section-label">Administración</div>
-        <div class="nav-item">
-            <a href="usuarios.php" class="nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
-                <span class="nav-icon"><i class="fas fa-users-cog"></i></span>Usuarios
-            </a>
-        </div>
+        <?php if (esSupervisor()): ?>
+        <a href="usuarios.php" class="nav-link <?php echo $pagina_actual=='usuarios.php'?'active':''; ?>">
+            <i class="fas fa-users-cog"></i>Usuarios
+        </a>
         <?php endif; ?>
         <?php if (esAdmin()): ?>
-        <div class="nav-item">
-            <a href="config.php" class="nav-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
-                <span class="nav-icon"><i class="fas fa-cog"></i></span>Configuración
-            </a>
-        </div>
+        <a href="config.php" class="nav-link <?php echo $pagina_actual=='config.php'?'active':''; ?>">
+            <i class="fas fa-cog"></i>Configuración
+        </a>
+        <?php endif; ?>
         <?php endif; ?>
     </nav>
 
     <?php if (tieneCandidato()): ?>
-    <!-- Candidato activo -->
-    <div style="padding:10px 12px;border-top:1px solid var(--sidebar-border);border-bottom:1px solid var(--sidebar-border);">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.3);margin-bottom:6px;">Trabajando para</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:28px;height:28px;border-radius:50%;background:var(--sidebar-active);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">
-                <?php echo strtoupper(substr($_SESSION['candidato_nombre']??'?',0,1)); ?>
+    <div class="sidebar-candidate">
+        <div class="sidebar-avatar"><?php echo strtoupper(substr($_SESSION['candidato_nombre']??'?',0,1)); ?></div>
+        <div style="min-width:0;">
+            <div class="sidebar-candidate-label">Trabajando para</div>
+            <div class="sidebar-candidate-name"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
+            <div class="sidebar-candidate-role">
+                <?php echo ucfirst($_SESSION['candidato_cargo']??''); ?>
+                <?php if (!empty($_SESSION['candidato_desc'])): ?>
+                · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?>
+                <?php endif; ?>
             </div>
-            <div style="min-width:0;">
-                <div style="font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?php echo htmlspecialchars($_SESSION['candidato_nombre']??''); ?></div>
-                <div style="font-size:10px;color:rgba(255,255,255,.5);">
-                    <?php echo ucfirst($_SESSION['candidato_cargo']??''); ?>
-                    <?php if (!empty($_SESSION['candidato_desc'])): ?>
-                    · <?php echo htmlspecialchars($_SESSION['candidato_desc']); ?>
-                    <?php endif; ?>
-                </div>
-            </div>
-            <a href="seleccionar_candidato.php" style="margin-left:auto;color:rgba(255,255,255,.4);font-size:11px;text-decoration:none;" title="Cambiar candidato">
-                <i class="fas fa-exchange-alt"></i>
-            </a>
         </div>
+        <a href="seleccionar_candidato.php" class="sidebar-candidate-switch" title="Cambiar candidato">
+            <i class="fas fa-exchange-alt"></i>
+        </a>
     </div>
     <?php endif; ?>
 
     <div class="sidebar-footer">
         <div class="sidebar-user">
-            <div class="sidebar-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
-            <div class="sidebar-user-info">
-                <div class="sidebar-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??'Usuario'); ?></div>
-                <div class="sidebar-user-role"><?php echo ucfirst($_SESSION['usuario_rol']??'usuario'); ?></div>
-            </div>
+            <a href="perfil.php" class="sidebar-user-link">
+                <div class="sidebar-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??'Usuario'); ?></div>
+                    <div class="sidebar-user-role"><?php echo ucfirst($_SESSION['usuario_rol']??'usuario'); ?></div>
+                </div>
+            </a>
             <a href="logout.php" class="sidebar-logout" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></a>
         </div>
     </div>
@@ -611,18 +539,17 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
 
     <!-- Topbar -->
     <header class="topbar">
-        <div class="topbar-left">
+        <div>
             <h1 class="page-title"><?php echo isset($titulo_pagina)?htmlspecialchars($titulo_pagina):'Dashboard'; ?></h1>
+            <?php if (!empty($subtitulo_pagina)): ?>
+            <div class="page-subtitle"><?php echo htmlspecialchars($subtitulo_pagina); ?></div>
+            <?php endif; ?>
         </div>
         <div class="topbar-right">
-            <a href="crear_comite.php" class="btn btn-primary btn-sm d-none d-md-inline-flex align-items-center gap-2">
-                <i class="fas fa-plus"></i> Nuevo Comité
-            </a>
+            <button type="button" class="topbar-icon-btn" title="Notificaciones"><i class="fas fa-bell"></i></button>
+            <button type="button" class="topbar-icon-btn" title="Mensajes"><i class="fas fa-comment"></i></button>
             <?php if (isset($_SESSION['usuario_id'])): ?>
-            <div class="topbar-user">
-                <div class="topbar-avatar"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></div>
-                <span class="topbar-user-name"><?php echo htmlspecialchars($_SESSION['usuario_nombre']??''); ?></span>
-            </div>
+            <a href="perfil.php" class="topbar-avatar" title="Mi perfil"><?php echo strtoupper(substr($_SESSION['usuario_nombre']??'U',0,1)); ?></a>
             <?php endif; ?>
         </div>
     </header>
@@ -645,7 +572,7 @@ $_color_sidebar_hover = _lightenHex($_color_sidebar, 1.5);
         <a href="crear_comite.php" class="mob-pill-item <?php echo $pagina_actual=='crear_comite.php'?'active':''; ?>" title="Crear Comité">
             <i class="fas fa-plus"></i>
         </a>
-        <a href="consultar.html" class="mob-pill-item <?php echo $pagina_actual=='consultar.html'?'active':''; ?>" title="Consultar Cédula">
+        <a href="consultar.php" class="mob-pill-item <?php echo $pagina_actual=='consultar.php'?'active':''; ?>" title="Consultar Cédula">
             <i class="fas fa-magnifying-glass"></i>
         </a>
         <div class="mob-pill-divider"></div>

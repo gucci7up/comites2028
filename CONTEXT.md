@@ -51,16 +51,16 @@ DB_ENCRYPT=false / DB_TRUST_SERVER_CERTIFICATE=true
 
 ## UI/UX
 
-**Tema dinámico:** `cargarConfiguracion()` en `header.php` lee BD → inyecta CSS vars. CERO colores hardcodeados. Todo usa `var(--accent)`, `var(--accent-light)`, `var(--sidebar-bg)`.
+**Tema dinámico:** `cargarConfiguracion()` en `header.php` lee BD → inyecta CSS vars. CERO colores hardcodeados. Todo usa `var(--accent)`, `var(--accent-light)`, `var(--accent-700)` (derivado vía `color-mix`).
 
 **Presets en config.php:** Azul PRM `#2563eb`, Morado PLD `#7c3aed`, Verde FDP `#16a34a`
 
 **ColorThief.js:** extrae colores del logo automáticamente al subir imagen.
 
-**Dashboard (Coursue-style):**
-- 3 columnas: sidebar fijo | contenido principal | panel derecho (296px)
-- Hero banner gradiente + progress cards (3) + comité cards grid + tabla Mis Comités
-- Panel derecho: anillo progreso circular + mini bar chart municipios + miembros recientes
+**Dashboard (rediseño hifi 2026, sidebar blanco 248px + topbar flotante):**
+- Grid contenido principal | panel derecho (320px)
+- Tarjeta bienvenida (gradiente claro) + tarjeta "Meta del mes" (gradiente accent) + stat cards Miembros/Coordinadores con mini bar chart de 7 días + card "Comités por mes" (polyline real)
+- Panel derecho: anillo de progreso (mis comités/total) + lista Comités Recientes + CTA Crear Comité + Miembros Recientes
 
 **Mobile:** pill nav bar flotante bottom-center (estilo Instagram/TikTok) con 5 iconos. Icono avatar abre bottom sheet con swipe-down.
 
@@ -80,7 +80,7 @@ DB_ENCRYPT=false / DB_TRUST_SERVER_CERTIFICATE=true
 | `config.php` | Admin | Logo + ColorThief + candidatos |
 | `usuarios.php` | Admin/Sup | CRUD con role badges |
 | `perfil.php` | Todos | Avatar + form |
-| `consultar.html` | Todos | Cédula → api/consulta.php |
+| `consultar.php` | Todos | Cédula → api/consulta.php |
 
 ---
 

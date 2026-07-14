@@ -30,8 +30,8 @@ if (!$comite) {
 
 // Obtener información del coordinador
 $coordinador = null;
-$stmt = $conn->prepare("SELECT c.* FROM coordinadores c 
-                      JOIN comite_coordinador cc ON c.id = cc.coordinador_id 
+$stmt = $conn->prepare("SELECT c.* FROM coordinadores c
+                      JOIN comite_coordinador cc ON c.id = cc.coordinador_id
                       WHERE cc.comite_id = ?");
 $stmt->bind_param("i", $comite_id);
 $stmt->execute();
@@ -39,8 +39,8 @@ $resultado = $stmt->get_result();
 $coordinador = $resultado->fetch_assoc();
 
 // Obtener miembros del comité
-$stmt = $conn->prepare("SELECT m.* FROM miembros m 
-                      JOIN comite_miembro cm ON m.id = cm.miembro_id 
+$stmt = $conn->prepare("SELECT m.* FROM miembros m
+                      JOIN comite_miembro cm ON m.id = cm.miembro_id
                       WHERE cm.comite_id = ? ORDER BY m.fecha_registro");
 $stmt->bind_param("i", $comite_id);
 $stmt->execute();
@@ -99,15 +99,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_comite']))
 // Procesar eliminación de miembro
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_miembro'])) {
     $miembro_id = $_POST['miembro_id'];
-    
+
     try {
         $stmt = $conn->prepare("DELETE FROM comite_miembro WHERE miembro_id = ? AND comite_id = ?");
         $stmt->bind_param("ii", $miembro_id, $comite_id);
         $stmt->execute();
-        
+
         // Actualizar lista de miembros
-        $stmt = $conn->prepare("SELECT m.* FROM miembros m 
-                              JOIN comite_miembro cm ON m.id = cm.miembro_id 
+        $stmt = $conn->prepare("SELECT m.* FROM miembros m
+                              JOIN comite_miembro cm ON m.id = cm.miembro_id
                               WHERE cm.comite_id = ? ORDER BY m.fecha_registro");
         $stmt->bind_param("i", $comite_id);
         $stmt->execute();
@@ -116,10 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_miembro'])) 
         while ($fila = $resultado->fetch_assoc()) {
             $miembros[] = $fila;
         }
-        
+
         $_SESSION['mensaje'] = "Miembro eliminado correctamente.";
         $_SESSION['tipo_mensaje'] = "success";
-        
+
     } catch (Exception $e) {
         $_SESSION['mensaje'] = "Error al eliminar el miembro: " . $e->getMessage();
         $_SESSION['tipo_mensaje'] = "danger";
@@ -131,14 +131,26 @@ $candidatos = $conn->query("SELECT id, nombre, cargo FROM candidatos WHERE activ
 $cargos = ['presidente'=>'Presidente','senador'=>'Senador','diputado'=>'Diputado','alcalde'=>'Alcalde','regidor'=>'Regidor'];
 
 // Título de la página
-$titulo_pagina = 'Editar Comité';
+$titulo_pagina    = 'Editar Comité';
+$subtitulo_pagina = htmlspecialchars($comite['nombre']);
 include 'includes/header.php';
 ?>
 
 <style>
-.page-back { display:inline-flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;text-decoration:none;margin-bottom:20px;transition:color .15s; }
-.page-back:hover { color:var(--accent); }
-.coord-avatar-lg { width:80px;height:80px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 12px; }
+.edit-layout { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:22px; }
+@media (max-width:1000px) { .edit-layout { grid-template-columns:1fr; } }
+.step-card { background:#fff; border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); }
+.step-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.step-hd-left { display:flex; align-items:center; gap:12px; }
+.step-num { width:28px; height:28px; border-radius:8px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.step-title { font-size:15px; font-weight:700; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+@media (max-width:560px) { .field-row { grid-template-columns:1fr; } }
+.coord-avatar-lg { width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 12px; }
+.info-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f6; font-size:13px; }
+.info-row:last-child { border-bottom:none; }
+.info-row span:first-child { color:var(--text-tertiary); }
+.info-row span:last-child { color:var(--text-primary); font-weight:500; }
 </style>
 
 <?php if (isset($_SESSION['mensaje'])): ?>
@@ -149,124 +161,127 @@ include 'includes/header.php';
 <?php endif; ?>
 
 <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-    <a href="comites.php" class="page-back"><i class="fas fa-arrow-left"></i> Volver a Comités</a>
-    <a href="ver_comite.php?id=<?php echo $comite_id; ?>" class="btn btn-outline-secondary btn-sm">
+    <a href="comites.php" class="page-back" style="margin-bottom:0;"><i class="fas fa-arrow-left"></i> Volver a Comités</a>
+    <a href="ver_comite.php?id=<?php echo $comite_id; ?>" class="btn" style="background:#fff;color:var(--text-secondary);box-shadow:var(--shadow-sm);">
         <i class="fas fa-eye me-1"></i> Ver Comité
     </a>
 </div>
 
-<div class="row g-4">
-    <div class="col-lg-6">
-        <div class="card mb-4">
-            <div class="card-header"><i class="fas fa-pen me-2 text-primary"></i>Información del Comité</div>
-            <div class="p-4">
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre del Comité</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" value="<?php echo htmlspecialchars($comite['nombre']); ?>" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="provincia" class="form-label">Provincia</label>
-                        <input type="text" class="form-control" id="provincia" name="provincia" list="provinciaList" autocomplete="off"
-                               value="<?php echo htmlspecialchars($comite['provincia'] ?? ''); ?>">
-                        <datalist id="provinciaList"></datalist>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="municipio" class="form-label">Municipio</label>
-                        <input type="text" class="form-control" id="municipio" name="municipio" list="municipioList" autocomplete="off"
-                               value="<?php echo htmlspecialchars($comite['municipio']); ?>" required>
-                        <datalist id="municipioList"></datalist>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="zona" class="form-label">Zona</label>
-                        <input type="text" class="form-control" id="zona" name="zona"
-                               value="<?php echo htmlspecialchars($comite['zona'] ?? ''); ?>">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="candidato_id" class="form-label">Candidato</label>
-                        <select class="form-select" id="candidato_id" name="candidato_id">
-                            <option value="">Sin candidato asignado</option>
-                            <?php foreach ($candidatos as $c): ?>
-                            <option value="<?php echo $c['id']; ?>" <?php echo (int)($comite['candidato_id'] ?? 0) === (int)$c['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <button type="submit" name="actualizar_comite" class="btn btn-primary w-100 btn-sm">
-                        <i class="fas fa-save me-1"></i> Guardar Cambios
-                    </button>
-                </form>
+<div class="edit-layout">
+    <div class="step-card">
+        <div class="step-hd">
+            <div class="step-hd-left">
+                <div class="step-num">1</div>
+                <div class="step-title">Información del Comité</div>
             </div>
         </div>
+        <form method="POST" action="">
+            <div style="margin-bottom:16px;">
+                <label class="lbl">Nombre del Comité</label>
+                <input type="text" class="fld" id="nombre" name="nombre" value="<?php echo htmlspecialchars($comite['nombre']); ?>" required>
+            </div>
+            <div class="field-row">
+                <div>
+                    <label class="lbl">Provincia</label>
+                    <input type="text" class="fld" id="provincia" name="provincia" list="provinciaList" autocomplete="off"
+                           value="<?php echo htmlspecialchars($comite['provincia'] ?? ''); ?>">
+                    <datalist id="provinciaList"></datalist>
+                </div>
+                <div>
+                    <label class="lbl">Municipio</label>
+                    <input type="text" class="fld" id="municipio" name="municipio" list="municipioList" autocomplete="off"
+                           value="<?php echo htmlspecialchars($comite['municipio']); ?>" required>
+                    <datalist id="municipioList"></datalist>
+                </div>
+            </div>
+            <div class="field-row">
+                <div>
+                    <label class="lbl">Zona</label>
+                    <input type="text" class="fld" id="zona" name="zona"
+                           value="<?php echo htmlspecialchars($comite['zona'] ?? ''); ?>">
+                </div>
+                <div>
+                    <label class="lbl">Candidato</label>
+                    <select class="fld" id="candidato_id" name="candidato_id">
+                        <option value="">Sin candidato asignado</option>
+                        <?php foreach ($candidatos as $c): ?>
+                        <option value="<?php echo $c['id']; ?>" <?php echo (int)($comite['candidato_id'] ?? 0) === (int)$c['id'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($c['nombre']); ?> — <?php echo $cargos[$c['cargo']] ?? ucfirst($c['cargo']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" name="actualizar_comite" class="btn btn-primary w-100">
+                <i class="fas fa-save me-1"></i> Guardar Cambios
+            </button>
+        </form>
     </div>
 
-    <div class="col-lg-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <span><i class="fas fa-user-tie me-2 text-primary"></i>Coordinador</span>
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
-                    <i class="fas fa-search me-1"></i> Buscar
-                </button>
+    <div class="step-card">
+        <div class="step-hd">
+            <div class="step-hd-left">
+                <div class="step-num">2</div>
+                <div class="step-title">Coordinador</div>
             </div>
-            <div class="p-4" id="coordinador-info">
-                <?php if ($coordinador): ?>
-                <div class="text-center mb-3">
-                    <?php if (!empty($coordinador['foto'])): ?>
-                    <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" alt="Foto"
-                         style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:8px;">
-                    <?php else: ?>
-                    <div class="coord-avatar-lg"><?php echo strtoupper(substr($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '?', 0, 1)); ?></div>
-                    <?php endif; ?>
-                    <div style="font-weight:600;font-size:14px;"><?php echo htmlspecialchars($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '—'); ?></div>
-                </div>
-                <div style="font-size:13px;" class="mb-3">
-                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Cédula</span><span><?php echo htmlspecialchars($coordinador['cedula'] ?? '—'); ?></span></div>
-                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Teléfono</span><span><?php echo htmlspecialchars($coordinador['telefono'] ?? '—'); ?></span></div>
-                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Municipio</span><span><?php echo htmlspecialchars($coordinador['municipio'] ?? '—'); ?></span></div>
-                    <div class="d-flex justify-content-between py-1 border-bottom"><span class="text-secondary">Recinto</span><span><?php echo htmlspecialchars($coordinador['recinto'] ?? '—'); ?></span></div>
-                    <div class="d-flex justify-content-between py-1"><span class="text-secondary">Colegio</span><span><?php echo htmlspecialchars($coordinador['colegio'] ?? '—'); ?></span></div>
-                </div>
-                <button class="btn btn-outline-danger w-100 btn-sm" data-bs-toggle="modal" data-bs-target="#eliminarCoordinadorModal">
-                    <i class="fas fa-user-minus me-1"></i> Quitar Coordinador
-                </button>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
+                <i class="fas fa-search me-1"></i> Buscar
+            </button>
+        </div>
+        <div id="coordinador-info">
+            <?php if ($coordinador): ?>
+            <div class="text-center mb-3">
+                <?php if (!empty($coordinador['foto'])): ?>
+                <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" alt="Foto"
+                     style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:8px;">
                 <?php else: ?>
-                <div style="text-align:center;padding:30px 0;color:var(--text-secondary);">
-                    <i class="fas fa-user-slash" style="font-size:36px;opacity:.2;display:block;margin-bottom:12px;"></i>
-                    <p style="font-size:13px;margin:0 0 12px;">Sin coordinador asignado.</p>
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
-                        <i class="fas fa-user-plus me-1"></i> Asignar Coordinador
-                    </button>
-                </div>
+                <div class="coord-avatar-lg"><?php echo strtoupper(substr($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '?', 0, 1)); ?></div>
                 <?php endif; ?>
+                <div style="font-weight:700;font-size:15px;"><?php echo htmlspecialchars($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '—'); ?></div>
             </div>
+            <div class="mb-3">
+                <div class="info-row"><span>Cédula</span><span><?php echo htmlspecialchars($coordinador['cedula'] ?? '—'); ?></span></div>
+                <div class="info-row"><span>Teléfono</span><span><?php echo htmlspecialchars($coordinador['telefono'] ?? '—'); ?></span></div>
+                <div class="info-row"><span>Municipio</span><span><?php echo htmlspecialchars($coordinador['municipio'] ?? '—'); ?></span></div>
+                <div class="info-row"><span>Recinto</span><span><?php echo htmlspecialchars($coordinador['recinto'] ?? '—'); ?></span></div>
+                <div class="info-row"><span>Colegio</span><span><?php echo htmlspecialchars($coordinador['colegio'] ?? '—'); ?></span></div>
+            </div>
+            <button class="btn btn-outline-danger w-100 btn-sm" data-bs-toggle="modal" data-bs-target="#eliminarCoordinadorModal">
+                <i class="fas fa-user-minus me-1"></i> Quitar Coordinador
+            </button>
+            <?php else: ?>
+            <div style="text-align:center;padding:30px 0;color:var(--text-tertiary);">
+                <i class="fas fa-user-slash" style="font-size:36px;opacity:.2;display:block;margin-bottom:12px;"></i>
+                <p style="font-size:13px;margin:0 0 12px;">Sin coordinador asignado.</p>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarCoordinadorModal">
+                    <i class="fas fa-user-plus me-1"></i> Asignar Coordinador
+                </button>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <!-- Members -->
-<div class="card mb-4" id="miembros">
-    <div class="card-header">
-        <span><i class="fas fa-users me-2 text-primary"></i>Miembros del Comité
-            <span style="font-size:12px;color:var(--text-secondary);font-weight:400;"> — <?php echo count($miembros); ?></span>
-        </span>
+<div class="step-card" id="miembros">
+    <div class="step-hd">
+        <div class="step-hd-left">
+            <div class="step-num">3</div>
+            <div class="step-title">Miembros del Comité <span style="font-size:12px;color:var(--text-tertiary);font-weight:400;">— <?php echo count($miembros); ?></span></div>
+        </div>
         <div class="d-flex gap-2">
             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarMiembroModal">
                 <i class="fas fa-id-card me-1"></i> Por Cédula
             </button>
-            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">
+            <button class="btn btn-sm" style="background:var(--bg);color:var(--text-secondary);" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">
                 <i class="fas fa-user-plus me-1"></i> Manual
             </button>
         </div>
     </div>
     <?php if (count($miembros) > 0): ?>
     <div class="table-responsive">
-        <table class="table mb-0" id="miembrosTable">
+        <table class="table mb-0" id="miembrosTable" style="width:100%;">
             <thead>
                 <tr>
                     <th>Nombre</th><th>Cédula</th><th>Teléfono</th>
@@ -293,21 +308,16 @@ include 'includes/header.php';
         </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:40px 20px;color:var(--text-secondary);">
+    <div style="text-align:center;padding:40px 20px;color:var(--text-tertiary);">
         <i class="fas fa-users-slash" style="font-size:36px;opacity:.2;display:block;margin-bottom:12px;"></i>
         <p style="font-size:13px;margin:0 0 12px;">No hay miembros registrados.</p>
         <div class="d-flex gap-2 justify-content-center">
             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buscarMiembroModal">Por Cédula</button>
-            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">Manual</button>
+            <button class="btn btn-sm" style="background:var(--bg);color:var(--text-secondary);" data-bs-toggle="modal" data-bs-target="#agregarMiembroModal">Manual</button>
         </div>
     </div>
     <?php endif; ?>
 </div>
-
-<style>
-.action-link { width:28px;height:28px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;border:1px solid var(--border);color:var(--text-secondary);background:none;cursor:pointer;transition:all .15s; }
-.action-link.danger:hover { border-color:var(--danger);color:var(--danger);background:#fef2f2; }
-</style>
 
 <!-- Modal para Buscar Coordinador -->
 <div class="modal fade" id="buscarCoordinadorModal" tabindex="-1" aria-labelledby="buscarCoordinadorModalLabel" aria-hidden="true">
@@ -328,12 +338,12 @@ include 'includes/header.php';
                     </div>
                     <div class="form-text">Ingrese la cédula sin guiones. Ejemplo: 00112345678</div>
                 </div>
-                
+
                 <div id="resultado-coordinador" class="d-none">
                     <div class="text-center mb-3">
                         <img id="foto-coordinador" src="" alt="Foto" class="img-fluid rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;">
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Nombre:</strong> <span id="nombre-coordinador"></span></p>
@@ -346,7 +356,7 @@ include 'includes/header.php';
                             <p><strong>Colegio:</strong> <span id="colegio-coordinador"></span></p>
                         </div>
                     </div>
-                    
+
                     <form id="form-guardar-coordinador" method="POST" action="guardar_coordinador.php">
                         <input type="hidden" name="comite_id" value="<?php echo $comite_id; ?>">
                         <input type="hidden" name="cedula" id="cedula-coordinador-hidden">
@@ -356,17 +366,17 @@ include 'includes/header.php';
                         <input type="hidden" name="recinto" id="recinto-coordinador-hidden">
                         <input type="hidden" name="colegio" id="colegio-coordinador-hidden">
                         <input type="hidden" name="foto" id="foto-coordinador-hidden">
-                        
+
                         <div class="mb-3">
                             <label for="telefono-coordinador" class="form-label">Teléfono</label>
                             <input type="tel" class="form-control" id="telefono-coordinador" name="telefono" required>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="email-coordinador" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email-coordinador" name="email">
                         </div>
-                        
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Guardar como Coordinador
@@ -374,11 +384,11 @@ include 'includes/header.php';
                         </div>
                     </form>
                 </div>
-                
+
                 <div id="error-coordinador" class="alert alert-danger d-none" role="alert">
                     No se encontraron resultados para la cédula ingresada.
                 </div>
-                
+
                 <div id="loading-coordinador" class="text-center d-none">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Cargando...</span>
@@ -431,12 +441,12 @@ include 'includes/header.php';
                     </div>
                     <div class="form-text">Ingrese la cédula sin guiones. Ejemplo: 00112345678</div>
                 </div>
-                
+
                 <div id="resultado-miembro" class="d-none">
                     <div class="text-center mb-3">
                         <img id="foto-miembro" src="" alt="Foto" class="img-fluid rounded-circle mb-2" style="width: 120px; height: 120px; object-fit: cover;">
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Nombre:</strong> <span id="nombre-miembro"></span></p>
@@ -449,7 +459,7 @@ include 'includes/header.php';
                             <p><strong>Colegio:</strong> <span id="colegio-miembro"></span></p>
                         </div>
                     </div>
-                    
+
                     <form id="form-guardar-miembro" method="POST" action="guardar_miembro.php">
                         <input type="hidden" name="comite_id" value="<?php echo $comite_id; ?>">
                         <input type="hidden" name="cedula" id="cedula-miembro-hidden">
@@ -459,17 +469,17 @@ include 'includes/header.php';
                         <input type="hidden" name="recinto" id="recinto-miembro-hidden">
                         <input type="hidden" name="colegio" id="colegio-miembro-hidden">
                         <input type="hidden" name="foto" id="foto-miembro-hidden">
-                        
+
                         <div class="mb-3">
                             <label for="telefono-miembro" class="form-label">Teléfono</label>
                             <input type="tel" class="form-control" id="telefono-miembro" name="telefono" required>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label for="email-miembro" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email-miembro" name="email">
                         </div>
-                        
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Agregar como Miembro
@@ -477,11 +487,11 @@ include 'includes/header.php';
                         </div>
                     </form>
                 </div>
-                
+
                 <div id="error-miembro" class="alert alert-danger d-none" role="alert">
                     No se encontraron resultados para la cédula ingresada.
                 </div>
-                
+
                 <div id="loading-miembro" class="text-center d-none">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Cargando...</span>
@@ -504,42 +514,42 @@ include 'includes/header.php';
             <div class="modal-body">
                 <form method="POST" action="guardar_miembro_manual.php">
                     <input type="hidden" name="comite_id" value="<?php echo $comite_id; ?>">
-                    
+
                     <div class="mb-3">
                         <label for="nombre-manual" class="form-label">Nombre Completo</label>
                         <input type="text" class="form-control" id="nombre-manual" name="nombre" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="cedula-manual" class="form-label">Cédula</label>
                         <input type="text" class="form-control" id="cedula-manual" name="cedula" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="telefono-manual" class="form-label">Teléfono</label>
                         <input type="tel" class="form-control" id="telefono-manual" name="telefono" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="email-manual" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email-manual" name="email">
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="municipio-manual" class="form-label">Municipio</label>
                         <input type="text" class="form-control" id="municipio-manual" name="municipio" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="recinto-manual" class="form-label">Recinto</label>
                         <input type="text" class="form-control" id="recinto-manual" name="recinto">
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="colegio-manual" class="form-label">Colegio</label>
                         <input type="text" class="form-control" id="colegio-manual" name="colegio">
                     </div>
-                    
+
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Guardar Miembro
@@ -592,17 +602,17 @@ $(document).ready(function() {
     // Buscar coordinador por cédula
     $('#buscar-coordinador-btn').click(function() {
         const cedula = $('#cedula-coordinador').val().trim();
-        
+
         if (cedula === '') {
             alert('Por favor ingrese una cédula');
             return;
         }
-        
+
         // Mostrar loading
         $('#loading-coordinador').removeClass('d-none');
         $('#resultado-coordinador').addClass('d-none');
         $('#error-coordinador').addClass('d-none');
-        
+
         // Realizar la búsqueda mediante AJAX
         $.ajax({
             url: 'api/consulta.php',
@@ -655,21 +665,21 @@ $(document).ready(function() {
             }
         });
     });
-    
+
     // Buscar miembro por cédula
     $('#buscar-miembro-btn').click(function() {
         const cedula = $('#cedula-miembro').val().trim();
-        
+
         if (cedula === '') {
             alert('Por favor ingrese una cédula');
             return;
         }
-        
+
         // Mostrar loading
         $('#loading-miembro').removeClass('d-none');
         $('#resultado-miembro').addClass('d-none');
         $('#error-miembro').addClass('d-none');
-        
+
         // Realizar la búsqueda mediante AJAX
         $.ajax({
             url: 'api/consulta.php',

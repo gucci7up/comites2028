@@ -56,15 +56,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_perfil']))
     }
 }
 
-$titulo_pagina = 'Mi Perfil';
+$titulo_pagina    = 'Mi Perfil';
+$subtitulo_pagina = 'Datos de tu cuenta';
 include 'includes/header.php';
 ?>
 
 <style>
-.page-back { display:inline-flex;align-items:center;gap:8px;color:var(--text-secondary);font-size:13px;text-decoration:none;margin-bottom:20px;transition:color .15s; }
-.page-back:hover { color:var(--accent); }
-.profile-avatar { width:80px;height:80px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 16px; }
-.section-divider { border-top:1px solid var(--border);margin:24px 0;padding-top:20px; }
+.perfil-layout { display:grid; grid-template-columns:300px minmax(0,1fr); gap:22px; align-items:start; }
+@media (max-width:900px) { .perfil-layout { grid-template-columns:1fr; } }
+.step-card { background:#fff; border-radius:var(--radius-card); padding:26px; box-shadow:var(--shadow-sm); }
+.step-title { font-size:15px; font-weight:700; margin-bottom:18px; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+@media (max-width:560px) { .field-row { grid-template-columns:1fr; } }
+.profile-avatar { width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-light));color:#fff;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;margin:0 auto 16px; }
+.profile-role-badge { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:var(--accent-tint);color:var(--accent); }
 </style>
 
 <a href="dashboard.php" class="page-back"><i class="fas fa-arrow-left"></i> Volver al Dashboard</a>
@@ -82,64 +87,66 @@ include 'includes/header.php';
 </div>
 <?php endif; ?>
 
-<div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="card mb-4" style="text-align:center;padding:32px 24px;">
-            <div class="profile-avatar"><?php echo strtoupper(substr($usuario['nombre'],0,1)); ?></div>
-            <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($usuario['nombre']); ?></h5>
-            <div style="font-size:13px;color:var(--text-secondary);">@<?php echo htmlspecialchars($usuario['usuario']); ?></div>
-            <div style="margin-top:8px;">
-                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;<?php echo $usuario['rol']==='admin' ? 'background:#fef2f2;color:#dc2626;' : 'background:color-mix(in srgb,var(--accent) 10%,white);color:var(--accent);'; ?>">
-                    <i class="fas fa-<?php echo $usuario['rol']==='admin' ? 'shield-alt' : 'user'; ?>"></i>
-                    <?php echo $usuario['rol']==='admin' ? 'Administrador' : 'Usuario'; ?>
-                </span>
+<div class="perfil-layout">
+  <!-- AVATAR CARD -->
+  <div class="step-card" style="text-align:center;">
+    <div class="profile-avatar"><?php echo strtoupper(substr($usuario['nombre'],0,1)); ?></div>
+    <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($usuario['nombre']); ?></h5>
+    <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:12px;">@<?php echo htmlspecialchars($usuario['usuario']); ?></div>
+    <span class="profile-role-badge">
+        <i class="fas fa-<?php echo $usuario['rol']==='admin' ? 'shield-alt' : ($usuario['rol']==='supervisor' ? 'user-check' : 'user'); ?>"></i>
+        <?php echo ucfirst($usuario['rol']); ?>
+    </span>
+  </div>
+
+  <!-- FORM -->
+  <div style="min-width:0;display:flex;flex-direction:column;gap:22px;">
+    <div class="step-card">
+        <div class="step-title">Información personal</div>
+        <form method="POST">
+            <div class="field-row">
+                <div>
+                    <label class="lbl">Nombre Completo</label>
+                    <input type="text" class="fld" name="nombre"
+                           value="<?php echo htmlspecialchars($usuario['nombre']); ?>" required>
+                </div>
+                <div>
+                    <label class="lbl">Email</label>
+                    <input type="email" class="fld" name="email"
+                           value="<?php echo htmlspecialchars($usuario['email']); ?>" required>
+                </div>
             </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header"><i class="fas fa-user-edit me-2 text-primary"></i>Editar Perfil</div>
-            <div class="p-4">
-                <form method="POST">
-                    <div class="mb-3">
-                        <label class="form-label" style="font-size:13px;font-weight:500;">Nombre Completo</label>
-                        <input type="text" class="form-control form-control-sm" name="nombre"
-                               value="<?php echo htmlspecialchars($usuario['nombre']); ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" style="font-size:13px;font-weight:500;">Email</label>
-                        <input type="email" class="form-control form-control-sm" name="email"
-                               value="<?php echo htmlspecialchars($usuario['email']); ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" style="font-size:13px;font-weight:500;">Nombre de Usuario</label>
-                        <input type="text" class="form-control form-control-sm" name="usuario"
-                               value="<?php echo htmlspecialchars($usuario['usuario']); ?>" required>
-                    </div>
-
-                    <div class="section-divider">
-                        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">Cambiar Contraseña</div>
-                        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;">Deje estos campos en blanco si no desea cambiarla.</div>
-                        <div class="mb-3">
-                            <label class="form-label" style="font-size:13px;font-weight:500;">Contraseña Actual</label>
-                            <input type="password" class="form-control form-control-sm" name="password_actual">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" style="font-size:13px;font-weight:500;">Nueva Contraseña</label>
-                            <input type="password" class="form-control form-control-sm" name="password_nuevo">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" style="font-size:13px;font-weight:500;">Confirmar Nueva Contraseña</label>
-                            <input type="password" class="form-control form-control-sm" name="password_confirmar">
-                        </div>
-                    </div>
-
-                    <button type="submit" name="actualizar_perfil" class="btn btn-primary w-100 btn-sm">
-                        <i class="fas fa-save me-1"></i> Guardar Cambios
-                    </button>
-                </form>
+            <div style="margin-bottom:22px;">
+                <label class="lbl">Nombre de Usuario</label>
+                <input type="text" class="fld" name="usuario"
+                       value="<?php echo htmlspecialchars($usuario['usuario']); ?>" required>
             </div>
-        </div>
+
+            <div style="border-top:1px solid #f0f0f6;padding-top:20px;margin-bottom:20px;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Cambiar Contraseña</div>
+                <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:16px;">Deje estos campos en blanco si no desea cambiarla.</div>
+                <div style="margin-bottom:16px;">
+                    <label class="lbl">Contraseña Actual</label>
+                    <input type="password" class="fld" name="password_actual">
+                </div>
+                <div class="field-row" style="margin-bottom:0;">
+                    <div>
+                        <label class="lbl">Nueva Contraseña</label>
+                        <input type="password" class="fld" name="password_nuevo">
+                    </div>
+                    <div>
+                        <label class="lbl">Confirmar Nueva Contraseña</label>
+                        <input type="password" class="fld" name="password_confirmar">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" name="actualizar_perfil" class="btn btn-primary w-100">
+                <i class="fas fa-save me-1"></i> Guardar Cambios
+            </button>
+        </form>
     </div>
+  </div>
 </div>
 
 <?php include 'includes/footer.php'; ?>
