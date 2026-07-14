@@ -137,7 +137,12 @@ body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text-pr
 #seccionImprimir { display:none; }
 @media print {
     body * { visibility:hidden; }
-    #seccionImprimir, #seccionImprimir * { visibility:visible; }
+    #seccionImprimir, #seccionImprimir * {
+        visibility:visible;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+        color-adjust:exact;
+    }
     #seccionImprimir { display:block !important; position:absolute; left:0; top:0; width:100%; }
 }
 </style>
@@ -868,13 +873,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('pi_coord_colegio').textContent = c.colegio || '—';
         document.getElementById('pi_coord_foto_td').innerHTML = c.foto
             ? `<img src="data:image/jpeg;base64,${c.foto}" style="width:76px;height:76px;border-radius:6px;object-fit:cover;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">`
-            : `<div style="width:76px;height:76px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">${escapeHtml((c.nombre||'?').charAt(0).toUpperCase())}</div>`;
+            : `<div style="width:76px;height:76px;border-radius:6px;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#334155;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">${escapeHtml((c.nombre||'?').charAt(0).toUpperCase())}</div>`;
 
         const candFotoTd = document.getElementById('pi_candidato_foto_td');
         if (state.candidato && state.candidato.foto) {
             candFotoTd.innerHTML = `<img src="${state.candidato.foto}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;">`;
         } else if (state.candidato) {
-            candFotoTd.innerHTML = `<div style="width:60px;height:60px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#999;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;margin:0 auto;">${escapeHtml((state.candidato.nombre||'?').charAt(0).toUpperCase())}</div>`;
+            candFotoTd.innerHTML = `<div style="width:60px;height:60px;border-radius:50%;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#334155;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;margin:0 auto;">${escapeHtml((state.candidato.nombre||'?').charAt(0).toUpperCase())}</div>`;
         } else {
             candFotoTd.innerHTML = '';
         }
@@ -895,7 +900,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tbody>
                     ${state.miembros.map((m, i) => `
                         <tr style="border-top:1px solid #e2e8f0;page-break-inside:avoid;">
-                            <td style="padding:6px;">${m.foto ? `<img src="data:image/jpeg;base64,${m.foto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">` : `<div style="width:38px;height:38px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#999;">${escapeHtml((m.nombre||'?').charAt(0).toUpperCase())}</div>`}</td>
+                            <td style="padding:6px;">${m.foto ? `<img src="data:image/jpeg;base64,${m.foto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">` : `<div style="width:38px;height:38px;border-radius:50%;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#334155;">${escapeHtml((m.nombre||'?').charAt(0).toUpperCase())}</div>`}</td>
                             <td style="padding:6px;">${i + 1}</td>
                             <td style="padding:6px;">${escapeHtml(m.nombre)}</td>
                             <td style="padding:6px;">${escapeHtml(m.cedula)}</td>
@@ -1147,13 +1152,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('pi_coord_colegio').textContent = coord.colegio || '—';
         document.getElementById('pi_coord_foto_td').innerHTML = coord.foto
             ? `<img src="data:image/jpeg;base64,${coord.foto}" style="width:76px;height:76px;border-radius:6px;object-fit:cover;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">`
-            : `<div style="width:76px;height:76px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">${escapeHtml((coord.nombre || '?').charAt(0).toUpperCase())}</div>`;
+            : `<div style="width:76px;height:76px;border-radius:6px;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#334155;border:3px solid <?php echo htmlspecialchars($color_primary); ?>;">${escapeHtml((coord.nombre || '?').charAt(0).toUpperCase())}</div>`;
 
         const candFotoTd = document.getElementById('pi_candidato_foto_td');
         if (c.candidato && c.candidato.foto) {
             candFotoTd.innerHTML = `<img src="data:image/jpeg;base64,${c.candidato.foto}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;">`;
         } else if (c.candidato) {
-            candFotoTd.innerHTML = `<div style="width:60px;height:60px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#999;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;margin:0 auto;">${escapeHtml((c.candidato.nombre || '?').charAt(0).toUpperCase())}</div>`;
+            candFotoTd.innerHTML = `<div style="width:60px;height:60px;border-radius:50%;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#334155;border:2px solid <?php echo htmlspecialchars($color_primary); ?>;margin:0 auto;">${escapeHtml((c.candidato.nombre || '?').charAt(0).toUpperCase())}</div>`;
         } else {
             candFotoTd.innerHTML = '';
         }
@@ -1174,7 +1179,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tbody>
                     ${c.miembros.map((m, i) => `
                         <tr style="border-top:1px solid #e2e8f0;page-break-inside:avoid;">
-                            <td style="padding:6px;">${m.foto ? `<img src="data:image/jpeg;base64,${m.foto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">` : `<div style="width:38px;height:38px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#999;">${escapeHtml((m.nombre || '?').charAt(0).toUpperCase())}</div>`}</td>
+                            <td style="padding:6px;">${m.foto ? `<img src="data:image/jpeg;base64,${m.foto}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">` : `<div style="width:38px;height:38px;border-radius:50%;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#334155;">${escapeHtml((m.nombre || '?').charAt(0).toUpperCase())}</div>`}</td>
                             <td style="padding:6px;">${i + 1}</td>
                             <td style="padding:6px;">${escapeHtml(m.nombre)}</td>
                             <td style="padding:6px;">${escapeHtml(m.cedula)}</td>

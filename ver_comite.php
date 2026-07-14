@@ -41,7 +41,12 @@ include 'includes/header.php';
 .action-link:hover { border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,white); }
 @media print {
     body * { visibility: hidden; }
-    #seccion-imprimir, #seccion-imprimir * { visibility: visible; }
+    #seccion-imprimir, #seccion-imprimir * {
+        visibility: visible;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
     #seccion-imprimir {
         display: block !important;
         position: absolute;
@@ -279,7 +284,7 @@ $cargoAlaFrase = [
                     <?php if (!empty($coordinador['foto'])): ?>
                     <img src="data:image/jpeg;base64,<?php echo $coordinador['foto']; ?>" style="width:76px;height:76px;border-radius:6px;object-fit:cover;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
                     <?php else: ?>
-                    <div style="width:76px;height:76px;border-radius:6px;background:#eee;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#999;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
+                    <div style="width:76px;height:76px;border-radius:6px;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#334155;border:3px solid <?php echo htmlspecialchars($colorPrincipal); ?>;">
                         <?php echo strtoupper(substr($coordinador['nombre_completo'] ?? $coordinador['nombre'] ?? '?', 0, 1)); ?>
                     </div>
                     <?php endif; ?>
@@ -351,7 +356,7 @@ $cargoAlaFrase = [
                 <?php if (!empty($m['foto'])): ?>
                 <img src="data:image/jpeg;base64,<?php echo $m['foto']; ?>" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
                 <?php else: ?>
-                <div style="width:38px;height:38px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#999;">
+                <div style="width:38px;height:38px;border-radius:50%;background:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#334155;">
                     <?php echo strtoupper(substr($m['nombre_completo'] ?? $m['nombre'] ?? '?', 0, 1)); ?>
                 </div>
                 <?php endif; ?>
